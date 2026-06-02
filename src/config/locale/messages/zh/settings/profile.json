@@ -1,0 +1,27 @@
+{
+  "fields": {
+    "email": "邮箱",
+    "name": "名称",
+    "avatar": "头像",
+    "persona_preferred_name": "希望角色怎么称呼你",
+    "persona_preferred_name_placeholder": "例如：小舟、队长、林教授",
+    "persona_preferred_name_tip": "角色对话时会优先使用这个称呼。",
+    "persona_default_relationship": "默认关系",
+    "persona_default_relationship_placeholder": "例如：老朋友、对手、新客户",
+    "persona_default_relationship_tip": "当角色没有更强关系设定时，用作轻量关系起点。",
+    "persona_tone_preference": "偏好语气",
+    "persona_tone_preference_placeholder": "例如：温柔直接、慢热拌嘴、简短但关心",
+    "persona_tone_preference_tip": "这是私密聊天偏好，会注入角色对话 prompt，不会展示给其他用户。"
+  },
+  "edit": {
+    "title": "个人资料",
+    "description": "更新你的个人资料",
+    "crumbs": {
+      "settings": "设置",
+      "profile": "个人资料"
+    },
+    "buttons": {
+      "submit": "保存"
+    }
+  }
+}

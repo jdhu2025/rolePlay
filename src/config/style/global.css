@@ -1,0 +1,140 @@
+@import 'tailwindcss';
+@import './theme.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@plugin 'tailwindcss-animate';
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+.container {
+  @apply mx-auto max-w-7xl px-4 md:px-8;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+@layer base {
+  /* Form-element defaults.
+   *
+   * Why `color: inherit` instead of `text-foreground`:
+   * `<input>` / `<textarea>` / `<select>` get a user-agent-supplied `color`
+   * (typically black) that does NOT inherit from the parent the way regular
+   * text does. With the previous rule that set `bg-background` but no
+   * color, dark surfaces (e.g. the roleplay create form on `#0d0d10`)
+   * ended up with black caret + black typed text on a dark background,
+   * so users couldn't see what they were typing. Forcing `inherit` makes
+   * the input pick up whatever color its container sets (`text-white` on
+   * the roleplay surface, `text-foreground` on the admin shell, etc.) so
+   * a single base rule works everywhere.
+   *
+   * Living inside `@layer base` means utility classes like `text-zinc-100`
+   * or `bg-black/40` set per-component still win — this rule is just a
+   * sane baseline, not an override.
+   */
+  input,
+  select,
+  textarea {
+    @apply border-border outline-ring/50 bg-background;
+    color: inherit;
+    caret-color: currentColor;
+  }
+}
+
+button {
+  @apply border-border outline-ring/50 cursor-pointer;
+}
+
+pre {
+  @apply px-4;
+}
+
+.docs th,
+.docs td {
+  @apply border-border border p-3;
+}
+
+@theme inline {
+  --animate-grid: grid 15s linear infinite;
+  @keyframes grid {
+    0% {
+      transform: translateY(-50%);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  --animate-ripple: ripple var(--duration, 2s) ease calc(var(--i, 0) * 0.2s)
+    infinite;
+  @keyframes ripple {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+  --animate-meteor: meteor 5s linear infinite;
+  @keyframes meteor {
+    0% {
+      transform: rotate(var(--angle)) translateX(0);
+      opacity: 1;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      transform: rotate(var(--angle)) translateX(-500px);
+      opacity: 0;
+    }
+  }
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "fields": {
+    "email": "Email",
+    "name": "Name",
+    "avatar": "Avatar",
+    "persona_preferred_name": "Preferred roleplay name",
+    "persona_preferred_name_placeholder": "e.g. June, Captain, Professor Lin",
+    "persona_preferred_name_tip": "Characters use this when addressing you in roleplay.",
+    "persona_default_relationship": "Default relationship",
+    "persona_default_relationship_placeholder": "e.g. old friend, rival, new client",
+    "persona_default_relationship_tip": "A lightweight starting point when a character has no stronger relationship setup.",
+    "persona_tone_preference": "Preferred tone",
+    "persona_tone_preference_placeholder": "e.g. warm and direct, slow-burn banter, concise but caring",
+    "persona_tone_preference_tip": "Private guidance for chat tone. It is injected into roleplay prompts, not shown to other users."
+  },
+  "edit": {
+    "title": "Profile",
+    "description": "Update your profile",
+    "crumbs": {
+      "settings": "Settings",
+      "profile": "Profile"
+    },
+    "buttons": {
+      "submit": "Save"
+    }
+  }
+}

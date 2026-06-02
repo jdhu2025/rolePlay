@@ -1,0 +1,114 @@
+{
+  "fields": {
+    "subscription_no": "Subscription No",
+    "interval": "Interval",
+    "provider": "Provider",
+    "current_period": "Current Period",
+    "plan": "Plan",
+    "status": "Status",
+    "amount": "Amount",
+    "created_at": "Created At",
+    "end_time": "End Time",
+    "action": "Action"
+  },
+  "view": {
+    "title": "Current Plan",
+    "tip": "Your subscription will auto renew on {date}",
+    "end_tip": "Your subscription will be auto canceled on {date}",
+    "no_subscription": "No plan",
+    "account_level": "Account level",
+    "remaining_credits": "Available credits",
+    "period_credits": "Plan credits",
+    "free_tip": "You are on the Free level. Starter or purchased credits can still be used for paid RolePlay actions.",
+    "buttons": {
+      "adjust": "Adjust Plan",
+      "subscribe": "Subscribe",
+      "manage": "Manage Subscription",
+      "cancel": "Cancel Subscription"
+    }
+  },
+  "benefits": {
+    "title": "Benefits",
+    "description": "What your current account level unlocks.",
+    "buttons": {
+      "view_credits": "View Credits"
+    },
+    "plans": {
+      "free": {
+        "title": "Free",
+        "subtitle": "Browse, try chats, and use starter credits.",
+        "items": [
+          "120 starter credits for new registered users",
+          "Basic chat and short history",
+          "1 active draft character",
+          "Premium media and creator actions use credits"
+        ]
+      },
+      "lite": {
+        "title": "Lite",
+        "subtitle": "Low-cost continuity for regular chats.",
+        "items": [
+          "Monthly plan credits",
+          "Better chat continuity and basic memory",
+          "3 active private characters",
+          "Voice and generated photos unlocked with credits"
+        ]
+      },
+      "plus": {
+        "title": "Plus",
+        "subtitle": "More memory, model access, and media room.",
+        "items": [
+          "Larger monthly credit grant",
+          "Premium text model access",
+          "Better memory and cloud sync",
+          "10 active private characters",
+          "Chat-context photos and voice generation"
+        ]
+      },
+      "pro": {
+        "title": "Pro",
+        "subtitle": "Priority limits for heavy roleplay and creators.",
+        "items": [
+          "Highest monthly credit grant",
+          "Priority model and faster queue",
+          "Long memory and creator tools",
+          "50 active private characters",
+          "Higher media limits"
+        ]
+      }
+    }
+  },
+  "list": {
+    "title": "Subscriptions History",
+    "tabs": {
+      "all": "All",
+      "active": "Active",
+      "pending_cancel": "Pending Cancel",
+      "canceled": "Canceled",
+      "trialing": "Trialing",
+      "paused": "Paused",
+      "expired": "Expired"
+    }
+  },
+  "cancel": {
+    "title": "Cancel Subscription",
+    "description": "Are you sure you want to cancel your subscription?",
+    "fields": {
+      "subscription_no": "Subscription No",
+      "subscription_amount": "Subscription Amount",
+      "interval_cycle": "Interval Cycle",
+      "subscription_created_at": "Subscription Created At",
+      "current_period": "Current Period",
+      "start_at": "Start At",
+      "end_at": "End At"
+    },
+    "crumbs": {
+      "settings": "Settings",
+      "billing": "Billing",
+      "cancel": "Cancel Subscription"
+    },
+    "buttons": {
+      "confirm_cancel": "Confirm Cancel"
+    }
+  }
+}

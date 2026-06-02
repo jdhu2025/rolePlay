@@ -1,0 +1,442 @@
+'use client';
+
+/**
+ * First-screen roleplay picker.
+ *
+ * Replaces the old TalkieMvp landing experience. Renders the 12 official
+ * characters as a Crushly-style photo-first grid. The first viewport is the
+ * picker itself, no marketing hero.
+ *
+ * Performance posture:
+ * - Cards are mounted screen-by-screen via an IntersectionObserver sentinel
+ *   ("infinite scroll" style). The first batch covers the initial viewport;
+ *   subsequent batches mount only when the user scrolls toward the end of the
+ *   list. Combined with the carousel's on-demand slide mounting this keeps
+ *   the picker at ~6 fetched images on first paint instead of 12 cards × 3
+ *   slides = 36 image GETs.
+ *
+ * v2 Phase C: a sticky tag-chip rail above the grid filters by the canonical
+ * roleplay taxonomy. Switching chips refetches a fresh slice from the API
+ * (server is the source of truth) instead of filtering the cached list.
+ */
+
+import { useLocale, useTranslations } from 'next-intl';
+import { Sparkles } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import { Link } from '@/core/i18n/navigation';
+import { RoleplayCharacterCard } from '@/shared/components/roleplay/roleplay-character-card';
+import {
+  TagChips,
+  type RoleplayTagItem,
+} from '@/shared/components/roleplay/tag-chips';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import {
+  OFFICIAL_ROLEPLAY_CHARACTERS,
+  fetchRoleplayCharacters,
+  fetchRoleplayRecommendations,
+  type RoleplayCharacterClient,
+} from '@/shared/lib/roleplay-client';
+
+import type { RoleplayHomeInitialData } from '@/shared/lib/server/roleplay-home-data';
+
+const SKELETON_COUNT = 6;
+const DEFAULT_ROLEPLAY_TAG_SLUG: string | null = null;
+const RECOMMENDATION_LIMIT = 12;
+const EXPLORE_FETCH_LIMIT = 24;
+// One "screen" of cards. The grid is up to 3 columns desktop / 2 columns
+// tablet / 1 column mobile, so 6 covers two rows on desktop and 3 rows on
+// tablet — roughly one viewport on each. Tune in tandem with the grid
+// breakpoints below.
+const PAGE_SIZE = 6;
+
+type Props = {
+  initialData?: RoleplayHomeInitialData;
+};
+
+export function RoleplayLanding({ initialData }: Props) {
+  const t = useTranslations('roleplay.picker');
+  const locale = useLocale();
+  const localDefaultCharacters = useMemo(
+    () =>
+      DEFAULT_ROLEPLAY_TAG_SLUG
+        ? OFFICIAL_ROLEPLAY_CHARACTERS.filter((character) =>
+            character.tagSlugs.includes(DEFAULT_ROLEPLAY_TAG_SLUG)
+          )
+        : OFFICIAL_ROLEPLAY_CHARACTERS,
+    []
+  );
+  const initialCharacters = initialData?.characters.length
+    ? initialData.characters
+    : localDefaultCharacters;
+  const initialRecommendations = initialData?.recommendedCharacters.length
+    ? initialData.recommendedCharacters
+    : initialCharacters.slice(0, RECOMMENDATION_LIMIT);
+  const [characters, setCharacters] = useState<RoleplayCharacterClient[]>(
+    initialCharacters
+  );
+  const [recommendedCharacters, setRecommendedCharacters] = useState<
+    RoleplayCharacterClient[]
+  >(initialRecommendations);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [activeTag, setActiveTag] = useState<string | null>(
+    DEFAULT_ROLEPLAY_TAG_SLUG
+  );
+  // How many characters we've mounted so far. Starts at one page; the
+  // sentinel below grows it as the user scrolls.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (initialData?.recommendedCharacters.length) return;
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      setRecommendationsLoading(true);
+
+      fetchRoleplayRecommendations({
+        signal: controller.signal,
+        limit: RECOMMENDATION_LIMIT,
+      })
+        .then((data) => {
+          if (data.characters.length > 0) {
+            setRecommendedCharacters(data.characters);
+          }
+        })
+        .finally(() => {
+          setRecommendationsLoading(false);
+        });
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [initialData?.recommendedCharacters.length]);
+
+  useEffect(() => {
+    if (activeTag === DEFAULT_ROLEPLAY_TAG_SLUG && initialData?.characters.length) {
+      setCharacters(initialData.characters);
+      setLoading(false);
+      setVisibleCount(PAGE_SIZE);
+      return;
+    }
+
+    const controller = new AbortController();
+    const hasLocalDefault = activeTag === null;
+    const localCharacters = activeTag
+      ? OFFICIAL_ROLEPLAY_CHARACTERS.filter((character) =>
+          character.tagSlugs.includes(activeTag)
+        )
+      : OFFICIAL_ROLEPLAY_CHARACTERS;
+    if (localCharacters.length > 0) {
+      setCharacters(localCharacters);
+      setLoading(false);
+      setVisibleCount(PAGE_SIZE);
+    } else {
+      setLoading(true);
+      setVisibleCount(PAGE_SIZE);
+    }
+
+    const timer = window.setTimeout(
+      () => {
+        fetchRoleplayCharacters({
+          signal: controller.signal,
+          tagSlug: activeTag,
+          limit: EXPLORE_FETCH_LIMIT,
+        })
+          .then((data) => {
+            if (data.characters.length > 0 || !hasLocalDefault) {
+              setCharacters(data.characters);
+            }
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      },
+      localCharacters.length > 0 ? 250 : 0
+    );
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [activeTag, initialData?.characters]);
+
+  // Reveal more cards as the bottom sentinel enters the viewport. Browsers
+  // without IntersectionObserver fall back to mounting everything once the
+  // first batch lands; the all-up surface is only 12 cards so it's a safe
+  // graceful degradation.
+  useEffect(() => {
+    if (loading) return;
+    if (visibleCount >= characters.length) return;
+    if (typeof window === 'undefined') return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisibleCount(characters.length);
+      return;
+    }
+    const node = sentinelRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setVisibleCount((prev) =>
+              Math.min(prev + PAGE_SIZE, characters.length)
+            );
+          }
+        }
+      },
+      {
+        // Start fetching the next batch a screen-and-a-half before it would
+        // actually scroll into view, so on a fast scroll there's no visible
+        // gap between batches.
+        rootMargin: '0px 0px 1200px 0px',
+      }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [loading, visibleCount, characters.length]);
+
+  const visibleCharacters = useMemo(
+    () => characters.slice(0, visibleCount),
+    [characters, visibleCount]
+  );
+  const hasMore = visibleCount < characters.length;
+
+  // Localised label resolver for chips. Always trusts the API-stored label
+  // so the landing chips render with the exact same wording the create form
+  // shows in its Categories picker — zero drift between picker rail and
+  // tagging UI even if a translator changes the i18n catalogue.
+  const resolveLabel = useMemo(() => {
+    return (tag: RoleplayTagItem) => {
+      const key = tag.slug as string;
+      if (locale.startsWith('zh')) return tag.labelZh || tag.labelEn || key;
+      return tag.labelEn || tag.labelZh || key;
+    };
+  }, [locale]);
+
+  return (
+    <main className="min-h-dvh overflow-hidden bg-[#0d0d10] text-white">
+      <ForYouSection
+        characters={recommendedCharacters}
+        loading={recommendationsLoading}
+      />
+
+      <section className="mx-auto max-w-6xl px-4 pt-6 md:px-6 md:pt-10">
+        <div className="flex flex-col gap-1 pb-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            Explore
+          </p>
+          <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
+            {t('title')}
+          </h2>
+        </div>
+      </section>
+
+      <div className="sticky top-14 z-10 mx-auto max-w-6xl bg-[#0d0d10]/85 pb-2 pt-2 backdrop-blur supports-[backdrop-filter]:bg-[#0d0d10]/70">
+        <TagChips
+          active={activeTag}
+          onChange={setActiveTag}
+          tags={initialData?.tags}
+          allLabel={locale.startsWith('zh') ? '全部' : 'ALL'}
+          resolveLabel={resolveLabel}
+        />
+      </div>
+
+      <section
+        aria-label={t('title')}
+        className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 pb-4 pt-3 sm:grid-cols-2 md:grid-cols-3 md:px-6"
+      >
+        {loading
+          ? Array.from({ length: SKELETON_COUNT }).map((_, idx) => (
+              <CardSkeleton key={idx} />
+            ))
+          : visibleCharacters.length === 0
+            ? (
+                <p className="col-span-full py-16 text-center text-sm text-zinc-400">
+                  {t('empty')}
+                </p>
+              )
+            : visibleCharacters.map((character) => (
+                <RoleplayCharacterCard
+                  key={character.id}
+                  character={character}
+                  // For You owns the real first viewport. Keep Explore images
+                  // lazy so below-the-fold cards do not compete with LCP.
+                  priority={false}
+                />
+              ))}
+      </section>
+
+      {/* Sentinel + skeleton stand-in for the next batch. The skeleton
+          gives the grid measurable height so the observer fires, and acts
+          as a loading indicator while images stream in. */}
+      {!loading && hasMore && (
+        <section
+          aria-hidden="true"
+          className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 sm:grid-cols-2 md:grid-cols-3 md:px-6"
+        >
+          {Array.from({
+            length: Math.min(PAGE_SIZE, characters.length - visibleCount),
+          }).map((_, idx) => (
+            <CardSkeleton key={idx} />
+          ))}
+        </section>
+      )}
+
+      <div ref={sentinelRef} aria-hidden="true" className="h-1 w-full" />
+      <RoleplayHomeFooter />
+    </main>
+  );
+}
+
+function ForYouSection({
+  characters,
+  loading,
+}: {
+  characters: RoleplayCharacterClient[];
+  loading: boolean;
+}) {
+  return (
+    <section className="relative border-b border-white/5 bg-[radial-gradient(circle_at_20%_0%,rgba(244,114,182,0.14),transparent_34%),linear-gradient(115deg,#111113_0%,#101113_58%,#0b1415_100%)]">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pb-8 pt-10 md:px-6 md:pb-10 md:pt-14">
+        <header className="flex items-center gap-3">
+          <h1 className="text-3xl font-black tracking-tight md:text-4xl">
+            For You
+          </h1>
+          <Sparkles size={26} className="text-white/45" aria-hidden="true" />
+        </header>
+
+        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:-mx-6 md:px-6">
+          <div className="flex gap-4 pb-1">
+            {loading && characters.length === 0
+              ? Array.from({ length: 3 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="w-[82vw] shrink-0 sm:w-[44vw] md:w-[calc((100%_-_2rem)/3)]"
+                  >
+                    <CardSkeleton />
+                  </div>
+                ))
+              : characters.length === 0
+                ? (
+                    <p className="w-full py-10 text-center text-sm text-zinc-400">
+                      No recommendations yet.
+                    </p>
+                  )
+                : characters.map((character, idx) => (
+                    <div
+                      key={character.id}
+                      className="w-[82vw] shrink-0 sm:w-[44vw] md:w-[calc((100%_-_2rem)/3)]"
+                    >
+                      <RoleplayCharacterCard
+                        character={character}
+                        priority={idx < 3}
+                      />
+                    </div>
+                  ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RoleplayHomeFooter() {
+  const t = useTranslations('roleplay.footer');
+  const groups = [
+    {
+      title: t('features'),
+      items: [
+        ['FAQ', '#'],
+        [t('items.get_app'), '#'],
+        [t('items.create_talkie'), '/create'],
+        [t('items.privacy_choices'), '#'],
+        [t('items.delete_account'), '#'],
+        [t('items.export_data'), '#'],
+      ],
+    },
+    {
+      title: t('explore'),
+      items: [
+        [t('items.activities'), '/activity'],
+        [t('items.languages'), '#'],
+        [t('items.more_characters'), '/'],
+        [t('items.curiosity'), '#'],
+      ],
+    },
+    {
+      title: t('overview'),
+      items: [
+        [t('items.about'), '#'],
+        [t('items.blog'), '/blog'],
+        [t('items.support'), '#'],
+        [t('items.terms'), '/terms-of-service'],
+        [t('items.privacy'), '/privacy-policy'],
+        [t('items.guidelines'), '#'],
+      ],
+    },
+  ];
+
+  return (
+    <footer className="mt-12 border-t border-white/6 bg-[linear-gradient(110deg,#101012_0%,#0d0f10_62%,#0b1516_100%)]">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.15fr_2fr] md:px-6 md:py-16">
+        <div className="flex flex-col gap-8">
+          <Link href="/" className="text-4xl font-black tracking-tight">
+            RolePlay
+          </Link>
+          <div className="flex flex-wrap gap-3">
+            {['Di', 'Re', 'Tk', 'X', 'Ig'].map((item) => (
+              <a
+                key={item}
+                href="#"
+                className="grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-white/[0.03] text-sm font-bold text-zinc-200 transition-colors hover:border-white/35 hover:bg-white/10"
+                aria-label={item}
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+          <p className="text-sm text-zinc-400">{t('copyright')}</p>
+        </div>
+
+        <div className="grid gap-8 sm:grid-cols-3">
+          {groups.map((group) => (
+            <nav key={group.title} className="flex flex-col gap-5">
+              <h2 className="text-base font-semibold text-zinc-200">
+                {group.title}
+              </h2>
+              <ul className="flex flex-col gap-4">
+                {group.items.map(([label, href]) => (
+                  <li key={label}>
+                    <Link
+                      href={href}
+                      className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-200"
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 overflow-hidden rounded-[18px] bg-[#15151b] p-0">
+      <Skeleton className="aspect-[3/4] w-full rounded-none rounded-t-[18px] bg-white/5" />
+      <div className="flex flex-col gap-2 px-4 pb-4">
+        <Skeleton className="h-5 w-32 bg-white/5" />
+        <Skeleton className="h-3 w-24 bg-white/5" />
+        <Skeleton className="h-3 w-full bg-white/5" />
+      </div>
+    </div>
+  );
+}

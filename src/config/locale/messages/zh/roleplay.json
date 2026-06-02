@@ -1,0 +1,566 @@
+{
+  "nav": {
+    "create": "创建 Talkie",
+    "discover": "发现",
+    "my_talkies": "我的 Talkie",
+    "admin_review": "审核台",
+    "chat": "聊天",
+    "memory": "记忆",
+    "community": "社区",
+    "collection": "收藏",
+    "my_ai": "我的 AI",
+    "free_beta": "免费 Beta：语音、记忆、图库已开放",
+    "guest": "游客创作者",
+    "signin_ready": "登录后自动保存",
+    "signed_in": "已登录并自动保存",
+    "tagline": "Talkie 风格 MVP",
+    "close": "关闭导航",
+    "sign_in": "登录",
+    "sign_up": "注册",
+    "sign_out": "退出登录",
+    "account": "账号",
+    "account_menu": "账号菜单",
+    "profile": "个人资料",
+    "switch_account": "切换账号"
+  },
+  "topbar": {
+    "search": "搜索角色、标签、创作者",
+    "free_beta": "免费 Beta",
+    "open_nav": "打开导航",
+    "sign_in": "登录",
+    "sign_up": "注册"
+  },
+  "home": {
+    "hero_title": "在您的角色聊天应用中，随时随地对话。",
+    "hero_subtitle": "主动陪伴型角色代理正在等你。",
+    "hero_note": "体验 Talkie Claw 的魅力。",
+    "try_claw": "试试 Talkie Claw",
+    "recommended": "为你推荐",
+    "recommended_subtitle": "根据年龄、偏好、聊天历史推荐",
+    "roleplay": "角色扮演",
+    "roleplay_subtitle": "推荐的角色世界",
+    "more_subtitle": "原创、动漫游戏、影视文学",
+    "claw_beta": "Talkie Claw Beta",
+    "claw_channels": "Discord · Telegram · 角色代理",
+    "view_all": "查看全部",
+    "tasks": "完成你的任务",
+    "tasks_subtitle": "用角色扮演外壳完成真实任务的助手。",
+    "more": "探索更多",
+    "chat_now": "立即聊天",
+    "greeting": "正在向你打招呼",
+    "follow": "关注角色",
+    "chats": "{count} 次聊天",
+    "follows": "{count} 个关注",
+    "categories": {
+      "featured": "精选",
+      "muses": "缪斯",
+      "recommend": "推荐",
+      "roleplay": "角色扮演",
+      "play_fun": "娱乐",
+      "helper": "助手",
+      "original": "原创",
+      "anime_game": "动漫",
+      "fiction_media": "影视文学",
+      "icon": "图标"
+    },
+    "task_cards": {
+      "french": {
+        "title": "学习法语",
+        "subtitle": "和你的 AI 法语老师"
+      },
+      "song": {
+        "title": "挑选完美歌曲",
+        "subtitle": "和音乐推荐助手"
+      },
+      "meal": {
+        "title": "制定专属餐单",
+        "subtitle": "和个人营养师"
+      },
+      "interview": {
+        "title": "提升面试能力",
+        "subtitle": "和模拟面试官"
+      },
+      "compatibility": {
+        "title": "探索关系可能性",
+        "subtitle": "和心动匹配测试"
+      },
+      "ascendant": {
+        "title": "发现你的上升星座",
+        "subtitle": "和上升星座测试"
+      }
+    }
+  },
+  "chat": {
+    "call": "通话",
+    "more": "更多",
+    "upload_image": "上传图片",
+    "send": "发送",
+    "message": "给 {name} 发消息",
+    "typing": "{name} 正在输入...",
+    "voice": "4 秒语音",
+    "private_photo_beta": "私密照片在免费 Beta 中开放",
+    "private_image_preview": "私密图片预览 · 免费 Beta"
+  },
+  "profile": {
+    "author": "作者 @{author}",
+    "persona": "人设",
+    "age": "年龄",
+    "relationship": "关系",
+    "voice": "声音",
+    "style": "风格",
+    "intro": "介绍",
+    "opening": "开场白",
+    "chat_with": "和这个 Talkie 聊天",
+    "features": {
+      "voice": "语音",
+      "photo": "照片",
+      "call": "通话",
+      "secret": "私密"
+    }
+  },
+  "create": {
+    "title": "创建你的 Talkie",
+    "list_title": "我的 Talkie",
+    "list_subtitle": "草稿、审核中和已发布的角色。",
+    "create_cta": "创建一个 Talkie",
+    "quick_create": {
+      "entry_cta": "快速创建",
+      "title": "快速创建角色",
+      "headline": "选几个感觉，剩下交给 AI 补完。",
+      "subtitle": "用生活冲突、关系起点和一条关键记忆，几分钟内生成一个可聊天的角色。",
+      "required_hint": "必填：选择一个场景，至少保留 1 个性格。其它内容都可跳过，系统已默认选好。",
+      "badge": "快速创建",
+      "back": "返回",
+      "home": "首页",
+      "previous": "上一步",
+      "next": "下一步",
+      "generate": "生成角色",
+      "generating": "正在生成并保存…",
+      "draft_saved": "角色草稿已保存。",
+      "generate_error": "生成失败，请重试。",
+      "trait_required": "请至少选择一个性格标签。",
+      "audit_blocked": "发布审计未通过，请进入高级编辑修复。",
+      "adjust_inputs": "调整选择",
+      "try_chat": "开始试玩",
+      "publish_private": "发布为私有并开始聊天",
+      "publish_public": "发布为公共角色",
+      "advanced_edit": "进入高级编辑",
+      "opening": "开场白",
+      "portrait_pending": "暂无头像",
+      "no_preview": "完成前四步后生成预览。",
+      "memory_label": "想让 TA 一开始就记住什么？（可跳过）",
+      "memory_placeholder": "例如：TA 欠我一个解释。",
+      "custom_label": "还有什么想调整？（可跳过）",
+      "custom_placeholder": "例如：少一点动作描写，更像真实聊天。",
+      "custom_scene_label": "想换一个自己的设定？",
+      "custom_scene_placeholder": "写下你的自定义场景，例如：安静的纹身师邻居。",
+      "traits_hint": "最多选择 3 个。默认已经帮你选好，可直接下一步。",
+      "selected_traits": "已选",
+      "no_traits": "请选择至少一个",
+      "custom_trait_placeholder": "添加一个自定义性格",
+      "add_custom": "添加",
+      "use_custom": "使用",
+      "user_role_title": "你的身份",
+      "relationship_start_title": "关系起点",
+      "opening_hook_title": "开场 Hook",
+      "custom_user_role_placeholder": "自定义你的身份",
+      "custom_relationship_placeholder": "自定义关系起点",
+      "custom_opening_hook_placeholder": "自定义开场 Hook",
+      "opening_hook_option": "开场 Hook {index}",
+      "avatar_title": "角色头像",
+      "avatar_empty": "生成或上传头像",
+      "avatar_alt": "角色头像",
+      "image_prompt_placeholder": "可选生图要求，例如：银发、雨衣、温暖咖啡店光线",
+      "generate_avatar": "生成头像",
+      "upload_avatar": "上传头像",
+      "generate_avatar_short": "生成",
+      "upload_avatar_short": "上传",
+      "image_generated": "头像已生成。",
+      "image_uploaded": "头像已上传。",
+      "image_generate_error": "头像生成失败。",
+      "image_upload_error": "头像上传失败。",
+      "step_count": "第 {current} / {total} 步",
+      "steps": {
+        "template": "选择场景",
+        "traits": "选择性格",
+        "relationship": "选择关系",
+        "memory": "关键记忆",
+        "preview": "预览角色"
+      },
+      "groups": {
+        "romance": "心动与遗憾",
+        "workplace": "职场与压力",
+        "daily": "日常陪伴",
+        "fantasy": "奇幻冒险"
+      },
+      "template_title": "你想和谁开始一段故事？",
+      "traits_title": "TA 最明显的性格是什么？",
+      "relationship_title": "你们现在是什么关系？",
+      "memory_title": "想让 TA 先记住什么？",
+      "preview_title": "预览、微调或发布",
+      "tuning": {
+        "cooler": "更冷一点",
+        "warmer": "更温柔一点",
+        "sharper": "更毒舌一点",
+        "mysterious": "更神秘一点",
+        "closer": "更亲密一点",
+        "less_action": "少点动作描写",
+        "new_opening": "换个开场"
+      }
+    },
+    "draft": "草稿",
+    "back": "返回",
+    "save": "保存",
+    "publish": "发布",
+    "publishing": "发布中…",
+    "saving": "保存中…",
+    "name": "名称",
+    "name_placeholder": "给你的 Talkie 取个名字",
+    "ai_writer": "AI 写作",
+    "gender": "性别",
+    "gender_options": {
+      "male": "男",
+      "female": "女",
+      "non-binary": "非二元"
+    },
+    "update": "更新",
+    "mention": "提及",
+    "user": "用户",
+    "settings": "设定（影响角色回复）",
+    "settings_help": "用户不可见，只影响对话效果",
+    "settings_placeholder": "角色的设定，包括背景、性格、说话风格和规则。用 '{user}' 表示聊天者，'{char}' 表示角色。",
+    "intro": "介绍（不影响角色回复）",
+    "intro_help": "角色介绍不会影响对话效果",
+    "intro_placeholder": "想对用户展示或说的任何内容…",
+    "first_message": "第一句话",
+    "first_message_placeholder": "开启对话的开场白。可以用 *斜体* 表示动作。",
+    "publish_visibility_label": "发布可见性",
+    "publish_visibility_help": "私有和公开发布都会先跑同一套人设卡审计，通过后角色才能聊天。",
+    "publish_visibility_options": {
+      "private": {
+        "label": "私有",
+        "help": "审计通过后立即可聊天，仅你自己可见。"
+      },
+      "public": {
+        "label": "公开",
+        "help": "审计通过后进入审核队列，通过后出现在发现页。"
+      }
+    },
+    "image_style_suffix_toggle": "显示立绘风格锚（高级）",
+    "image_style_suffix_help": "会自动拼接到每次生图 prompt 的末尾，让角色所有立绘保持同一种画风、光线和构图。AI 写作会自动生成，一般不用改。",
+    "image_style_suffix_placeholder": "例如：anime illustration, warm amber and ink-black palette, soft window backlight, 3:4 portrait single subject",
+    "voice_preset_label": "音色预设",
+    "voice_preset_help": "AI 写作会根据角色性别、性格内核和说话方式推荐 TTS 音色。保存前可以手动改。",
+    "voice_preset_options": {
+      "unset": "自动默认",
+      "warm-female": "温暖女声",
+      "cool-female": "清冷女声",
+      "playful-female": "俏皮女声",
+      "warm-male": "温暖男声",
+      "cool-male": "清冷男声",
+      "playful-male": "俏皮男声",
+      "neutral": "中性"
+    },
+    "style_examples_label": "风格样本",
+    "style_examples_help": "Few-shot 用户/角色对答，用来教模型保持这个角色的语速、动作排版和情绪回应方式。",
+    "style_example_user_placeholder": "用户台词，例如：你又消失了。",
+    "style_example_character_placeholder": "这个角色最理想的回复示例。",
+    "format_style_emoji_label": "Emoji",
+    "format_style_action_label": "动作描写",
+    "format_style_english_label": "英文夹杂",
+    "format_style_options": {
+      "emojiFrequency": {
+        "none": "不用",
+        "rare": "少量",
+        "moderate": "适中",
+        "expressive": "丰富"
+      },
+      "actionBeatLength": {
+        "short": "短句",
+        "balanced": "均衡",
+        "cinematic": "电影感"
+      },
+      "englishMix": {
+        "none": "不夹杂",
+        "light": "轻微",
+        "bilingual": "双语"
+      }
+    },
+    "skill": "技能",
+    "skill_desc": "支持图片生成、歌曲创作等扩展能力",
+    "image_upload_error": "图片上传失败。",
+    "image_uploaded": "图片已上传。",
+    "image_generate_error": "图片生成失败。",
+    "image_generated": "图片已生成。",
+    "image_prompt_label": "生图提示词",
+    "image_prompt_placeholder": "例如：雨夜街头，同一角色，黑色风衣，电影感光影，只改变场景和姿态，保持同一人物脸部与发型",
+    "image": "图片",
+    "image_desc": "添加图片让你的 Talkie 更有吸引力",
+    "voice": "声音",
+    "voice_desc": "为你的 Talkie 选择声音",
+    "tags": "分类",
+    "tags_help": "选择一个或多个分类，让你的 Talkie 出现在对应的标签页里。",
+    "add": "添加",
+    "upload": "上传",
+    "adapter_ready": "已适配的数据",
+    "adapter_line": "AI 回复适配器：generateRoleplayReply(character, input)",
+    "visual_identity": "稳定视觉身份：{items}",
+    "persistence_line": "游客草稿保存在本地，登录后保存到数据库。",
+    "preview": "预览和测试",
+    "notice": "注意：Talkie 说的一切都是 AI 生成的虚构内容。",
+    "intro_label": "介绍",
+    "reset": "重置",
+    "send": "发送",
+    "editable_private_published": "这个私有角色已发布，但仍可继续修改；保存后会直接更新你的私有版本。",
+    "tabs": {
+      "all": "全部",
+      "draft": "草稿",
+      "under_review": "审核中",
+      "published": "已发布"
+    },
+    "status_labels": {
+      "draft": "草稿",
+      "under_review": "审核中",
+      "published": "已发布",
+      "rejected": "未通过"
+    },
+    "list_empty": {
+      "title": "还没有角色",
+      "subtitle": "点击「创建一个 Talkie」开始你的第一个角色。",
+      "draft": "暂无草稿。点击创建一个 Talkie 开始。",
+      "under_review": "没有等待审核的角色。",
+      "published": "还没有已发布的角色。"
+    },
+    "ai_writer_dialog": {
+      "title": "AI 写作",
+      "subtitle": "一键生成完整角色草稿，每个字段都可以再调整。",
+      "hint_label": "提示词（可选）",
+      "hint_placeholder": "比如：1920 年代上海的开朗侦探",
+      "language_label": "语言",
+      "language_zh": "中文",
+      "language_en": "English",
+      "generate": "生成",
+      "regenerate": "重试",
+      "cancel": "取消",
+      "save": "保存到表单",
+      "loading": "正在为你生成…",
+      "error": "AI 写作出了点问题，请重试。",
+      "draft_name": "名称",
+      "draft_tagline": "副标题",
+      "draft_settings": "设定",
+      "draft_intro": "介绍",
+      "draft_opening": "开场白",
+      "draft_portrait": "立绘",
+      "portrait_skipped": "立绘未能生成",
+      "card_title": "人设卡（结构化）",
+      "card_identity": "身份",
+      "card_appearance": "外貌",
+      "card_core_traits": "性格内核",
+      "card_tension": "矛盾点",
+      "card_speaking_style": "说话方式",
+      "card_catchphrases": "口头禅",
+      "card_metaphor_domain": "常用比喻",
+      "card_memory_callback_style": "记忆回钩方式",
+      "card_trust_milestones": "信任里程碑",
+      "card_values": "价值观",
+      "card_relationship_hook": "关系起点",
+      "card_negative_anchors": "她不会做的事",
+      "card_image_style_suffix": "立绘风格锚",
+      "card_voice_preset": "音色预设",
+      "card_style_examples": "风格样本",
+      "card_format_style": "排版偏好",
+      "format_style_options": {
+        "emojiFrequency": {
+          "none": "不用 emoji",
+          "rare": "少量 emoji",
+          "moderate": "适中 emoji",
+          "expressive": "丰富 emoji"
+        },
+        "actionBeatLength": {
+          "short": "短动作",
+          "balanced": "均衡动作",
+          "cinematic": "电影感动作"
+        },
+        "englishMix": {
+          "none": "不夹英文",
+          "light": "轻微英文",
+          "bilingual": "双语语感"
+        }
+      },
+      "style_example_user": "用户",
+      "style_example_character": "角色"
+    },
+    "validation": {
+      "name_required": "请填写名称。",
+      "settings_required": "发布前请先填写「设定」。",
+      "name_too_long": "名称不能超过 18 个字符。"
+    },
+    "publish_audit": {
+      "title": "发布审计需要修复",
+      "blocked_toast": "发布已被拦截。请按下方字段提示逐项修复后再发布。",
+      "summary_fallback": "审计发现了会影响聊天质量的一致性问题。",
+      "manual_hint": "请根据下方字段、证据和修改建议逐项处理；也可以先用 AI 生成修复草稿，再检查、保存并重新发布。",
+      "repair": "AI 一键修复",
+      "repairing": "修复中…",
+      "repair_applied": "AI 修复已回填到表单。请检查、保存，再重新发布。",
+      "repair_partial": "AI 已尽量修复，但仍有未通过项。请按下方字段提示继续修改。",
+      "already_passed": "最新审计已经通过。",
+      "risk": {
+        "low": "低风险",
+        "medium": "中风险",
+        "high": "高风险"
+      },
+      "severity": {
+        "low": "低",
+        "medium": "中",
+        "high": "高"
+      }
+    },
+    "rejection_label": "未通过原因",
+    "delete": "删除",
+    "edit": "编辑",
+    "home_label": "首页",
+    "locked_under_review": "角色正在审核中，审核通过或被驳回前不能修改。",
+    "locked_published": "角色已发布。需要修改请先删除再重新创建。",
+    "confirm_delete": "确定删除这个角色？此操作不可撤销。"
+  },
+  "memory": {
+    "title": "记忆",
+    "private_summary": "私密摘要",
+    "shared": "共享记忆",
+    "none": "暂无已保存记忆。",
+    "placeholder": "保存这个角色需要长期记住的事实、偏好或场景规则。",
+    "save_private": "保存私密",
+    "save_public": "保存共享"
+  },
+  "my_ai": {
+    "title": "我的 AI",
+    "subtitle": "草稿、已发布角色、关注和最近聊天。",
+    "create": "创建",
+    "empty_title": "还没有自定义角色",
+    "empty_text": "创建一个角色草稿后会显示在这里。",
+    "empty_action": "创建角色"
+  },
+  "community": {
+    "title": "社区",
+    "create": "创建",
+    "likes": "24 个喜欢",
+    "comments": "120 条评论",
+    "posts": {
+      "spring": "新角色挑战：创建一个春日主题 Talkie 并分享链接。",
+      "song": "告诉我你最喜欢的歌，我会做一个会听它的角色。",
+      "detective": "我终于做出了一个会记住微小线索的侦探。"
+    }
+  },
+  "collection": {
+    "title": "收藏",
+    "subtitle": "已解锁照片和生成记忆。"
+  },
+  "pricing": {
+    "title": "Talkie+ 免费 Beta 开放中",
+    "subtitle": "结账、会员回调、账单和 credits 都已接入 ShipAny 支付链路。",
+    "start": "打开结账",
+    "credits": "Credits 明细",
+    "billing": "会员账单",
+    "best": "推荐",
+    "plans": {
+      "free_beta": {
+        "name": "免费 Beta",
+        "desc": "角色聊天、语音预览、图库访问"
+      },
+      "creator_beta": {
+        "name": "创作者 Beta",
+        "desc": "创建 Talkie、测试记忆、保留本地草稿"
+      },
+      "pro_beta": {
+        "name": "Pro Beta",
+        "desc": "更长上下文实验和优先模型测试"
+      }
+    }
+  },
+  "footer": {
+    "copyright": "Copyright © 2026 RolePlay. 保留所有权利。",
+    "features": "功能",
+    "explore": "探索",
+    "overview": "概览",
+    "items": {
+      "faq": "常见问题",
+      "get_app": "获取 App",
+      "create_talkie": "创建 Talkie",
+      "privacy_choices": "隐私选择",
+      "delete_account": "删除账号",
+      "export_data": "导出数据",
+      "activities": "活动",
+      "languages": "语言",
+      "more_characters": "更多 AI 角色",
+      "curiosity": "好奇心",
+      "about": "关于我们",
+      "blog": "RolePlay 博客",
+      "support": "支持",
+      "terms": "条款",
+      "privacy": "隐私",
+      "guidelines": "准则"
+    }
+  },
+  "picker": {
+    "title": "选择想聊的人",
+    "subtitle": "12 位角色，先看脸",
+    "empty": "暂无角色",
+    "loading": "加载中…",
+    "photo_count": "{n} 张照片"
+  },
+  "detail": {
+    "start_chat": "开始聊天",
+    "back": "返回角色",
+    "occupation": "职业",
+    "location": "位置",
+    "bio": "关于",
+    "personality": "性格",
+    "tags": "标签",
+    "comments": "评论",
+    "comments_empty": "还没有评论，来留下第一条吧。",
+    "comments_placeholder": "聊聊对这个 Talkie 的想法…",
+    "comments_reply_placeholder": "回复 {name}…",
+    "comments_submit": "发送",
+    "comments_signin": "登录后才能留言。",
+    "comments_reply": "回复",
+    "comments_cancel": "取消",
+    "comments_view_replies": "查看 {count} 条回复",
+    "comments_hide_replies": "收起回复"
+  },
+  "carousel": {
+    "next": "下一张",
+    "prev": "上一张",
+    "position": "第 {current} 张，共 {total} 张"
+  },
+  "chat_page": {
+    "back": "返回",
+    "view_profile": "查看资料",
+    "profile_title": "{name} 的资料",
+    "history": "聊天历史",
+    "placeholder": "给 {name} 发消息",
+    "send": "发送",
+    "sending": "发送中…",
+    "empty_title": "和 {name} 打个招呼",
+    "empty_hint": "试着问个问题、抛个场景，或者接着上次的话题。",
+    "thinking": "{name} 正在思考…",
+    "error": "无法获取回复，请重试。",
+    "low_credits_title": "积分不足",
+    "low_credits_hint": "本次操作需要 {required} 积分，你当前还有 {remaining}。",
+    "low_credits_cta": "查看套餐",
+    "play_voice": "播放语音",
+    "pause_voice": "暂停语音",
+    "voice_error": "语音播放失败，请重试。",
+    "ooc_regenerate": "不像",
+    "ooc_regenerate_title": "不像这个角色，诊断并重写",
+    "sign_in_notice": "登录后聊天可跨设备保留。",
+    "not_found": "未找到角色",
+    "history_title": "{name} 的聊天历史",
+    "history_subtitle": "查看这个角色最近保存的对话记录。",
+    "history_empty": "还没有保存的聊天记录。",
+    "history_sign_in": "登录后可以查看已保存的角色聊天记录。",
+    "continue_chat": "继续聊天",
+    "conversation": "对话",
+    "messages_count": "{count} 条消息"
+  }
+}

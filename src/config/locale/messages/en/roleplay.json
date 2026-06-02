@@ -1,0 +1,566 @@
+{
+  "nav": {
+    "create": "Create Talkie",
+    "discover": "Discover",
+    "my_talkies": "My Talkies",
+    "admin_review": "Moderation queue",
+    "chat": "Chat",
+    "memory": "Memory",
+    "community": "Community",
+    "collection": "Collection",
+    "my_ai": "My AI",
+    "free_beta": "Free beta: voice, memory, gallery open",
+    "guest": "Guest creator",
+    "signin_ready": "Sign in gate ready",
+    "signed_in": "Signed in and saving",
+    "tagline": "Talkie style MVP",
+    "close": "Close navigation",
+    "sign_in": "Sign in",
+    "sign_up": "Sign up",
+    "sign_out": "Sign out",
+    "account": "Account",
+    "account_menu": "Account menu",
+    "profile": "Profile",
+    "switch_account": "Switch account"
+  },
+  "topbar": {
+    "search": "Search characters, tags, creators",
+    "free_beta": "Free beta",
+    "open_nav": "Open navigation",
+    "sign_in": "Sign in",
+    "sign_up": "Sign up"
+  },
+  "home": {
+    "hero_title": "Chat anytime, anywhere in your roleplay app.",
+    "hero_subtitle": "Your proactive companion agents are waiting.",
+    "hero_note": "Experience the charm of Talkie Claw.",
+    "try_claw": "Try Talkie Claw",
+    "recommended": "Recommended for you",
+    "recommended_subtitle": "Recommended by age, preference, and chat history",
+    "roleplay": "Roleplay",
+    "roleplay_subtitle": "Recommended roleplay worlds",
+    "more_subtitle": "Muses, Anime, Fiction & Media",
+    "claw_beta": "Talkie Claw beta",
+    "claw_channels": "Discord · Telegram · Role agents",
+    "view_all": "View all",
+    "tasks": "Complete your tasks",
+    "tasks_subtitle": "Helper bots that complete practical jobs inside a roleplay shell.",
+    "more": "Explore more",
+    "chat_now": "Chat now",
+    "greeting": "is greeting you",
+    "follow": "Follow character",
+    "chats": "{count} chats",
+    "follows": "{count} follows",
+    "categories": {
+      "featured": "Featured",
+      "muses": "Muses",
+      "recommend": "Recommend",
+      "roleplay": "Roleplay",
+      "play_fun": "Play & Fun",
+      "helper": "Helper",
+      "original": "Original",
+      "anime_game": "Anime",
+      "fiction_media": "Fiction & Media",
+      "icon": "Icon"
+    },
+    "task_cards": {
+      "french": {
+        "title": "Learn French",
+        "subtitle": "with your AI French teacher"
+      },
+      "song": {
+        "title": "Pick the perfect song",
+        "subtitle": "with Music Recommendation"
+      },
+      "meal": {
+        "title": "Create your own meal plan",
+        "subtitle": "with Personal Nutritionist"
+      },
+      "interview": {
+        "title": "Improve your interview skills",
+        "subtitle": "with Mock Interviewer"
+      },
+      "compatibility": {
+        "title": "Explore the potential",
+        "subtitle": "with Crush Compatibility Quiz"
+      },
+      "ascendant": {
+        "title": "Discover your ascendant sign",
+        "subtitle": "with Ascendant Test"
+      }
+    }
+  },
+  "chat": {
+    "call": "Call",
+    "more": "More",
+    "upload_image": "Upload image",
+    "send": "Send",
+    "message": "Message {name}",
+    "typing": "{name} is typing...",
+    "voice": "4 sec voice",
+    "private_photo_beta": "Private photo open during free beta",
+    "private_image_preview": "Private image preview · free beta"
+  },
+  "profile": {
+    "author": "Author @{author}",
+    "persona": "Persona",
+    "age": "Age",
+    "relationship": "Relationship",
+    "voice": "Voice",
+    "style": "Style",
+    "intro": "Intro",
+    "opening": "Opening line",
+    "chat_with": "Chat with this Talkie",
+    "features": {
+      "voice": "Voice",
+      "photo": "Photo",
+      "call": "Call",
+      "secret": "Secret"
+    }
+  },
+  "create": {
+    "title": "Create Your Talkie",
+    "list_title": "My Talkies",
+    "list_subtitle": "Drafts, under-review submissions, and published characters.",
+    "create_cta": "Create a Talkie",
+    "quick_create": {
+      "entry_cta": "Quick Create",
+      "title": "Quick Character Create",
+      "headline": "Pick a few feelings. AI fills the rest.",
+      "subtitle": "Use a conflict, relationship start, and one optional memory to make a chat-ready character in minutes.",
+      "required_hint": "Required: choose a scene and at least 1 trait. Everything else is optional; defaults are already selected.",
+      "badge": "Quick Create",
+      "back": "Back",
+      "home": "Home",
+      "previous": "Previous",
+      "next": "Next",
+      "generate": "Generate character",
+      "generating": "Generating and saving…",
+      "draft_saved": "Character draft saved.",
+      "generate_error": "Generation failed. Please retry.",
+      "trait_required": "Choose at least one trait.",
+      "audit_blocked": "Publish audit did not pass. Open advanced edit to fix it.",
+      "adjust_inputs": "Adjust choices",
+      "try_chat": "Try chat",
+      "publish_private": "Publish private and start chat",
+      "publish_public": "Publish public character",
+      "advanced_edit": "Advanced edit",
+      "opening": "Opening",
+      "portrait_pending": "No portrait yet",
+      "no_preview": "Complete the first four steps to generate a preview.",
+      "memory_label": "What should they remember at the start? (optional)",
+      "memory_placeholder": "Example: They owe me an explanation.",
+      "custom_label": "Anything else to adjust? (optional)",
+      "custom_placeholder": "Example: Less action narration, more natural chat.",
+      "custom_scene_label": "Want a different setup?",
+      "custom_scene_placeholder": "Write your own scene, such as: my quiet tattoo artist neighbor.",
+      "traits_hint": "Choose up to 3. Defaults are already selected, so you can continue.",
+      "selected_traits": "Selected",
+      "no_traits": "Choose at least one",
+      "custom_trait_placeholder": "Add your own trait",
+      "add_custom": "Add",
+      "use_custom": "Use",
+      "user_role_title": "Your role",
+      "relationship_start_title": "Relationship start",
+      "opening_hook_title": "Opening hook",
+      "custom_user_role_placeholder": "Your own role",
+      "custom_relationship_placeholder": "Your own relationship start",
+      "custom_opening_hook_placeholder": "Your own opening hook",
+      "opening_hook_option": "Opening hook {index}",
+      "avatar_title": "Portrait",
+      "avatar_empty": "Generate or upload a portrait",
+      "avatar_alt": "Character portrait",
+      "image_prompt_placeholder": "Optional image note, such as: silver hair, raincoat, warm cafe light",
+      "generate_avatar": "Generate portrait",
+      "upload_avatar": "Upload portrait",
+      "generate_avatar_short": "Generate",
+      "upload_avatar_short": "Upload",
+      "image_generated": "Portrait generated.",
+      "image_uploaded": "Portrait uploaded.",
+      "image_generate_error": "Could not generate portrait.",
+      "image_upload_error": "Could not upload portrait.",
+      "step_count": "Step {current} / {total}",
+      "steps": {
+        "template": "Scene",
+        "traits": "Traits",
+        "relationship": "Relationship",
+        "memory": "Key memory",
+        "preview": "Preview"
+      },
+      "groups": {
+        "romance": "Crush & Regret",
+        "workplace": "Work & Pressure",
+        "daily": "Everyday Care",
+        "fantasy": "Fantasy Adventure"
+      },
+      "template_title": "Who do you want to start a story with?",
+      "traits_title": "What stands out about them?",
+      "relationship_title": "Where does the relationship begin?",
+      "memory_title": "What should they remember first?",
+      "preview_title": "Preview, tune, or publish",
+      "tuning": {
+        "cooler": "Cooler",
+        "warmer": "Warmer",
+        "sharper": "Sharper",
+        "mysterious": "More mysterious",
+        "closer": "More intimate",
+        "less_action": "Less action narration",
+        "new_opening": "New opening"
+      }
+    },
+    "draft": "Draft",
+    "back": "Back",
+    "save": "Save",
+    "publish": "Publish",
+    "publishing": "Publishing…",
+    "saving": "Saving…",
+    "name": "Name",
+    "name_placeholder": "Name your Talkie",
+    "ai_writer": "AI Writer",
+    "gender": "Gender",
+    "gender_options": {
+      "male": "Male",
+      "female": "Female",
+      "non-binary": "Non-Binary"
+    },
+    "update": "Update",
+    "mention": "Mention",
+    "user": "User",
+    "settings": "Settings (Impact the character's reply)",
+    "settings_help": "Can't be seen by the user, only affects the dialogue effect",
+    "settings_placeholder": "Settings of the character, including all the background, personality, speaking style, and rules. Use '{user}' for the chatter and '{char}' for the character.",
+    "intro": "Intro (No impact on the character's reply)",
+    "intro_help": "Introduction of your character doesn't affect the dialogue effect",
+    "intro_placeholder": "Anything you want to show or say to the users…",
+    "first_message": "First Message",
+    "first_message_placeholder": "The opening line that starts the conversation. Use *italics* for actions.",
+    "publish_visibility_label": "Publish visibility",
+    "publish_visibility_help": "Private and public publishing both run the same character-card audit before the character can be used.",
+    "publish_visibility_options": {
+      "private": {
+        "label": "Private",
+        "help": "Chat-ready after audit, visible only to you."
+      },
+      "public": {
+        "label": "Public",
+        "help": "Goes to moderation after audit, then appears in discovery."
+      }
+    },
+    "image_style_suffix_toggle": "Show image style anchor (advanced)",
+    "image_style_suffix_help": "Appended to every portrait prompt so all renders of this character share the same medium, palette, lighting, and framing. AI Writer fills it for you — most creators never need to edit it.",
+    "image_style_suffix_placeholder": "e.g. anime illustration, warm amber and ink-black palette, soft window backlight, 3:4 portrait single subject",
+    "voice_preset_label": "Voice preset",
+    "voice_preset_help": "AI Writer recommends a TTS tone from the character's gender, core traits, and speaking style. You can override it before saving.",
+    "voice_preset_options": {
+      "unset": "Auto default",
+      "warm-female": "Warm female",
+      "cool-female": "Cool female",
+      "playful-female": "Playful female",
+      "warm-male": "Warm male",
+      "cool-male": "Cool male",
+      "playful-male": "Playful male",
+      "neutral": "Neutral"
+    },
+    "style_examples_label": "Style examples",
+    "style_examples_help": "Few-shot user/character turns that teach the model this character's cadence, action formatting, and emotional response pattern.",
+    "style_example_user_placeholder": "User line, e.g. You disappeared again.",
+    "style_example_character_placeholder": "Ideal character reply in this character's voice.",
+    "format_style_emoji_label": "Emoji",
+    "format_style_action_label": "Action beats",
+    "format_style_english_label": "English mix",
+    "format_style_options": {
+      "emojiFrequency": {
+        "none": "None",
+        "rare": "Rare",
+        "moderate": "Moderate",
+        "expressive": "Expressive"
+      },
+      "actionBeatLength": {
+        "short": "Short",
+        "balanced": "Balanced",
+        "cinematic": "Cinematic"
+      },
+      "englishMix": {
+        "none": "None",
+        "light": "Light",
+        "bilingual": "Bilingual"
+      }
+    },
+    "skill": "Skill",
+    "skill_desc": "Supports additional capabilities like Image Generation and Song Creation, expanding Talkie's potential use cases",
+    "image_upload_error": "Image upload failed.",
+    "image_uploaded": "Images uploaded.",
+    "image_generate_error": "Image generation failed.",
+    "image_generated": "Image generated.",
+    "image_prompt_label": "Image prompt",
+    "image_prompt_placeholder": "For example: rainy city street, same character, black trench coat, cinematic lighting, change only the scene and pose, keep the same face and hairstyle",
+    "image": "Image",
+    "image_desc": "Add image to make your Talkie more engaging",
+    "voice": "Voice",
+    "voice_desc": "Choose a voice for your Talkie",
+    "tags": "Categories",
+    "tags_help": "Pick one or more categories so your Talkie shows up in the matching tab.",
+    "add": "Add",
+    "upload": "Upload",
+    "adapter_ready": "Adapter-ready data",
+    "adapter_line": "AI response adapter: generateRoleplayReply(character, input)",
+    "visual_identity": "Stable visual identity: {items}",
+    "persistence_line": "Drafts persist locally for guests and in the database after sign-in.",
+    "preview": "Preview and Testing",
+    "notice": "Notice: Everything Talkies says is made up by AI!",
+    "intro_label": "Intro",
+    "reset": "Reset",
+    "send": "Send",
+    "editable_private_published": "This private character is already published, but you can still edit it. Saving updates your private version directly.",
+    "tabs": {
+      "all": "All",
+      "draft": "Draft",
+      "under_review": "Under Review",
+      "published": "Published"
+    },
+    "status_labels": {
+      "draft": "Draft",
+      "under_review": "Under review",
+      "published": "Published",
+      "rejected": "Rejected"
+    },
+    "list_empty": {
+      "title": "No characters yet",
+      "subtitle": "Tap Create a Talkie to start building your first character.",
+      "draft": "No drafts. Create a Talkie to start one.",
+      "under_review": "No characters waiting for review.",
+      "published": "No published characters yet."
+    },
+    "ai_writer_dialog": {
+      "title": "AI Writer",
+      "subtitle": "Generate a complete character draft. You can refine each field after.",
+      "hint_label": "Hint (optional)",
+      "hint_placeholder": "e.g. cheerful detective in 1920s Shanghai",
+      "language_label": "Language",
+      "language_zh": "中文",
+      "language_en": "English",
+      "generate": "Generate",
+      "regenerate": "Retry",
+      "cancel": "Cancel",
+      "save": "Save to form",
+      "loading": "Crafting your draft…",
+      "error": "AI Writer hit a snag. Try Retry.",
+      "draft_name": "Name",
+      "draft_tagline": "Tagline",
+      "draft_settings": "Settings",
+      "draft_intro": "Intro",
+      "draft_opening": "Opening",
+      "draft_portrait": "Portrait",
+      "portrait_skipped": "Portrait could not be generated",
+      "card_title": "Personality Card (structured)",
+      "card_identity": "Identity",
+      "card_appearance": "Appearance",
+      "card_core_traits": "Core Traits",
+      "card_tension": "Tension",
+      "card_speaking_style": "Speaking Style",
+      "card_catchphrases": "Catchphrases",
+      "card_metaphor_domain": "Metaphor Domain",
+      "card_memory_callback_style": "Memory Callback Style",
+      "card_trust_milestones": "Trust Milestones",
+      "card_values": "Values",
+      "card_relationship_hook": "Relationship Hook",
+      "card_negative_anchors": "Will Not Do",
+      "card_image_style_suffix": "Image Style Anchor",
+      "card_voice_preset": "Voice Preset",
+      "card_style_examples": "Style Examples",
+      "card_format_style": "Format Style",
+      "format_style_options": {
+        "emojiFrequency": {
+          "none": "No emoji",
+          "rare": "Rare emoji",
+          "moderate": "Moderate emoji",
+          "expressive": "Expressive emoji"
+        },
+        "actionBeatLength": {
+          "short": "Short beats",
+          "balanced": "Balanced beats",
+          "cinematic": "Cinematic beats"
+        },
+        "englishMix": {
+          "none": "No English mix",
+          "light": "Light English mix",
+          "bilingual": "Bilingual voice"
+        }
+      },
+      "style_example_user": "User",
+      "style_example_character": "Character"
+    },
+    "validation": {
+      "name_required": "Name is required.",
+      "settings_required": "Settings (system prompt) is required before publishing.",
+      "name_too_long": "Name must be 18 characters or less."
+    },
+    "publish_audit": {
+      "title": "Publish audit needs fixes",
+      "blocked_toast": "Publishing is blocked. Fix the fields listed below, then publish again.",
+      "summary_fallback": "The audit found consistency issues that would hurt chat quality.",
+      "manual_hint": "Use the exact fields, evidence, and recommendations below to fix the draft, or let AI draft a repair before you review, save, and publish again.",
+      "repair": "AI repair",
+      "repairing": "Repairing…",
+      "repair_applied": "AI repair was applied to the form. Review it, save, then publish again.",
+      "repair_partial": "AI applied the best repair it could, but some blocking issues still remain. Continue fixing the fields listed below.",
+      "already_passed": "The latest audit already passes.",
+      "risk": {
+        "low": "Low risk",
+        "medium": "Medium risk",
+        "high": "High risk"
+      },
+      "severity": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
+    },
+    "rejection_label": "Rejection reason",
+    "delete": "Delete",
+    "edit": "Edit",
+    "home_label": "Home",
+    "locked_under_review": "This character is under review. You can't edit it until a moderator approves or rejects it.",
+    "locked_published": "This character is already published. Delete it first if you need to make changes.",
+    "confirm_delete": "Delete this character? This cannot be undone."
+  },
+  "memory": {
+    "title": "Memory",
+    "private_summary": "Private summary",
+    "shared": "Shared memories",
+    "none": "No memory saved yet.",
+    "placeholder": "Save a long-term fact, preference, or scene rule for this character.",
+    "save_private": "Save private",
+    "save_public": "Save shared"
+  },
+  "my_ai": {
+    "title": "My AI",
+    "subtitle": "Drafts, published characters, follows, and recent chats.",
+    "create": "Create",
+    "empty_title": "No custom characters yet",
+    "empty_text": "Create a persona draft and it will appear here.",
+    "empty_action": "Create character"
+  },
+  "community": {
+    "title": "Community",
+    "create": "Create",
+    "likes": "24 likes",
+    "comments": "120 comments",
+    "posts": {
+      "spring": "New character challenge: create a spring-themed Talkie and drop the link.",
+      "song": "Tell me your favorite song and I will make a character who would listen to it.",
+      "detective": "I finally made a detective who remembers tiny clues."
+    }
+  },
+  "collection": {
+    "title": "Collection",
+    "subtitle": "Unlocked photos and generated memories."
+  },
+  "pricing": {
+    "title": "Talkie+ is open for beta",
+    "subtitle": "Checkout, subscription callbacks, billing, and credits all route through the ShipAny payment stack.",
+    "start": "Open checkout",
+    "credits": "Credits ledger",
+    "billing": "Billing center",
+    "best": "Best",
+    "plans": {
+      "free_beta": {
+        "name": "Free beta",
+        "desc": "Roleplay chat, voice previews, gallery access"
+      },
+      "creator_beta": {
+        "name": "Creator beta",
+        "desc": "Create Talkies, test memories, keep drafts locally"
+      },
+      "pro_beta": {
+        "name": "Pro beta",
+        "desc": "Longer context experiments and priority model testing"
+      }
+    }
+  },
+  "footer": {
+    "copyright": "Copyright © 2026 RolePlay. All rights reserved.",
+    "features": "Features",
+    "explore": "Explore",
+    "overview": "Overview",
+    "items": {
+      "faq": "FAQ",
+      "get_app": "Get app",
+      "create_talkie": "Create Talkie",
+      "privacy_choices": "Privacy choices",
+      "delete_account": "Delete account",
+      "export_data": "Export Data",
+      "activities": "Activities",
+      "languages": "Languages",
+      "more_characters": "More AI characters",
+      "curiosity": "Curiosity",
+      "about": "About us",
+      "blog": "RolePlay Blog",
+      "support": "Support",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "guidelines": "Guidelines"
+    }
+  },
+  "picker": {
+    "title": "Choose someone to talk to",
+    "subtitle": "12 characters, photo-first",
+    "empty": "No characters available yet",
+    "loading": "Loading…",
+    "photo_count": "{n} photos"
+  },
+  "detail": {
+    "start_chat": "Start chat",
+    "back": "Back to characters",
+    "occupation": "Occupation",
+    "location": "Location",
+    "bio": "About",
+    "personality": "Personality",
+    "tags": "Tags",
+    "comments": "Comments",
+    "comments_empty": "No comments yet. Be the first to say hi.",
+    "comments_placeholder": "Share a thought about this Talkie…",
+    "comments_reply_placeholder": "Reply to {name}…",
+    "comments_submit": "Post",
+    "comments_signin": "Sign in to leave a comment.",
+    "comments_reply": "Reply",
+    "comments_cancel": "Cancel",
+    "comments_view_replies": "View {count} replies",
+    "comments_hide_replies": "Hide replies"
+  },
+  "carousel": {
+    "next": "Next photo",
+    "prev": "Previous photo",
+    "position": "Photo {current} of {total}"
+  },
+  "chat_page": {
+    "back": "Back",
+    "view_profile": "View profile",
+    "profile_title": "{name} profile",
+    "history": "Chat history",
+    "placeholder": "Message {name}",
+    "send": "Send",
+    "sending": "Sending…",
+    "empty_title": "Say hi to {name}",
+    "empty_hint": "Try a question, a moment, or pick up where they left off.",
+    "thinking": "{name} is thinking…",
+    "error": "Could not get a reply. Try again.",
+    "low_credits_title": "Credits needed",
+    "low_credits_hint": "This action needs {required} credit(s). You currently have {remaining}.",
+    "low_credits_cta": "View plans",
+    "play_voice": "Play voice",
+    "pause_voice": "Pause voice",
+    "voice_error": "Could not play this voice. Try again.",
+    "ooc_regenerate": "Off",
+    "ooc_regenerate_title": "This feels out of character. Diagnose and rewrite.",
+    "sign_in_notice": "Sign in to keep this chat across devices.",
+    "not_found": "Character not found",
+    "history_title": "{name} chat history",
+    "history_subtitle": "Review the recent saved conversations for this character.",
+    "history_empty": "No saved chat history yet.",
+    "history_sign_in": "Sign in to view saved roleplay chat history.",
+    "continue_chat": "Continue chat",
+    "conversation": "Conversation",
+    "messages_count": "{count} messages"
+  }
+}

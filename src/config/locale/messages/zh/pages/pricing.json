@@ -1,0 +1,304 @@
+{
+  "metadata": {
+    "title": "价格",
+    "description": "RolePlay 的低价套餐与积分包"
+  },
+  "page": {
+    "title": "RolePlay 价格",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "价格",
+        "description": "免费开始体验；想继续聊天、生成照片、语音和创建角色时，用更低门槛付费。",
+        "groups": [
+          {
+            "name": "one-time",
+            "title": "积分包"
+          },
+          {
+            "name": "monthly",
+            "title": "包月",
+            "is_featured": true,
+            "label": "低门槛"
+          },
+          {
+            "name": "yearly",
+            "title": "包年",
+            "label": "更划算"
+          }
+        ],
+        "items": [
+          {
+            "title": "First Spark",
+            "description": "极低价首购包，用来体验高级功能点。",
+            "features_title": "包含",
+            "features": [
+              "220 积分，有效期 12 个月",
+              "可用于聊天、语音、图片和创建工具",
+              "新用户一次性首购包"
+            ],
+            "interval": "one-time",
+            "amount": 199,
+            "currency": "USD",
+            "price": "$1.99",
+            "original_price": "$4.99",
+            "unit": "",
+            "is_featured": true,
+            "tip": "免费用户触发付费时优先展示。",
+            "button": {
+              "title": "购买积分",
+              "url": "/#pricing",
+              "icon": "Coins"
+            },
+            "product_id": "roleplay-first-spark",
+            "product_name": "RolePlay First Spark",
+            "credits": 220,
+            "valid_days": 365,
+            "group": "one-time"
+          },
+          {
+            "title": "Spark",
+            "description": "轻量补充积分，适合偶尔使用。",
+            "features_title": "包含",
+            "features": [
+              "350 积分，有效期 12 个月",
+              "适合轻量媒体和创作工具",
+              "订阅变化后仍可继续使用"
+            ],
+            "interval": "one-time",
+            "amount": 299,
+            "currency": "USD",
+            "price": "$2.99",
+            "original_price": "$5.99",
+            "unit": "",
+            "is_featured": false,
+            "tip": "低价续杯。",
+            "button": {
+              "title": "购买积分",
+              "url": "/#pricing",
+              "icon": "Coins"
+            },
+            "product_id": "roleplay-spark",
+            "product_name": "RolePlay Spark 积分包",
+            "credits": 350,
+            "valid_days": 365,
+            "group": "one-time"
+          },
+          {
+            "title": "Glow",
+            "description": "给照片、语音和更多尝试留出空间。",
+            "features_title": "包含",
+            "features": [
+              "800 积分，有效期 12 个月",
+              "图片和语音使用更划算",
+              "可搭配任意套餐"
+            ],
+            "interval": "one-time",
+            "amount": 599,
+            "currency": "USD",
+            "price": "$5.99",
+            "original_price": "$9.99",
+            "unit": "",
+            "is_featured": false,
+            "tip": "适合已经开始使用媒体功能的用户。",
+            "button": {
+              "title": "购买积分",
+              "url": "/#pricing",
+              "icon": "Coins"
+            },
+            "product_id": "roleplay-glow",
+            "product_name": "RolePlay Glow 积分包",
+            "credits": 800,
+            "valid_days": 365,
+            "group": "one-time"
+          },
+          {
+            "title": "Lite",
+            "description": "比一杯咖啡还低，持续推进故事。",
+            "features_title": "包含",
+            "features": [
+              "每月 650 积分",
+              "更好的聊天连续性和基础记忆",
+              "3 个活跃私有角色",
+              "可用积分解锁语音和生成照片"
+            ],
+            "interval": "month",
+            "amount": 299,
+            "currency": "USD",
+            "price": "$2.99",
+            "original_price": "$3.99",
+            "unit": "/ 月",
+            "is_featured": false,
+            "tip": "最低价订阅入口。",
+            "button": {
+              "title": "开通 Lite",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-lite-monthly",
+            "product_name": "RolePlay Lite 包月",
+            "credits": 650,
+            "valid_days": 30,
+            "group": "monthly",
+            "plan_name": "Lite"
+          },
+          {
+            "title": "Plus",
+            "description": "更多记忆、更多消息，在合适时刻解锁照片和语音。",
+            "label": "热门",
+            "features_title": "包含 Lite，此外",
+            "features": [
+              "每月 1,400 积分",
+              "高级文本模型访问",
+              "更好的记忆和云同步",
+              "10 个活跃私有角色",
+              "聊天上下文照片和语音生成"
+            ],
+            "interval": "month",
+            "amount": 599,
+            "currency": "USD",
+            "price": "$5.99",
+            "original_price": "$7.99",
+            "unit": "/ 月",
+            "is_featured": true,
+            "tip": "多数 RolePlay 用户的默认推荐。",
+            "button": {
+              "title": "开通 Plus",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-plus-monthly",
+            "product_name": "RolePlay Plus 包月",
+            "credits": 1400,
+            "valid_days": 30,
+            "group": "monthly",
+            "plan_name": "Plus"
+          },
+          {
+            "title": "Pro",
+            "description": "面向重度聊天和创作者。",
+            "features_title": "包含 Plus，此外",
+            "features": [
+              "每月 3,800 积分",
+              "优先模型和更快队列",
+              "长记忆和创作者工具",
+              "50 个活跃私有角色",
+              "更高媒体额度"
+            ],
+            "interval": "month",
+            "amount": 1299,
+            "currency": "USD",
+            "price": "$12.99",
+            "original_price": "$19.99",
+            "unit": "/ 月",
+            "is_featured": false,
+            "tip": "适合高意图用户和创作者。",
+            "button": {
+              "title": "开通 Pro",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-pro-monthly",
+            "product_name": "RolePlay Pro 包月",
+            "credits": 3800,
+            "valid_days": 30,
+            "group": "monthly",
+            "plan_name": "Pro"
+          },
+          {
+            "title": "Lite 包年",
+            "description": "全年保持聊天连续性的最低价。",
+            "features_title": "包含",
+            "features": [
+              "每年 7,800 积分",
+              "12 个月 Lite 权益",
+              "折合 $2.08/月"
+            ],
+            "interval": "year",
+            "amount": 2499,
+            "currency": "USD",
+            "price": "$24.99",
+            "original_price": "$35.88",
+            "unit": "/ 年",
+            "is_featured": false,
+            "tip": "最低包年入口。",
+            "button": {
+              "title": "开通 Lite",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-lite-yearly",
+            "product_name": "RolePlay Lite 包年",
+            "credits": 7800,
+            "valid_days": 365,
+            "group": "yearly",
+            "plan_name": "Lite"
+          },
+          {
+            "title": "Plus 包年",
+            "description": "给常用用户的发布期低价年包。",
+            "label": "包年最值",
+            "features_title": "包含 Plus 包月权益",
+            "features": [
+              "每年 16,800 积分",
+              "12 个月 Plus 权益",
+              "折合 $3.33/月"
+            ],
+            "interval": "year",
+            "amount": 3999,
+            "currency": "USD",
+            "price": "$39.99",
+            "original_price": "$71.88",
+            "unit": "/ 年",
+            "is_featured": true,
+            "tip": "更激进的发布期价格。",
+            "button": {
+              "title": "开通 Plus",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-plus-yearly",
+            "product_name": "RolePlay Plus 包年",
+            "credits": 16800,
+            "valid_days": 365,
+            "group": "yearly",
+            "plan_name": "Plus"
+          },
+          {
+            "title": "Pro 包年",
+            "description": "重度用户的低价包年。",
+            "features_title": "包含 Pro 包月权益",
+            "features": [
+              "每年 45,600 积分",
+              "12 个月 Pro 权益",
+              "折合 $8.33/月"
+            ],
+            "interval": "year",
+            "amount": 9999,
+            "currency": "USD",
+            "price": "$99.99",
+            "original_price": "$155.88",
+            "unit": "/ 年",
+            "is_featured": false,
+            "tip": "更适合创作者的包年价格。",
+            "button": {
+              "title": "开通 Pro",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-pro-yearly",
+            "product_name": "RolePlay Pro 包年",
+            "credits": 45600,
+            "valid_days": 365,
+            "group": "yearly",
+            "plan_name": "Pro"
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "当前方案",
+    "processing": "处理中"
+  }
+}

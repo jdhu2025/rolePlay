@@ -1,0 +1,114 @@
+{
+  "fields": {
+    "subscription_no": "订阅号",
+    "interval": "周期",
+    "provider": "提供商",
+    "current_period": "当前周期",
+    "plan": "计划",
+    "status": "状态",
+    "amount": "金额",
+    "created_at": "创建时间",
+    "end_time": "结束时间",
+    "action": "操作"
+  },
+  "view": {
+    "title": "当前计划",
+    "tip": "你的订阅将在 {date} 自动续费",
+    "end_tip": "你的订阅将在 {date} 自动取消",
+    "no_subscription": "未订阅",
+    "account_level": "账户等级",
+    "remaining_credits": "可用积分",
+    "period_credits": "套餐积分",
+    "free_tip": "你当前是 Free 等级。新手积分或已购买积分仍可用于付费 RolePlay 操作。",
+    "buttons": {
+      "adjust": "调整计划",
+      "subscribe": "去订阅",
+      "manage": "管理订阅",
+      "cancel": "取消订阅"
+    }
+  },
+  "benefits": {
+    "title": "权益",
+    "description": "当前账户等级已解锁的能力。",
+    "buttons": {
+      "view_credits": "查看积分"
+    },
+    "plans": {
+      "free": {
+        "title": "Free",
+        "subtitle": "浏览、体验聊天，并使用新手积分。",
+        "items": [
+          "新注册用户获得 120 新手积分",
+          "基础聊天和短历史",
+          "1 个活跃草稿角色",
+          "高级媒体和创作操作需要消耗积分"
+        ]
+      },
+      "lite": {
+        "title": "Lite",
+        "subtitle": "低成本保持日常聊天连续性。",
+        "items": [
+          "每月套餐积分",
+          "更好的聊天连续性和基础记忆",
+          "3 个活跃私有角色",
+          "可用积分解锁语音和生成照片"
+        ]
+      },
+      "plus": {
+        "title": "Plus",
+        "subtitle": "更多记忆、模型能力和媒体空间。",
+        "items": [
+          "更高的每月积分额度",
+          "高级文本模型访问",
+          "更好的记忆和云同步",
+          "10 个活跃私有角色",
+          "聊天上下文照片和语音生成"
+        ]
+      },
+      "pro": {
+        "title": "Pro",
+        "subtitle": "面向重度聊天和创作者的优先等级。",
+        "items": [
+          "最高每月积分额度",
+          "优先模型和更快队列",
+          "长记忆和创作者工具",
+          "50 个活跃私有角色",
+          "更高媒体额度"
+        ]
+      }
+    }
+  },
+  "list": {
+    "title": "订阅记录",
+    "tabs": {
+      "all": "全部",
+      "active": "活跃",
+      "pending_cancel": "待取消",
+      "canceled": "已取消",
+      "trialing": "试用中",
+      "paused": "暂停中",
+      "expired": "已过期"
+    }
+  },
+  "cancel": {
+    "title": "取消订阅",
+    "description": "你确定要取消你的订阅吗？",
+    "fields": {
+      "subscription_no": "订阅号",
+      "subscription_amount": "订阅金额",
+      "interval_cycle": "付费周期",
+      "subscription_created_at": "订阅创建时间",
+      "current_period": "当前周期",
+      "start_at": "开始时间",
+      "end_at": "结束时间"
+    },
+    "crumbs": {
+      "settings": "设置",
+      "billing": "账单",
+      "cancel": "取消订阅"
+    },
+    "buttons": {
+      "confirm_cancel": "确认取消"
+    }
+  }
+}

@@ -1,0 +1,304 @@
+{
+  "metadata": {
+    "title": "Pricing",
+    "description": "Low-cost plans and credits for RolePlay"
+  },
+  "page": {
+    "title": "RolePlay Pricing",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "Pricing",
+        "description": "Start free, then keep chats, photos, voice, and character creation affordable.",
+        "groups": [
+          {
+            "name": "one-time",
+            "title": "Credit packs"
+          },
+          {
+            "name": "monthly",
+            "title": "Monthly",
+            "is_featured": true,
+            "label": "lowest entry"
+          },
+          {
+            "name": "yearly",
+            "title": "Yearly",
+            "label": "save more"
+          }
+        ],
+        "items": [
+          {
+            "title": "First Spark",
+            "description": "A tiny first purchase for testing premium moments.",
+            "features_title": "Includes",
+            "features": [
+              "220 credits, valid for 12 months",
+              "Enough for chat plus several voice or image moments",
+              "One-time new-user starter pack"
+            ],
+            "interval": "one-time",
+            "amount": 199,
+            "currency": "USD",
+            "price": "$1.99",
+            "original_price": "$4.99",
+            "unit": "",
+            "is_featured": true,
+            "tip": "Best first step when a free user hits the paywall.",
+            "button": {
+              "title": "Buy Credits",
+              "url": "/#pricing",
+              "icon": "Coins"
+            },
+            "product_id": "roleplay-first-spark",
+            "product_name": "RolePlay First Spark",
+            "credits": 220,
+            "valid_days": 365,
+            "group": "one-time"
+          },
+          {
+            "title": "Spark",
+            "description": "Small top-up for casual play.",
+            "features_title": "Includes",
+            "features": [
+              "350 credits, valid for 12 months",
+              "Good for light media and creator tools",
+              "Purchased credits keep working after subscription changes"
+            ],
+            "interval": "one-time",
+            "amount": 299,
+            "currency": "USD",
+            "price": "$2.99",
+            "original_price": "$5.99",
+            "unit": "",
+            "is_featured": false,
+            "tip": "A low-cost refill.",
+            "button": {
+              "title": "Buy Credits",
+              "url": "/#pricing",
+              "icon": "Coins"
+            },
+            "product_id": "roleplay-spark",
+            "product_name": "RolePlay Spark Credits",
+            "credits": 350,
+            "valid_days": 365,
+            "group": "one-time"
+          },
+          {
+            "title": "Glow",
+            "description": "More room for photos, voice, and experiments.",
+            "features_title": "Includes",
+            "features": [
+              "800 credits, valid for 12 months",
+              "Better value for image and voice use",
+              "Works with any plan"
+            ],
+            "interval": "one-time",
+            "amount": 599,
+            "currency": "USD",
+            "price": "$5.99",
+            "original_price": "$9.99",
+            "unit": "",
+            "is_featured": false,
+            "tip": "For users already enjoying media moments.",
+            "button": {
+              "title": "Buy Credits",
+              "url": "/#pricing",
+              "icon": "Coins"
+            },
+            "product_id": "roleplay-glow",
+            "product_name": "RolePlay Glow Credits",
+            "credits": 800,
+            "valid_days": 365,
+            "group": "one-time"
+          },
+          {
+            "title": "Lite",
+            "description": "Keep the story going for less than a coffee.",
+            "features_title": "Includes",
+            "features": [
+              "650 credits every month",
+              "Better chat continuity and basic memory",
+              "3 active private characters",
+              "Voice and generated photos unlocked with credits"
+            ],
+            "interval": "month",
+            "amount": 299,
+            "currency": "USD",
+            "price": "$2.99",
+            "original_price": "$3.99",
+            "unit": "/ month",
+            "is_featured": false,
+            "tip": "The lowest recurring plan.",
+            "button": {
+              "title": "Start Lite",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-lite-monthly",
+            "product_name": "RolePlay Lite Monthly",
+            "credits": 650,
+            "valid_days": 30,
+            "group": "monthly",
+            "plan_name": "Lite"
+          },
+          {
+            "title": "Plus",
+            "description": "More memory, more messages, photos and voice when the moment hits.",
+            "label": "Popular",
+            "features_title": "Everything in Lite, plus",
+            "features": [
+              "1,400 credits every month",
+              "Premium text model access",
+              "Better memory and cloud sync",
+              "10 active private characters",
+              "Chat-context photos and voice generation"
+            ],
+            "interval": "month",
+            "amount": 599,
+            "currency": "USD",
+            "price": "$5.99",
+            "original_price": "$7.99",
+            "unit": "/ month",
+            "is_featured": true,
+            "tip": "Best value for most roleplay users.",
+            "button": {
+              "title": "Start Plus",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-plus-monthly",
+            "product_name": "RolePlay Plus Monthly",
+            "credits": 1400,
+            "valid_days": 30,
+            "group": "monthly",
+            "plan_name": "Plus"
+          },
+          {
+            "title": "Pro",
+            "description": "For heavy roleplay and creators.",
+            "features_title": "Everything in Plus, plus",
+            "features": [
+              "3,800 credits every month",
+              "Priority model and faster queue",
+              "Long memory and creator tools",
+              "50 active private characters",
+              "Higher media limits"
+            ],
+            "interval": "month",
+            "amount": 1299,
+            "currency": "USD",
+            "price": "$12.99",
+            "original_price": "$19.99",
+            "unit": "/ month",
+            "is_featured": false,
+            "tip": "For high-intent users and creators.",
+            "button": {
+              "title": "Start Pro",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-pro-monthly",
+            "product_name": "RolePlay Pro Monthly",
+            "credits": 3800,
+            "valid_days": 30,
+            "group": "monthly",
+            "plan_name": "Pro"
+          },
+          {
+            "title": "Lite Yearly",
+            "description": "The cheapest way to keep continuity all year.",
+            "features_title": "Includes",
+            "features": [
+              "7,800 credits per year",
+              "Lite features for 12 months",
+              "Equivalent to $2.08/month"
+            ],
+            "interval": "year",
+            "amount": 2499,
+            "currency": "USD",
+            "price": "$24.99",
+            "original_price": "$35.88",
+            "unit": "/ year",
+            "is_featured": false,
+            "tip": "Lowest annual entry.",
+            "button": {
+              "title": "Start Lite",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-lite-yearly",
+            "product_name": "RolePlay Lite Yearly",
+            "credits": 7800,
+            "valid_days": 365,
+            "group": "yearly",
+            "plan_name": "Lite"
+          },
+          {
+            "title": "Plus Yearly",
+            "description": "Launch-price yearly plan for regular users.",
+            "label": "Best yearly",
+            "features_title": "Everything in Plus monthly",
+            "features": [
+              "16,800 credits per year",
+              "Plus features for 12 months",
+              "Equivalent to $3.33/month"
+            ],
+            "interval": "year",
+            "amount": 3999,
+            "currency": "USD",
+            "price": "$39.99",
+            "original_price": "$71.88",
+            "unit": "/ year",
+            "is_featured": true,
+            "tip": "Aggressive launch price.",
+            "button": {
+              "title": "Start Plus",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-plus-yearly",
+            "product_name": "RolePlay Plus Yearly",
+            "credits": 16800,
+            "valid_days": 365,
+            "group": "yearly",
+            "plan_name": "Plus"
+          },
+          {
+            "title": "Pro Yearly",
+            "description": "A lower annual price for heavy users.",
+            "features_title": "Everything in Pro monthly",
+            "features": [
+              "45,600 credits per year",
+              "Pro features for 12 months",
+              "Equivalent to $8.33/month"
+            ],
+            "interval": "year",
+            "amount": 9999,
+            "currency": "USD",
+            "price": "$99.99",
+            "original_price": "$155.88",
+            "unit": "/ year",
+            "is_featured": false,
+            "tip": "Creator-friendly annual plan.",
+            "button": {
+              "title": "Start Pro",
+              "url": "/#pricing",
+              "icon": "RiFlashlightFill"
+            },
+            "product_id": "roleplay-pro-yearly",
+            "product_name": "RolePlay Pro Yearly",
+            "credits": 45600,
+            "valid_days": 365,
+            "group": "yearly",
+            "plan_name": "Pro"
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "Current Plan",
+    "processing": "Processing"
+  }
+}
