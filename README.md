@@ -11,6 +11,11 @@ pnpm install
 pnpm dev
 ```
 
+## Agent Context
+
+Internal requirements, plans, research notes, and implementation logs live in
+[`agent-context/`](./agent-context/README.md).
+
 ## Feedback
 
 Submit feedback on [GitHub Issues](https://github.com/jdhu2025/rolePlay/issues).
