@@ -33,14 +33,14 @@ export const maxDuration = 120;
 
 const DEFAULT_IMAGE_MODEL = 'doubao-seedream-5-0-260128';
 const DEFAULT_IMAGE_SIZE = '2k';
-const CHAT_SNAPSHOT_REFERENCE_IMAGE_LIMIT = 1;
+const CHAT_SNAPSHOT_REFERENCE_IMAGE_LIMIT = 3;
 // xAI currently rejects image prompts above 8000. Keep some headroom for
 // provider-side serialization differences and count UTF-8 bytes so Chinese
 // admin templates are capped correctly.
 const MAX_IMAGE_PROMPT_BYTES = 7400;
 
 const REFERENCE_IDENTITY_LOCK =
-  'Identity lock: use the provided reference image(s) as the non-negotiable identity source. Keep the same adult person, face shape, facial proportions, eye shape, nose, lips, cheekbones, skin tone, hair color, hairstyle, signature accessories, and overall likeness. Change only the requested scene, pose, framing, lighting, clothing when asked, and current activity. Do not invent a different person.';
+  'Identity lock: use the provided reference image(s) as the non-negotiable identity source. Keep the same adult person, face shape, facial proportions, eye shape, nose, lips, cheekbones, skin tone, hair color, hairstyle, signature accessories, outfit style, color palette, and overall likeness. Change only the requested scene, pose, framing, camera angle, background, lighting, and current activity. Do not invent a different person, different hairstyle, different face, or unrelated outfit.';
 
 const NO_REFERENCE_IDENTITY_LOCK =
   'No reliable reference image is available. Keep the same adult character identity by strictly following the provided visual identity, signature items, face, hair, palette, and style anchor.';
@@ -186,7 +186,8 @@ function buildChatSnapshotDirection({
   const replyContext = String(holdingText || '').trim();
   const base = [
     'Create a new in-world chat photo for this exact conversation moment.',
-    'Use reference images only for identity and likeness; do not copy the reference image pose, outfit, crop, background, lighting, or composition.',
+    'Use reference images to preserve identity, face, hairstyle, body proportions, signature accessories, outfit style, and overall visual style.',
+    'Do not copy the exact reference pose, crop, background, lighting setup, or composition; vary only the photo moment and framing while keeping the character unmistakably the same person.',
     userRequest ? `User asked: ${userRequest}` : '',
     replyContext ? `Character reply before sending photo: ${replyContext}` : '',
     'If the user request is generic, choose a fresh casual current-moment snapshot based on the character scene and recent conversation, not a portrait remake.',
@@ -528,10 +529,10 @@ export async function POST(request: Request) {
           activeReferenceImages = pickReferenceImages(
             mode === 'chat_snapshot'
               ? [
-                  ...activeReferenceImages,
                   resolvedAvatar,
-                  buildCharacterImageUrl(storedCharacter.coverUrl),
+                  ...activeReferenceImages,
                   ...resolvedGallery,
+                  buildCharacterImageUrl(storedCharacter.coverUrl),
                 ]
               : [
                   ...resolvedGallery,
