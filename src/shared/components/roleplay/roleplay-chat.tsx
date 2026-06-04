@@ -810,6 +810,8 @@ export function RoleplayChat({ characterId }: Props) {
             .filter(Boolean)
             .join('\n'),
           requestText: reply.imageRequest.requestText,
+          shotIntent: reply.imageRequest.shotIntent,
+          holdingText: reply.imageRequest.holdingText || characterMessage.text,
           scene: character.scene,
           recentMessages,
           mode: 'chat_snapshot',

@@ -119,6 +119,8 @@ function buildPrompt({
   scene,
   recentMessages,
   requestText,
+  shotIntent,
+  holdingText,
 }: {
   characterName?: string;
   characterIntro?: string;
@@ -131,21 +133,23 @@ function buildPrompt({
   scene?: string;
   recentMessages?: ChatSnapshotMessage[];
   requestText?: string;
+  shotIntent?: string;
+  holdingText?: string;
 }) {
   const recentContext = recentMessages
     ?.slice(-6)
     .map((message) => `${message.role}: ${message.text}`)
     .join('\n');
+  const chatSnapshotDirection =
+    mode === 'chat_snapshot'
+      ? buildChatSnapshotDirection({ requestText, shotIntent, holdingText })
+      : '';
 
   return [
     photoTemplate
       ? `Admin ${characterGender || 'character'} photo template:\n${photoTemplate}`
       : '',
-    mode === 'chat_snapshot'
-      ? requestText
-        ? `Create an in-world chat photo that shows exactly what the user asked to see: ${requestText}`
-        : 'Create an in-world chat photo that matches the current conversation moment.'
-      : prompt || '',
+    mode === 'chat_snapshot' ? chatSnapshotDirection : prompt || '',
     characterName
       ? mode === 'chat_snapshot'
         ? `Depict ${characterName} as the same adult character in a casual real-time photo they would send in chat.`
@@ -164,6 +168,42 @@ function buildPrompt({
     .filter(Boolean)
     .join('\n')
     .slice(0, 5000);
+}
+
+function buildChatSnapshotDirection({
+  requestText,
+  shotIntent,
+  holdingText,
+}: {
+  requestText?: string;
+  shotIntent?: string;
+  holdingText?: string;
+}) {
+  const intent = String(shotIntent || 'scene')
+    .trim()
+    .toLowerCase();
+  const userRequest = String(requestText || '').trim();
+  const replyContext = String(holdingText || '').trim();
+  const base = [
+    'Create a new in-world chat photo for this exact conversation moment.',
+    'Use reference images only for identity and likeness; do not copy the reference image pose, outfit, crop, background, lighting, or composition.',
+    userRequest ? `User asked: ${userRequest}` : '',
+    replyContext ? `Character reply before sending photo: ${replyContext}` : '',
+    'If the user request is generic, choose a fresh casual current-moment snapshot based on the character scene and recent conversation, not a portrait remake.',
+  ];
+
+  const intentDirection =
+    intent === 'selfie'
+      ? 'Shot intent: phone selfie, arm-length camera, casual current setting, fresh angle, natural face expression.'
+      : intent === 'mirror'
+        ? 'Shot intent: mirror photo, visible phone or mirror framing, current outfit and surroundings, not a studio portrait.'
+        : intent === 'outfit'
+          ? 'Shot intent: outfit photo, show current clothing clearly with natural full or three-quarter body framing.'
+          : intent === 'face'
+            ? 'Shot intent: close casual face photo, expressive and freshly taken, different crop and lighting from the reference.'
+            : 'Shot intent: candid scene snapshot, show what the character is doing or where they are right now, with visible surroundings and changed pose/framing.';
+
+  return [...base, intentDirection].filter(Boolean).join('\n');
 }
 
 function utf8ByteLength(value: string) {
@@ -402,6 +442,8 @@ export async function POST(request: Request) {
       imageStyleSuffix,
       prompt,
       requestText,
+      shotIntent,
+      holdingText,
       scene,
       recentMessages,
       mode,
@@ -419,6 +461,8 @@ export async function POST(request: Request) {
       imageStyleSuffix?: string;
       prompt?: string;
       requestText?: string;
+      shotIntent?: string;
+      holdingText?: string;
       scene?: string;
       recentMessages?: ChatSnapshotMessage[];
       mode?: 'portrait' | 'chat_snapshot';
@@ -481,12 +525,21 @@ export async function POST(request: Request) {
               return [] as string[];
             }
           })();
-          activeReferenceImages = pickReferenceImages([
-            ...resolvedGallery,
-            buildCharacterImageUrl(storedCharacter.coverUrl),
-            resolvedAvatar,
-            ...activeReferenceImages,
-          ]);
+          activeReferenceImages = pickReferenceImages(
+            mode === 'chat_snapshot'
+              ? [
+                  ...activeReferenceImages,
+                  resolvedAvatar,
+                  buildCharacterImageUrl(storedCharacter.coverUrl),
+                  ...resolvedGallery,
+                ]
+              : [
+                  ...resolvedGallery,
+                  buildCharacterImageUrl(storedCharacter.coverUrl),
+                  resolvedAvatar,
+                  ...activeReferenceImages,
+                ]
+          );
           if (
             storedCharacter.visualIdentity &&
             typeof storedCharacter.visualIdentity === 'string'
@@ -583,6 +636,8 @@ export async function POST(request: Request) {
       scene,
       recentMessages,
       requestText,
+      shotIntent,
+      holdingText,
     });
 
     if (!imagePrompt) {
@@ -694,7 +749,8 @@ export async function POST(request: Request) {
             mediaType: 'image',
             assetUrl: upload.url,
             requestText: requestText || '',
-            shotIntent: mode === 'chat_snapshot' ? 'chat_snapshot' : 'portrait',
+            shotIntent: shotIntent || '',
+            mode: mode || 'portrait',
           }),
         });
         messageId = characterMessage.id;
@@ -716,6 +772,7 @@ export async function POST(request: Request) {
             size: imageConfig.size,
             prompt: imagePrompt,
             requestText: requestText || '',
+            shotIntent: shotIntent || '',
             mode: mode || 'portrait',
             referenceImages: activeReferenceImages,
           }),
@@ -757,6 +814,9 @@ export async function POST(request: Request) {
         assetUrl: upload.url,
         mediaType: 'image',
         source: 'chat-image-generation',
+        mode: mode || 'portrait',
+        shotIntent: shotIntent || '',
+        referenceCount: usableReferenceImages.length,
       },
     });
   } catch (error: any) {
