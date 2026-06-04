@@ -12,6 +12,7 @@ const OPENROUTER_TEXT_CONFIG_KEYS = [
   'openrouter_base_url',
   'openrouter_model',
   'roleplay_model',
+  'roleplay_fast_model',
 ];
 
 const ROLEPLAY_LLM_CONFIG_KEYS = [

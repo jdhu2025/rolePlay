@@ -37,6 +37,7 @@ import {
   fetchRoleplayRecommendations,
   type RoleplayCharacterClient,
 } from '@/shared/lib/roleplay-client';
+import { recordRoleplayMomentEvent } from '@/shared/lib/roleplay-moment-events';
 
 import type { RoleplayHomeInitialData } from '@/shared/lib/server/roleplay-home-data';
 
@@ -219,6 +220,7 @@ export function RoleplayLanding({ initialData }: Props) {
 
   return (
     <main className="min-h-dvh overflow-hidden bg-[#0d0d10] text-white">
+      <FirstMomentPreference />
       <ForYouSection
         characters={recommendedCharacters}
         loading={recommendationsLoading}
@@ -289,6 +291,109 @@ export function RoleplayLanding({ initialData }: Props) {
       <div ref={sentinelRef} aria-hidden="true" className="h-1 w-full" />
       <RoleplayHomeFooter />
     </main>
+  );
+}
+
+function FirstMomentPreference() {
+  const t = useTranslations('roleplay.home.preference');
+  const [hidden, setHidden] = useState(true);
+  const [savingChoice, setSavingChoice] = useState('');
+
+  const options = [
+    {
+      id: 'quiet',
+      label: t('options.quiet'),
+      description: t('descriptions.quiet'),
+    },
+    {
+      id: 'playful',
+      label: t('options.playful'),
+      description: t('descriptions.playful'),
+    },
+    {
+      id: 'guarded',
+      label: t('options.guarded'),
+      description: t('descriptions.guarded'),
+    },
+  ];
+
+  useEffect(() => {
+    const localChoice = window.localStorage.getItem(
+      'roleplay:first-impression'
+    );
+    if (localChoice) return;
+
+    const controller = new AbortController();
+    fetch('/api/roleplay/user-persona', {
+      method: 'GET',
+      signal: controller.signal,
+    })
+      .then((response) => response.json())
+      .then((payload) => {
+        const firstImpression =
+          payload?.data?.persona?.firstImpression ||
+          payload?.persona?.firstImpression;
+        if (!firstImpression) setHidden(false);
+      })
+      .catch(() => {
+        setHidden(false);
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  const saveChoice = (choice: string) => {
+    setSavingChoice(choice);
+    window.localStorage.setItem('roleplay:first-impression', choice);
+    window.setTimeout(() => setHidden(true), 220);
+    recordRoleplayMomentEvent({
+      eventType: 'first_impression_selected',
+      metadata: { choice },
+    });
+
+    fetch('/api/roleplay/user-persona', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ firstImpression: choice }),
+    }).catch(() => {
+      // Anonymous users still get the local first-session benefit. Logged-in
+      // users can save the preference once auth is available.
+    });
+  };
+
+  if (hidden) return null;
+
+  return (
+    <section className="border-b border-white/6 bg-[#0f1012]">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            {t('eyebrow')}
+          </p>
+          <h2 className="text-base font-semibold leading-tight text-zinc-100 md:text-lg">
+            {t('title')}
+          </h2>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3 md:min-w-[560px]">
+          {options.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => saveChoice(option.id)}
+              disabled={Boolean(savingChoice)}
+              className="group min-h-16 rounded-[14px] border border-white/10 bg-white/[0.035] px-3 py-2 text-left transition hover:border-white/25 hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-default disabled:opacity-70"
+            >
+              <span className="block text-sm font-semibold text-zinc-100">
+                {savingChoice === option.id ? t('saved') : option.label}
+              </span>
+              <span className="mt-0.5 block text-xs leading-snug text-zinc-500 group-hover:text-zinc-400">
+                {option.description}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 

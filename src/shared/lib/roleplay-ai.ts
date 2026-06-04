@@ -52,6 +52,17 @@ export type RoleplayReply = {
     shotIntent?: string;
     holdingText?: string;
   };
+  emotionalHooks?: Array<Record<string, unknown>>;
+  humanMomentHooks?: Array<Record<string, unknown>>;
+  routing?: {
+    firstChatFastModel?: string;
+  };
+  timing?: {
+    firstChatTurn?: number;
+    firstTokenMs?: number;
+    generationMs?: number;
+    streamed?: boolean;
+  };
 };
 
 export type RoleplayInsufficientCreditsPayload = {
@@ -77,6 +88,15 @@ export class RoleplayApiError extends Error {
 export type RoleplayHistoryMessage = {
   role: 'user' | 'character';
   text: string;
+};
+
+export type RoleplayClientPersona = {
+  firstImpression?: string;
+};
+
+type RoleplayStreamHandlers = {
+  onDelta?: (delta: string) => void;
+  onStart?: (payload: Record<string, unknown>) => void;
 };
 
 export function parseRoleplayInsufficientCreditsPayload(
@@ -163,7 +183,8 @@ export async function generateRoleplayReply(
   input: string,
   history: RoleplayHistoryMessage[] = [],
   conversationId?: string,
-  requestId = createRoleplayRequestId('rp-chat')
+  requestId = createRoleplayRequestId('rp-chat'),
+  clientPersona?: RoleplayClientPersona
 ): Promise<RoleplayReply> {
   const response = await fetch('/api/roleplay/chat', {
     method: 'POST',
@@ -176,6 +197,7 @@ export async function generateRoleplayReply(
       history,
       conversationId,
       requestId,
+      clientPersona,
     }),
   });
 
@@ -194,4 +216,126 @@ export async function generateRoleplayReply(
   }
 
   return payload.data as RoleplayReply;
+}
+
+function parseRoleplayStreamEvent(raw: string) {
+  let event = 'message';
+  const dataLines: string[] = [];
+
+  for (const line of raw.split(/\r?\n/)) {
+    if (line.startsWith('event:')) {
+      event = line.slice(6).trim();
+      continue;
+    }
+    if (line.startsWith('data:')) {
+      dataLines.push(line.slice(5).trim());
+    }
+  }
+
+  if (!dataLines.length) return null;
+
+  try {
+    return {
+      event,
+      data: JSON.parse(dataLines.join('\n')) as Record<string, unknown>,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function generateRoleplayReplyStream(
+  character: RoleplayCharacterPrompt,
+  input: string,
+  history: RoleplayHistoryMessage[] = [],
+  conversationId?: string,
+  requestId = createRoleplayRequestId('rp-chat'),
+  clientPersona?: RoleplayClientPersona,
+  handlers: RoleplayStreamHandlers = {}
+): Promise<RoleplayReply> {
+  const response = await fetch('/api/roleplay/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    },
+    body: JSON.stringify({
+      character,
+      input,
+      history,
+      conversationId,
+      requestId,
+      clientPersona,
+      stream: true,
+    }),
+  });
+
+  if (!response.ok || !response.body) {
+    let payload: any = null;
+    try {
+      payload = await response.json();
+    } catch {
+      // Keep the status-based error below when the server returns non-JSON.
+    }
+    throw createRoleplayApiError(
+      payload,
+      `roleplay stream request failed: ${response.status}`
+    );
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let finalReply: RoleplayReply | undefined;
+
+  const processEvent = (raw: string) => {
+    const parsed = parseRoleplayStreamEvent(raw.trim());
+    if (!parsed) return;
+
+    if (parsed.event === 'start') {
+      handlers.onStart?.(parsed.data);
+      return;
+    }
+
+    if (parsed.event === 'delta') {
+      const text = typeof parsed.data.text === 'string' ? parsed.data.text : '';
+      if (text) handlers.onDelta?.(text);
+      return;
+    }
+
+    if (parsed.event === 'done') {
+      finalReply = parsed.data as RoleplayReply;
+      return;
+    }
+
+    if (parsed.event === 'error') {
+      throw createRoleplayApiError(
+        { message: parsed.data.message, data: parsed.data },
+        typeof parsed.data.message === 'string'
+          ? parsed.data.message
+          : 'roleplay stream failed'
+      );
+    }
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const events = buffer.split(/\n\n/);
+    buffer = events.pop() || '';
+    for (const event of events) {
+      if (event.trim()) processEvent(event);
+    }
+  }
+
+  if (buffer.trim()) processEvent(buffer);
+
+  const reply = finalReply;
+  if (!reply || !reply.text) {
+    throw new RoleplayApiError('roleplay stream ended without a reply');
+  }
+
+  return reply;
 }

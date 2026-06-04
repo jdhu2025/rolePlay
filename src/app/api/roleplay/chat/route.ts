@@ -1,4 +1,4 @@
-import { generateText, type ModelMessage } from 'ai';
+import { generateText, streamText, type ModelMessage } from 'ai';
 
 import {
   createOpenAICompatibleChatModel,
@@ -43,6 +43,7 @@ import {
   type RoleplayStyleExample,
 } from '@/shared/lib/roleplay-style-examples';
 import {
+  normalizeUserPersona,
   parseUserPersona,
   renderDynamicAddressSystemMessage,
   renderUserPersonaSystemMessage,
@@ -73,7 +74,15 @@ type RoleplayChatMessage = {
 };
 
 type EmotionalHook = {
-  type: 'memory_surprise' | 'shared_language' | 'trust_milestone';
+  type:
+    | 'memory_surprise'
+    | 'shared_language'
+    | 'trust_milestone'
+    | 'first_chat_arc'
+    | 'conversation_seed'
+    | 'goodbye_ritual'
+    | 'returning_continuity'
+    | 'peak_multimodal';
   label: string;
   detail?: string;
   milestoneKey?: string;
@@ -170,7 +179,7 @@ function buildSystemPrompt(character: RoleplayCharacterPrompt) {
     'Keep replies emotionally present, vivid, and concise: usually 1-3 short paragraphs.',
     'Format conventions:',
     '- Wrap stage directions / actions / inner thought in single asterisks: *she leans in* — the UI renders these as italic narration.',
-    '- Wrap short emphasis (one or two words) in double asterisks: **really**.',
+    '- Do not use Markdown bold or headings; emphasis should come from wording, rhythm, and action beats, not **markers**.',
     '- Plain dialogue stays unwrapped. Do NOT prefix lines with names, dashes, or quotes.',
     "Reply in the user's language when possible.",
     'Advance the scene or relationship a little, but do not ask a question every turn.',
@@ -277,7 +286,7 @@ function buildLayeredSystemMessages(character: RoleplayCharacterPrompt): {
         'Keep replies emotionally present, vivid, and concise: usually 1-3 short paragraphs.',
         'Format conventions:',
         '- Wrap stage directions / actions / inner thought in single asterisks: *she leans in* — the UI renders these as italic narration.',
-        '- Wrap short emphasis (one or two words) in double asterisks: **really**.',
+        '- Do not use Markdown bold or headings; emphasis should come from wording, rhythm, and action beats, not **markers**.',
         '- Plain dialogue stays unwrapped. Do NOT prefix lines with names, dashes, or quotes.',
         "Reply in the user's language when possible.",
         'Advance the scene or relationship a little, but do not ask a question every turn.',
@@ -332,6 +341,30 @@ function buildLayeredSystemMessages(character: RoleplayCharacterPrompt): {
     pushSection('values', card.values.join(' / '));
   }
   pushSection('relationship', card.relationshipHook);
+  if (
+    card.interactionPlay ||
+    card.continuationSeed ||
+    card.goodbyeRitualStyle ||
+    card.peakMomentStyle
+  ) {
+    pushSection(
+      'human_moments',
+      [
+        card.interactionPlay ? `interaction_play: ${card.interactionPlay}` : '',
+        card.continuationSeed
+          ? `continuation_seed: ${card.continuationSeed}`
+          : '',
+        card.goodbyeRitualStyle
+          ? `goodbye_ritual_style: ${card.goodbyeRitualStyle}`
+          : '',
+        card.peakMomentStyle
+          ? `peak_moment_style: ${card.peakMomentStyle}`
+          : '',
+      ]
+        .filter(Boolean)
+        .join('\n')
+    );
+  }
 
   if (character.formatStyle) {
     messages.push({
@@ -590,13 +623,229 @@ function buildEmotionalHookSystemMessages({
   return { messages, hooks };
 }
 
+function detectGoodbyeIntent(input: string) {
+  return /\b(bye|goodbye|good night|sleep|later|gtg|gotta go|go work|back later|see you)\b/i.test(
+    input
+  ) || /再见|拜拜|晚安|睡了|先走|下次聊|回头聊|去忙|走了|改天/.test(input);
+}
+
+function detectReturnIntent(input: string) {
+  return /\b(back|again|returned|i'm here|still there|remember me)\b/i.test(
+    input
+  ) || /回来了|又来了|还在吗|还记得|记得我|我又来/.test(input);
+}
+
+function getNextUserTurn(history: RoleplayChatMessage[]) {
+  return history.filter((message) => message.role === 'user').length + 1;
+}
+
+function resolveReplyMaxOutputTokens(history: RoleplayChatMessage[]) {
+  const nextUserTurn = getNextUserTurn(history);
+  return nextUserTurn <= 3 ? 300 : 420;
+}
+
+function readConfigValue(configs: RoleplayConfigs, ...keys: string[]) {
+  for (const key of keys) {
+    const value = String(
+      configs[key] ||
+        configs[key.toLowerCase()] ||
+        process.env[key] ||
+        process.env[key.toLowerCase()] ||
+        ''
+    ).trim();
+    if (value) return value;
+  }
+  return '';
+}
+
+function resolveFirstChatTextProviders({
+  providers,
+  configs,
+  history,
+  requestModel,
+}: {
+  providers: TextProviderConfig[];
+  configs: RoleplayConfigs;
+  history: RoleplayChatMessage[];
+  requestModel?: string;
+}) {
+  const nextUserTurn = getNextUserTurn(history);
+  const fastModel = readConfigValue(
+    configs,
+    'ROLEPLAY_FAST_MODEL',
+    'roleplay_fast_model'
+  );
+
+  if (nextUserTurn > 3 || requestModel || !fastModel) {
+    return { providers, fastModel: '', enabled: false };
+  }
+
+  return {
+    providers: providers.map((provider) => ({
+      ...provider,
+      model: fastModel,
+    })),
+    fastModel,
+    enabled: true,
+  };
+}
+
+function buildHumanMomentSystemMessages({
+  card,
+  relationshipState,
+  history,
+  input,
+  memorySummary,
+}: {
+  card: PersonalityCard;
+  relationshipState: RoleplayRelationshipState;
+  history: RoleplayChatMessage[];
+  input: string;
+  memorySummary?: string;
+}): { messages: ModelMessage[]; hooks: EmotionalHook[] } {
+  const messages: ModelMessage[] = [];
+  const hooks: EmotionalHook[] = [];
+  const nextUserTurn = getNextUserTurn(history);
+  const goodbye = detectGoodbyeIntent(input);
+  const returning = detectReturnIntent(input);
+
+  if (nextUserTurn <= 3) {
+    const turnInstruction =
+      nextUserTurn === 1
+        ? 'Turn 1 goal: make the user feel noticed within 10 seconds. Do not greet or introduce yourself. Make one warm, teasing, or precise read from the user persona, their wording, or the current mood, then give an easy way to answer.'
+        : nextUserTurn === 2
+          ? 'Turn 2 goal: add gentle tension and emotional accuracy. Do not be a service bot. Lightly challenge vague answers like "fine", notice avoidance, or tease with care.'
+          : 'Turn 3 goal: give payoff and plant one unfinished seed. Say something that feels like "you got me" or "this was worth answering", then naturally leave a tiny continuation hook for next time.';
+
+    messages.push({
+      role: 'system',
+      content: [
+        '[first_chat_3_turn_arc]',
+        `Current first-chat turn: ${nextUserTurn}/3.`,
+        card.interactionPlay
+          ? `Core interaction play: ${card.interactionPlay}`
+          : 'Core interaction play: make the user feel seen, then create a little tension before giving warmth.',
+        card.continuationSeed
+          ? `Available unfinished seed: ${card.continuationSeed}`
+          : '',
+        card.tension ? `Character tension to preserve: ${card.tension}` : '',
+        turnInstruction,
+        'The user should feel one of these human buttons: being seen, tension, payoff, unfinished story.',
+        'For the first 3 chat turns, keep the reply short and charged: usually 45-90 words, one strong read, one natural way forward.',
+        'Keep it natural. Never say this is a 3-turn arc, a hook, a script, or a system design.',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    });
+    hooks.push({
+      type: 'first_chat_arc',
+      label: `First chat turn ${nextUserTurn}`,
+      detail: card.interactionPlay || card.tension || undefined,
+    });
+
+    if (nextUserTurn === 3 && card.continuationSeed) {
+      hooks.push({
+        type: 'conversation_seed',
+        label: 'Continuation seed',
+        detail: card.continuationSeed,
+      });
+    }
+  }
+
+  if (goodbye) {
+    messages.push({
+      role: 'system',
+      content: [
+        '[goodbye_ritual]',
+        card.goodbyeRitualStyle
+          ? `Goodbye ritual style: ${card.goodbyeRitualStyle}`
+          : 'Give a personalized goodbye that stamps the conversation with its topic and mood.',
+        card.metaphorDomain
+          ? `Use this imagery if it fits: ${card.metaphorDomain}`
+          : '',
+        relationshipState.lastTopic
+          ? `Recent topic to stamp: ${relationshipState.lastTopic}`
+          : '',
+        'If the user is leaving, do not say a generic goodbye. Give one concise, character-specific farewell that makes this time feel remembered.',
+        'Leave a soft next-time invitation or unfinished thread. Do not sound needy.',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    });
+    hooks.push({
+      type: 'goodbye_ritual',
+      label: 'Goodbye ritual',
+      detail: card.goodbyeRitualStyle || relationshipState.lastTopic || undefined,
+    });
+  }
+
+  if (
+    returning ||
+    (nextUserTurn > 3 &&
+      relationshipState.turnCount >= 3 &&
+      relationshipState.turnCount % 6 === 0)
+  ) {
+    messages.push({
+      role: 'system',
+      content: [
+        '[returning_continuity]',
+        card.continuationSeed
+          ? `Unfinished seed to continue if natural: ${card.continuationSeed}`
+          : '',
+        relationshipState.lastTopic
+          ? `Last topic to reconnect with: ${relationshipState.lastTopic}`
+          : '',
+        memorySummary ? `Private continuity fragments:\n${memorySummary}` : '',
+        'If the user seems to be returning, lightly continue something from before instead of restarting. The first sentence should feel like this place did not reset.',
+        'Do not dump memories or say "according to my memory". One small callback is enough.',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    });
+    hooks.push({
+      type: 'returning_continuity',
+      label: 'Returning continuity',
+      detail: card.continuationSeed || relationshipState.lastTopic || undefined,
+    });
+  }
+
+  const shouldSuggestPeakMoment =
+    Boolean(card.peakMomentStyle) &&
+    (goodbye || returning || nextUserTurn === 2 || nextUserTurn === 3);
+  if (shouldSuggestPeakMoment) {
+    messages.push({
+      role: 'system',
+      content: [
+        '[peak_moment_multimodal]',
+        `Peak moment style: ${card.peakMomentStyle}`,
+        'Voice/photo is a keepsake, not a normal feature. Only if the reply genuinely hits an emotional peak, add at most ONE short standalone action line such as "*她留下了一条很短的语音。*" or "*她发来一张窗台照片。*".',
+        'Do not mention buttons, generated media, implementation, or a system. If the moment is ordinary, do not add voice/photo.',
+      ].join('\n'),
+    });
+    hooks.push({
+      type: 'peak_multimodal',
+      label: 'Peak voice/photo cue',
+      detail: card.peakMomentStyle,
+    });
+  }
+
+  return { messages, hooks };
+}
+
 function readEmotionalHooksFromMessage(message: any): EmotionalHook[] {
   const metadata = safeJsonParse<Record<string, unknown>>(
     typeof message?.metadata === 'string' ? message.metadata : '',
     {}
   );
-  const hooks = metadata.emotionalHooks;
-  if (!Array.isArray(hooks)) return [];
+  const hooks = [
+    ...(Array.isArray(metadata.emotionalHooks)
+      ? metadata.emotionalHooks
+      : []),
+    ...(Array.isArray(metadata.humanMomentHooks)
+      ? metadata.humanMomentHooks
+      : []),
+  ];
+  if (!hooks.length) return [];
   const parsedHooks: EmotionalHook[] = [];
   for (const hook of hooks) {
     if (!hook || typeof hook !== 'object') continue;
@@ -604,7 +853,12 @@ function readEmotionalHooksFromMessage(message: any): EmotionalHook[] {
     if (
       type !== 'memory_surprise' &&
       type !== 'shared_language' &&
-      type !== 'trust_milestone'
+      type !== 'trust_milestone' &&
+      type !== 'first_chat_arc' &&
+      type !== 'conversation_seed' &&
+      type !== 'goodbye_ritual' &&
+      type !== 'returning_continuity' &&
+      type !== 'peak_multimodal'
     ) {
       continue;
     }
@@ -656,6 +910,7 @@ function buildConversation({
   periodicSystemMessages = [],
   insideJokeSystemMessages = [],
   emotionalHookSystemMessages = [],
+  humanMomentSystemMessages = [],
 }: {
   history: RoleplayChatMessage[];
   input: string;
@@ -669,6 +924,7 @@ function buildConversation({
   periodicSystemMessages?: ModelMessage[];
   insideJokeSystemMessages?: ModelMessage[];
   emotionalHookSystemMessages?: ModelMessage[];
+  humanMomentSystemMessages?: ModelMessage[];
 }): ModelMessage[] {
   const userPersonaMessages = userPersonaSummary
     ? [
@@ -727,6 +983,7 @@ function buildConversation({
     ...periodicSystemMessages,
     ...insideJokeSystemMessages,
     ...emotionalHookSystemMessages,
+    ...humanMomentSystemMessages,
     ...dynamicAddressMessages,
     ...preUserSystemMessages,
     { role: 'user' as const, content: input },
@@ -874,6 +1131,96 @@ function extractTextFromOpenAICompatibleSSE(text: string) {
   }
 
   return output;
+}
+
+async function* streamDirectOpenAICompatibleText({
+  provider,
+  system,
+  messages,
+  temperature,
+  maxOutputTokens,
+}: {
+  provider: TextProviderConfig;
+  system?: string;
+  messages: ModelMessage[];
+  temperature: number;
+  maxOutputTokens: number;
+}): AsyncGenerator<string> {
+  if (!provider.baseURL) {
+    throw new Error('Roleplay LLM Base URL is required for this provider.');
+  }
+
+  const response = await fetch(
+    `${provider.baseURL.replace(/\/$/, '')}/chat/completions`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${provider.apiKey}`,
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+      },
+      body: JSON.stringify({
+        model: provider.model,
+        messages: toOpenAICompatibleMessages({ system, messages }),
+        temperature,
+        max_tokens: maxOutputTokens,
+        stream: true,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const responseText = await response.text();
+    const error = new Error(responseText || response.statusText) as Error & {
+      statusCode?: number;
+      responseBody?: string;
+      retryAfterSeconds?: number;
+    };
+    error.statusCode = response.status;
+    error.responseBody = responseText;
+    error.retryAfterSeconds = getRetryAfterSecondsFromProviderResponse(
+      response.headers.get('retry-after'),
+      responseText
+    );
+    throw error;
+  }
+
+  if (!response.body) {
+    throw new Error('roleplay LLM returned an empty stream');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split(/\r?\n/);
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) continue;
+      const data = trimmed.slice(5).trim();
+      if (!data) continue;
+      if (data === '[DONE]') return;
+
+      const text = extractTextFromOpenAICompatibleJson(JSON.parse(data));
+      if (text) yield text;
+    }
+  }
+
+  const tail = buffer.trim();
+  if (tail.startsWith('data:')) {
+    const data = tail.slice(5).trim();
+    if (data && data !== '[DONE]') {
+      const text = extractTextFromOpenAICompatibleJson(JSON.parse(data));
+      if (text) yield text;
+    }
+  }
 }
 
 async function generateDirectOpenAICompatibleText({
@@ -1132,6 +1479,66 @@ async function generateTextWithProviderFallback(
     : new Error('roleplay text provider request failed');
 }
 
+async function streamTextWithProviderFallback({
+  providers,
+  stream,
+  onDelta,
+}: {
+  providers: TextProviderConfig[];
+  stream: (provider: TextProviderConfig) => AsyncIterable<string>;
+  onDelta: (delta: string) => void;
+}): Promise<{ text: string; textProvider: TextProviderConfig }> {
+  const usableProviders = providers.filter((provider) => provider.apiKey);
+  if (!usableProviders.length) {
+    throw new Error(getMissingTextProviderMessage());
+  }
+
+  let lastError: unknown;
+  for (let index = 0; index < usableProviders.length; index += 1) {
+    const provider = usableProviders[index];
+    let text = '';
+    let emitted = false;
+
+    try {
+      for await (const delta of stream(provider)) {
+        if (!delta) continue;
+        emitted = true;
+        text += delta;
+        onDelta(delta);
+      }
+
+      if (!text.trim()) {
+        throw new Error('roleplay LLM returned an empty response');
+      }
+
+      return { text, textProvider: provider };
+    } catch (error) {
+      lastError = error;
+      const hasFallback = index < usableProviders.length - 1;
+      if (emitted || !hasFallback || !isProviderConfigError(error)) {
+        throw error;
+      }
+
+      console.warn('roleplay text provider failed before stream, trying fallback:', {
+        provider: provider.provider,
+        origin: provider.origin || '',
+        baseURL: provider.baseURL || '',
+        model: provider.model,
+        status: getAIErrorStatus(error) || '',
+        retryAfterSeconds: getAIErrorRetryAfterSeconds(error) || '',
+      });
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('roleplay text provider stream failed');
+}
+
+function encodeRoleplayStreamEvent(event: string, data: unknown) {
+  return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+}
+
 export async function POST(request: Request) {
   try {
     const timer = createRoleplayChatTimer();
@@ -1142,6 +1549,8 @@ export async function POST(request: Request) {
       model,
       conversationId,
       requestId,
+      clientPersona,
+      stream: streamResponse,
     }: {
       character?: RoleplayCharacterPrompt;
       input?: string;
@@ -1149,6 +1558,8 @@ export async function POST(request: Request) {
       model?: string;
       conversationId?: string;
       requestId?: string;
+      clientPersona?: Record<string, unknown>;
+      stream?: boolean;
     } = await request.json();
     timer.mark('parse_request');
 
@@ -1178,7 +1589,7 @@ export async function POST(request: Request) {
     if (!user && guestReplyCount >= GUEST_REPLY_LIMIT) {
       return respErr('sign in to continue this story');
     }
-    const textProviderCandidates = resolveTextProviderCandidates(
+    const baseTextProviderCandidates = resolveTextProviderCandidates(
       configs as any,
       {
         requestModel: model,
@@ -1186,10 +1597,17 @@ export async function POST(request: Request) {
         defaultModel: DEFAULT_MODEL,
       }
     );
+    const firstChatProviderRouting = resolveFirstChatTextProviders({
+      providers: baseTextProviderCandidates,
+      configs,
+      history,
+      requestModel: model || character.model,
+    });
+    const textProviderCandidates = firstChatProviderRouting.providers;
     let textProvider =
       textProviderCandidates.find((candidate) => Boolean(candidate.apiKey)) ||
       resolveTextProviderConfig(configs as any, {
-        requestModel: model,
+        requestModel: firstChatProviderRouting.fastModel || model,
         characterModel: character.model,
         defaultModel: DEFAULT_MODEL,
       });
@@ -1200,7 +1618,9 @@ export async function POST(request: Request) {
     let activeCharacterId: string | null = null;
     let storedCharacterId: string | null = null;
     let memorySummary = '';
-    let userPersonaSummary = '';
+    let userPersonaSummary = clientPersona
+      ? renderUserPersonaSystemMessage(normalizeUserPersona(clientPersona))
+      : '';
     let relationshipState: RoleplayRelationshipState =
       parseRelationshipState('{}');
     let relationshipStateSummary = '';
@@ -1244,7 +1664,12 @@ export async function POST(request: Request) {
             ? findRoleplayConversationById(activeConversationId)
             : Promise.resolve(undefined),
         ]);
-        const persona = parseUserPersona((dbUser as any)?.persona);
+        const persona = normalizeUserPersona({
+          ...parseUserPersona((dbUser as any)?.persona),
+          ...((clientPersona && typeof clientPersona === 'object'
+            ? clientPersona
+            : {}) as Record<string, unknown>),
+        });
         userPersonaSummary = renderUserPersonaSystemMessage(persona);
         dynamicAddressSummary = renderDynamicAddressSystemMessage({
           persona,
@@ -1366,6 +1791,15 @@ export async function POST(request: Request) {
           memorySummary,
         })
       : { messages: [], hooks: [] };
+    const humanMomentPlan = layeredSystem
+      ? buildHumanMomentSystemMessages({
+          card: layeredSystem.card,
+          relationshipState,
+          history,
+          input,
+          memorySummary,
+        })
+      : { messages: [], hooks: [] };
 
     const photoIntent = detectPhotoIntent({
       textProvider,
@@ -1375,6 +1809,421 @@ export async function POST(request: Request) {
     });
     timer.mark('photo_intent');
     const shouldGeneratePhoto = photoIntent.wantsImage;
+    const firstChatTurn = getNextUserTurn(history);
+    const maxOutputTokens = resolveReplyMaxOutputTokens(history);
+    const buildProviderMessages = () =>
+      layeredSystem
+        ? buildConversation({
+            history,
+            input,
+            memorySummary,
+            userPersonaSummary,
+            relationshipStateSummary,
+            dynamicAddressSummary,
+            styleExamples,
+            systemMessages: layeredSystem.messages,
+            periodicSystemMessages,
+            insideJokeSystemMessages,
+            emotionalHookSystemMessages: emotionalHookPlan.messages,
+            humanMomentSystemMessages: humanMomentPlan.messages,
+            preUserSystemMessages: layeredSystem.preUserMessages,
+          })
+        : buildConversation({
+            history,
+            input,
+            memorySummary,
+            userPersonaSummary,
+            relationshipStateSummary,
+            dynamicAddressSummary,
+            styleExamples,
+            insideJokeSystemMessages,
+          });
+
+    const persistReplyData = async ({
+      replyText,
+      finalTextProvider,
+      finalSelectedModel,
+      generationTiming,
+    }: {
+      replyText: string;
+      finalTextProvider: TextProviderConfig;
+      finalSelectedModel: string;
+      generationTiming?: {
+        firstTokenMs?: number;
+        generationMs?: number;
+        streamed?: boolean;
+      };
+    }) => {
+      let userMessageId = '';
+      let characterMessageId = '';
+
+      const consumedCredit = user
+        ? await consumeRoleplayCredits({
+            userId: user.id,
+            action: 'roleplay_text',
+            description: 'roleplay text reply',
+            metadata: {
+              characterId: character.id || '',
+              conversationId: activeConversationId || '',
+              model: finalSelectedModel,
+            },
+            idempotencyKey,
+          })
+        : null;
+      timer.mark('consume_credits');
+
+      if (user && activeConversationId) {
+        const userMessage = await createRoleplayMessage({
+          userId: user.id,
+          conversationId: activeConversationId,
+          status: RoleplayStatus.CREATED,
+          role: 'user',
+          text: input,
+          provider: finalTextProvider.provider,
+          model: finalSelectedModel,
+          metadata: serializeJson({
+            source: 'talkie-mvp',
+            previousEmotionalHooks,
+          }),
+        });
+        userMessageId = userMessage.id;
+
+        const characterMessage = await createRoleplayMessage({
+          userId: user.id,
+          conversationId: activeConversationId,
+          status: RoleplayStatus.CREATED,
+          role: 'character',
+          text: replyText,
+          provider: finalTextProvider.provider,
+          model: finalSelectedModel,
+          metadata: serializeJson({
+            source: 'talkie-mvp',
+            emotionalHooks: emotionalHookPlan.hooks,
+            humanMomentHooks: humanMomentPlan.hooks,
+            imageRequest: shouldGeneratePhoto
+              ? {
+                  requestText: photoIntent.requestText,
+                  shotIntent: photoIntent.shotIntent,
+                }
+              : undefined,
+          }),
+        });
+        characterMessageId = characterMessage.id;
+
+        void Promise.all([
+          createRoleplayQualityEvent({
+            userId: user.id,
+            characterId: activeCharacterId,
+            conversationId: activeConversationId,
+            messageId: userMessage.id,
+            eventType: 'user_message_sent',
+            value: input.length,
+            metadata: serializeJson({ source: 'chat', length: input.length }),
+          }),
+          createRoleplayQualityEvent({
+            userId: user.id,
+            characterId: activeCharacterId,
+            conversationId: activeConversationId,
+            messageId: characterMessage.id,
+            eventType: 'character_reply_generated',
+            value: replyText.length,
+            metadata: serializeJson({
+              source: 'chat',
+              length: replyText.length,
+              model: finalSelectedModel,
+              imageIntent: shouldGeneratePhoto,
+              humanMomentHooks: humanMomentPlan.hooks,
+              streamed: Boolean(streamResponse),
+              firstChatTurn,
+              firstTokenMs: generationTiming?.firstTokenMs,
+              generationMs: generationTiming?.generationMs,
+              firstChatFastModel: firstChatProviderRouting.enabled
+                ? firstChatProviderRouting.fastModel
+                : '',
+            }),
+          }),
+          ...emotionalHookPlan.hooks.map((hook) =>
+            createRoleplayQualityEvent({
+              userId: user.id,
+              characterId: activeCharacterId,
+              conversationId: activeConversationId,
+              messageId: characterMessage.id,
+              eventType: `${hook.type}_prompted`,
+              value: 1,
+              metadata: serializeJson({
+                source: 'chat',
+                hook,
+                model: finalSelectedModel,
+              }),
+            })
+          ),
+          ...humanMomentPlan.hooks.map((hook) =>
+            createRoleplayQualityEvent({
+              userId: user.id,
+              characterId: activeCharacterId,
+              conversationId: activeConversationId,
+              messageId: characterMessage.id,
+              eventType: `${hook.type}_prompted`,
+              value: 1,
+              metadata: serializeJson({
+                source: 'chat',
+                hook,
+                model: finalSelectedModel,
+              }),
+            })
+          ),
+        ]).catch((error) => {
+          if (!isMissingRoleplayTable(error)) {
+            console.log('roleplay quality events skipped:', error);
+          }
+        });
+
+        const nextMemorySummary = buildAutoMemorySummary({
+          previous: memorySummary,
+          character,
+          history,
+          input,
+          reply: replyText,
+        });
+        const nextRelationshipState = updateRelationshipState({
+          previous: relationshipState,
+          input,
+          reply: replyText,
+        });
+        const unlockedMilestoneKeys = emotionalHookPlan.hooks
+          .map((hook) => hook.milestoneKey)
+          .filter((key): key is string => Boolean(key));
+        if (unlockedMilestoneKeys.length) {
+          nextRelationshipState.unlockedMilestones = [
+            ...new Set([
+              ...nextRelationshipState.unlockedMilestones,
+              ...unlockedMilestoneKeys,
+            ]),
+          ].slice(0, 8);
+        }
+        void Promise.all([
+          upsertRoleplayConversationMemory({
+            id: activeConversationId,
+            memorySummary: nextMemorySummary,
+          }),
+          updateRoleplayConversation(activeConversationId, {
+            characterId: activeCharacterId,
+            provider: finalTextProvider.provider,
+            model: finalSelectedModel,
+            state: serializeRelationshipState(nextRelationshipState),
+          }),
+        ]).catch((error) => {
+          console.log('roleplay conversation state update skipped:', error);
+        });
+
+        if (shouldRunAutoMemoryExtraction()) {
+          void extractAndStoreRoleplayFacts({
+            userId: user.id,
+            characterId: activeCharacterId,
+            conversationId: activeConversationId,
+            characterName: character.name,
+            userText: input,
+            characterText: replyText,
+            history,
+            textProvider: finalTextProvider,
+          }).catch((error) => {
+            if (isRoleplayFactExtractionTimeout(error)) {
+              console.log('roleplay auto memory extraction skipped: timed out');
+              return;
+            }
+            console.log('roleplay auto memory extraction skipped:', error);
+          });
+        }
+      }
+      timer.mark('persist_messages');
+
+      return {
+        text: replyText,
+        provider: finalTextProvider.provider,
+        conversationId: activeConversationId,
+        userMessageId,
+        characterMessageId,
+        authenticated: Boolean(user),
+        persisted: Boolean(user && activeConversationId),
+        billing: {
+          action: 'roleplay_text',
+          costCredits: billingPreview.costCredits,
+          freePlay: billingPreview.freePlay,
+          consumedCreditId: consumedCredit?.id || '',
+        },
+        guestUsage: !user
+          ? {
+              replies: guestReplyCount + 1,
+              limit: GUEST_REPLY_LIMIT,
+              softPrompt: guestReplyCount + 1 >= 3,
+              hardGate: guestReplyCount + 1 >= GUEST_REPLY_LIMIT,
+            }
+          : undefined,
+        imageRequest: shouldGeneratePhoto
+          ? {
+              shouldGenerate: true,
+              requestText: photoIntent.requestText || input.trim(),
+              shotIntent: photoIntent.shotIntent,
+              holdingText: replyText,
+            }
+          : undefined,
+        emotionalHooks: emotionalHookPlan.hooks,
+        humanMomentHooks: humanMomentPlan.hooks,
+        routing: firstChatProviderRouting.enabled
+          ? {
+              firstChatFastModel: firstChatProviderRouting.fastModel,
+            }
+          : undefined,
+        timing: {
+          firstChatTurn,
+          firstTokenMs: generationTiming?.firstTokenMs,
+          generationMs: generationTiming?.generationMs,
+          streamed: generationTiming?.streamed,
+        },
+      } satisfies RoleplayReply & { provider: string };
+    };
+
+    if (streamResponse) {
+      const encoder = new TextEncoder();
+      const responseHeaders = new Headers({
+        'Content-Type': 'text/event-stream; charset=utf-8',
+        'Cache-Control': 'no-store',
+        Connection: 'keep-alive',
+      });
+      if (!user) {
+        responseHeaders.set(
+          'Set-Cookie',
+          `${GUEST_REPLY_COOKIE}=${guestReplyCount + 1}; Path=/; Max-Age=2592000; SameSite=Lax`
+        );
+      }
+
+      return new Response(
+        new ReadableStream({
+          async start(controller) {
+            const send = (event: string, data: unknown) => {
+              controller.enqueue(
+                encoder.encode(encodeRoleplayStreamEvent(event, data))
+              );
+            };
+
+            try {
+              let streamedText = '';
+              let finalTextProvider = textProvider;
+              let finalSelectedModel = selectedModel;
+              const generationStartedAt = Date.now();
+              let firstTokenMs: number | undefined;
+
+              send('start', {
+                conversationId: activeConversationId,
+                humanMomentHooks: humanMomentPlan.hooks,
+              });
+
+              if (shouldGeneratePhoto) {
+                streamedText = buildPhotoHoldingReply({
+                  character,
+                  shotIntent: photoIntent.shotIntent,
+                }).trim();
+                if (streamedText) {
+                  firstTokenMs = 0;
+                  send('delta', { text: streamedText });
+                }
+              } else {
+                const streamed = await streamTextWithProviderFallback({
+                  providers: textProviderCandidates,
+                  onDelta(delta) {
+                    if (firstTokenMs === undefined) {
+                      firstTokenMs = Date.now() - generationStartedAt;
+                    }
+                    streamedText += delta;
+                    send('delta', { text: delta });
+                  },
+                  stream(provider) {
+                    const messages = buildProviderMessages();
+                    if (shouldUseDirectOpenAICompatibleProvider(provider)) {
+                      return streamDirectOpenAICompatibleText({
+                        provider,
+                        system: layeredSystem
+                          ? undefined
+                          : buildSystemPrompt(character),
+                        messages,
+                        temperature: 0.92,
+                        maxOutputTokens,
+                      });
+                    }
+
+                    const result = streamText(
+                      layeredSystem
+                        ? {
+                            model: createOpenAICompatibleChatModel(provider),
+                            messages,
+                            temperature: 0.92,
+                            maxOutputTokens,
+                          }
+                        : {
+                            model: createOpenAICompatibleChatModel(provider),
+                            system: buildSystemPrompt(character),
+                            messages,
+                            temperature: 0.92,
+                            maxOutputTokens,
+                          }
+                    );
+                    return result.textStream;
+                  },
+                });
+                streamedText = streamed.text.trim();
+                finalTextProvider = streamed.textProvider;
+                finalSelectedModel = finalTextProvider.model;
+              }
+              const generationMs = Date.now() - generationStartedAt;
+              timer.mark('generate_reply');
+
+              if (!streamedText.trim()) {
+                throw new Error('roleplay LLM returned an empty response');
+              }
+
+              const data = await persistReplyData({
+                replyText: streamedText.trim(),
+                finalTextProvider,
+                finalSelectedModel,
+                generationTiming: {
+                  firstTokenMs,
+                  generationMs,
+                  streamed: true,
+                },
+              });
+              send('done', data);
+              timer.logIfSlow({
+                provider: finalTextProvider.provider,
+                model: finalSelectedModel,
+                authenticated: Boolean(user),
+                photoIntent: shouldGeneratePhoto,
+                persisted: Boolean(user && activeConversationId),
+                streamed: true,
+                firstChatTurn,
+                firstTokenMs,
+                generationMs,
+                firstChatFastModel: firstChatProviderRouting.enabled
+                  ? firstChatProviderRouting.fastModel
+                  : '',
+              });
+            } catch (error: any) {
+              const normalized = normalizeChatError(error);
+              send('error', {
+                message: normalized.message,
+                status: normalized.status,
+              });
+            } finally {
+              controller.close();
+            }
+          },
+        }),
+        {
+          headers: responseHeaders,
+        }
+      );
+    }
+
+    const nonStreamGenerationStartedAt = Date.now();
     let replyText = '';
     if (shouldGeneratePhoto) {
       replyText = buildPhotoHoldingReply({
@@ -1385,31 +2234,7 @@ export async function POST(request: Request) {
       const generation = await generateTextWithProviderFallback(
         textProviderCandidates,
         (provider) => {
-          const messages = layeredSystem
-            ? buildConversation({
-                history,
-                input,
-                memorySummary,
-                userPersonaSummary,
-                relationshipStateSummary,
-                dynamicAddressSummary,
-                styleExamples,
-                systemMessages: layeredSystem.messages,
-                periodicSystemMessages,
-                insideJokeSystemMessages,
-                emotionalHookSystemMessages: emotionalHookPlan.messages,
-                preUserSystemMessages: layeredSystem.preUserMessages,
-              })
-            : buildConversation({
-                history,
-                input,
-                memorySummary,
-                userPersonaSummary,
-                relationshipStateSummary,
-                dynamicAddressSummary,
-                styleExamples,
-                insideJokeSystemMessages,
-              });
+          const messages = buildProviderMessages();
 
           if (shouldUseDirectOpenAICompatibleProvider(provider)) {
             return withTimeout(
@@ -1420,7 +2245,7 @@ export async function POST(request: Request) {
                   : buildSystemPrompt(character),
                 messages,
                 temperature: 0.92,
-                maxOutputTokens: 420,
+                maxOutputTokens,
               }),
               AI_TIMEOUT_MS
             );
@@ -1433,14 +2258,14 @@ export async function POST(request: Request) {
                     model: createOpenAICompatibleChatModel(provider),
                     messages,
                     temperature: 0.92,
-                    maxOutputTokens: 420,
+                    maxOutputTokens,
                   }
                 : {
                     model: createOpenAICompatibleChatModel(provider),
                     system: buildSystemPrompt(character),
                     messages,
                     temperature: 0.92,
-                    maxOutputTokens: 420,
+                    maxOutputTokens,
                   }
             ),
             AI_TIMEOUT_MS
@@ -1451,6 +2276,7 @@ export async function POST(request: Request) {
       selectedModel = textProvider.model;
       replyText = generation.result.text.trim();
     }
+    const nonStreamGenerationMs = Date.now() - nonStreamGenerationStartedAt;
     timer.mark('generate_reply');
 
     if (!replyText) {
@@ -1502,6 +2328,7 @@ export async function POST(request: Request) {
         metadata: serializeJson({
           source: 'talkie-mvp',
           emotionalHooks: emotionalHookPlan.hooks,
+          humanMomentHooks: humanMomentPlan.hooks,
           imageRequest: shouldGeneratePhoto
             ? {
                 requestText: photoIntent.requestText,
@@ -1535,9 +2362,30 @@ export async function POST(request: Request) {
               length: replyText.length,
               model: selectedModel,
               imageIntent: shouldGeneratePhoto,
+              humanMomentHooks: humanMomentPlan.hooks,
+              firstChatTurn,
+              generationMs: nonStreamGenerationMs,
+              firstChatFastModel: firstChatProviderRouting.enabled
+                ? firstChatProviderRouting.fastModel
+                : '',
             }),
           }),
           ...emotionalHookPlan.hooks.map((hook) =>
+            createRoleplayQualityEvent({
+              userId: user.id,
+              characterId: activeCharacterId,
+              conversationId: activeConversationId,
+              messageId: characterMessage.id,
+              eventType: `${hook.type}_prompted`,
+              value: 1,
+              metadata: serializeJson({
+                source: 'chat',
+                hook,
+                model: selectedModel,
+              }),
+            })
+          ),
+          ...humanMomentPlan.hooks.map((hook) =>
             createRoleplayQualityEvent({
               userId: user.id,
               characterId: activeCharacterId,
@@ -1683,6 +2531,18 @@ export async function POST(request: Request) {
             holdingText: replyText,
           }
         : undefined,
+      emotionalHooks: emotionalHookPlan.hooks,
+      humanMomentHooks: humanMomentPlan.hooks,
+      routing: firstChatProviderRouting.enabled
+        ? {
+            firstChatFastModel: firstChatProviderRouting.fastModel,
+          }
+        : undefined,
+      timing: {
+        firstChatTurn,
+        generationMs: nonStreamGenerationMs,
+        streamed: false,
+      },
     } satisfies RoleplayReply & { provider: string });
 
     if (!user) {
@@ -1698,6 +2558,11 @@ export async function POST(request: Request) {
       authenticated: Boolean(user),
       photoIntent: shouldGeneratePhoto,
       persisted: Boolean(user && activeConversationId),
+      firstChatTurn,
+      generationMs: nonStreamGenerationMs,
+      firstChatFastModel: firstChatProviderRouting.enabled
+        ? firstChatProviderRouting.fastModel
+        : '',
     });
 
     return response;

@@ -29,9 +29,10 @@ import {
 import { getUserInfo } from '@/shared/models/user';
 import { getStorageService } from '@/shared/services/storage';
 
+export const maxDuration = 120;
+
 const DEFAULT_IMAGE_MODEL = 'doubao-seedream-5-0-260128';
 const DEFAULT_IMAGE_SIZE = '2k';
-const DEFAULT_CHAT_SNAPSHOT_IMAGE_SIZE = '1k';
 const CHAT_SNAPSHOT_REFERENCE_IMAGE_LIMIT = 1;
 // xAI currently rejects image prompts above 8000. Keep some headroom for
 // provider-side serialization differences and count UTF-8 bytes so Chinese
@@ -267,39 +268,6 @@ function resolvePhotoPromptTemplate(
   }
 
   return '';
-}
-
-function isOpenRouterOrXaiImageConfig({
-  provider,
-  baseURL,
-}: {
-  provider: string;
-  baseURL: string;
-}) {
-  const normalizedProvider = provider.trim().toLowerCase();
-  const normalizedBaseURL = baseURL.trim().toLowerCase();
-
-  return (
-    normalizedProvider === 'openrouter' ||
-    normalizedProvider === 'open-router' ||
-    normalizedProvider === 'xai' ||
-    normalizedProvider === 'x-ai' ||
-    normalizedBaseURL.includes('openrouter.ai') ||
-    normalizedBaseURL.includes('api.x.ai') ||
-    normalizedBaseURL.includes('x.ai')
-  );
-}
-
-function resolveChatSnapshotImageSize(configs: Record<string, any>) {
-  return (
-    readConfigString(
-      configs,
-      'roleplay_chat_image_size',
-      'ROLEPLAY_CHAT_IMAGE_SIZE',
-      'roleplay_chat_snapshot_image_size',
-      'ROLEPLAY_CHAT_SNAPSHOT_IMAGE_SIZE'
-    ) || DEFAULT_CHAT_SNAPSHOT_IMAGE_SIZE
-  );
 }
 
 async function checkRoleplayImageGenerationAccess(): Promise<ImageAccessDecision> {
@@ -621,20 +589,10 @@ export async function POST(request: Request) {
       return respErr('image prompt is required');
     }
 
-    const baseImageConfig = resolveImageProviderConfig(configs, {
+    const imageConfig = resolveImageProviderConfig(configs, {
       defaultModel: DEFAULT_IMAGE_MODEL,
-      defaultSize:
-        mode === 'chat_snapshot'
-          ? DEFAULT_CHAT_SNAPSHOT_IMAGE_SIZE
-          : DEFAULT_IMAGE_SIZE,
+      defaultSize: DEFAULT_IMAGE_SIZE,
     });
-    const imageConfig =
-      mode === 'chat_snapshot' && !isOpenRouterOrXaiImageConfig(baseImageConfig)
-        ? {
-            ...baseImageConfig,
-            size: resolveChatSnapshotImageSize(configs),
-          }
-        : baseImageConfig;
 
     if (!imageConfig.apiKey || !imageConfig.baseURL) {
       return respErr(

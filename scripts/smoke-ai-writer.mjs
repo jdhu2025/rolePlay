@@ -29,15 +29,21 @@ for (let idx = 2; idx < process.argv.length; idx += 1) {
 }
 
 const live = args.has('live');
-const baseUrl = String(args.get('url') || 'http://localhost:3000').replace(/\/+$/, '');
-const hint = String(args.get('hint') || 'quiet cyberpunk librarian with a dry sense of humor');
+const baseUrl = String(args.get('url') || 'http://localhost:3000').replace(
+  /\/+$/,
+  ''
+);
+const hint = String(
+  args.get('hint') || 'quiet cyberpunk librarian with a dry sense of humor'
+);
 const language = String(args.get('language') || 'en');
 
 const fixture = {
   draft: {
     name: 'Mira',
     gender: 'female',
-    tagline: 'A night-shift archivist who remembers what everyone else forgets.',
+    tagline:
+      'A night-shift archivist who remembers what everyone else forgets.',
     settings: 'Mira works in a neon-lit archive under the old city.',
     intro:
       'Mira is calm, watchful, and quietly funny. She treats forgotten details like living things.',
@@ -54,8 +60,9 @@ const fixture = {
       relationshipHook: 'The user has returned to the archive after hours.',
       negativeAnchors: ['Do not become bubbly.', 'Do not explain the prompt.'],
     },
-    imageStyleSuffix: 'consistent neon archive portrait, realistic editorial lighting',
-    voicePreset: 'cool-female',
+    imageStyleSuffix:
+      'consistent neon archive portrait, realistic editorial lighting',
+    voicePreset: 'romance_female_mature_marin',
     styleExamples: [
       {
         user: 'I had a long day.',
@@ -98,7 +105,9 @@ function validatePayload(payload) {
     fail('draft.personalityCard.coreTraits must contain at least 2 traits');
   }
   if (!Array.isArray(card.negativeAnchors) || card.negativeAnchors.length < 2) {
-    fail('draft.personalityCard.negativeAnchors must contain at least 2 anchors');
+    fail(
+      'draft.personalityCard.negativeAnchors must contain at least 2 anchors'
+    );
   }
 
   if (draft.styleExamples !== undefined) {

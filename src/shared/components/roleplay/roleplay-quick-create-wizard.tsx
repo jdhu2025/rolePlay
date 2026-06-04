@@ -10,6 +10,7 @@ import {
   Pencil,
   RefreshCw,
   Sparkles,
+  Trash2,
   Upload,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -376,6 +377,169 @@ function mergeDraftGallery(draft: AiWriterDraft | undefined, gallery: string[]) 
   };
 }
 
+function mergeDraftAfterImageDelete(
+  draft: AiWriterDraft | undefined,
+  gallery: string[]
+) {
+  if (!draft) return undefined;
+  return {
+    ...draft,
+    avatar: gallery[0] || '',
+    gallery,
+  };
+}
+
+function genderLabel(gender: GenderOption | undefined, isZh: boolean) {
+  if (isZh) {
+    if (gender === 'female') return '女性';
+    if (gender === 'male') return '男性';
+    return '非二元';
+  }
+  if (gender === 'female') return 'female';
+  if (gender === 'male') return 'male';
+  return 'non-binary';
+}
+
+function buildQuickCreateImageContext({
+  state,
+  template,
+  isZh,
+}: {
+  state: QuickCreateState;
+  template: QuickCreateTemplate;
+  isZh: boolean;
+}) {
+  const draft = state.draft;
+  const card = draft?.personalityCard;
+  const traits = l10nList(state.traits, isZh);
+  const relationship = state.relationship
+    ? l10n(state.relationship, isZh)
+    : '';
+  const userRole = state.userRole ? l10n(state.userRole, isZh) : '';
+  const openingHook = state.openingHook
+    ? renderOpeningHookForPrompt({
+        hook: state.openingHook,
+        isZh,
+        template,
+      })
+    : '';
+  const gender = state.gender || template.defaultGender || 'non-binary';
+  const ageRange = isZh
+    ? '20+ 成年角色，外观必须清晰成年，避免未成年感'
+    : '20+ adult character, clearly adult appearance, no minor-coded styling';
+  const genderPresentation = `${genderLabel(gender, isZh)} (${gender})`;
+  const personalityText = [
+    traits.length
+      ? isZh
+        ? `性格特质：${traits.join('、')}`
+        : `Personality traits: ${traits.join(', ')}`
+      : '',
+    card?.coreTraits?.length
+      ? isZh
+        ? `人格核心：${card.coreTraits.join('、')}`
+        : `Core personality: ${card.coreTraits.join(', ')}`
+      : '',
+    card?.speakingStyle
+      ? isZh
+        ? `说话风格：${card.speakingStyle}`
+        : `Speaking style: ${card.speakingStyle}`
+      : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  const prompt = [
+    state.imagePrompt,
+    isZh ? template.titleZh : template.titleEn,
+    isZh ? template.summaryZh : template.summaryEn,
+    ageRange,
+    isZh ? `性别：${genderPresentation}` : `Gender: ${genderPresentation}`,
+    personalityText,
+    relationship
+      ? isZh
+        ? `关系起点：${relationship}`
+        : `Relationship start: ${relationship}`
+      : '',
+    userRole ? (isZh ? `用户角色：${userRole}` : `User role: ${userRole}`) : '',
+    openingHook
+      ? isZh
+        ? `开场钩子：${openingHook}`
+        : `Opening hook: ${openingHook}`
+      : '',
+    state.keyMemory
+      ? isZh
+        ? `关键记忆：${state.keyMemory}`
+        : `Key memory: ${state.keyMemory}`
+      : '',
+    state.customInstruction
+      ? isZh
+        ? `用户自定义要求：${state.customInstruction}`
+        : `User custom instruction: ${state.customInstruction}`
+      : '',
+    draft?.name
+      ? isZh
+        ? `已生成角色名：${draft.name}`
+        : `Generated character name: ${draft.name}`
+      : '',
+    draft?.intro
+      ? isZh
+        ? `角色简介：${draft.intro}`
+        : `Character intro: ${draft.intro}`
+      : '',
+    card?.identity
+      ? isZh
+        ? `身份设定：${card.identity}`
+        : `Identity: ${card.identity}`
+      : '',
+    card?.appearance
+      ? isZh
+        ? `外观设定：${card.appearance}`
+        : `Appearance: ${card.appearance}`
+      : '',
+    template.visualStyleHint,
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  return {
+    prompt,
+    characterName: draft?.name || undefined,
+    characterGender: gender,
+    characterIntro: [
+      draft?.intro || '',
+      card?.identity ? `Identity: ${card.identity}` : '',
+      personalityText,
+    ]
+      .filter(Boolean)
+      .join('\n'),
+    characterStyle: [
+      template.visualStyleHint,
+      card?.appearance ? `Appearance: ${card.appearance}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n'),
+    visualIdentity: {
+      ageRange,
+      genderPresentation,
+      style: template.visualStyleHint,
+      body:
+        gender === 'male'
+          ? isZh
+            ? '成年男性比例，健康结实，姿态自然'
+            : 'adult male proportions, healthy and solid build, natural posture'
+          : gender === 'female'
+            ? isZh
+              ? '成熟女性比例，健康协调，姿态自然'
+              : 'adult female proportions, healthy and balanced build, natural posture'
+            : isZh
+              ? '成年角色比例，健康协调，姿态自然'
+              : 'adult proportions, healthy balanced build, natural posture',
+      signatureItems: traits,
+      defaultSetting: isZh ? template.world : template.summaryEn,
+    },
+  };
+}
+
 function buildInitialState(): QuickCreateState {
   return {
     step: 'template',
@@ -509,29 +673,18 @@ export function RoleplayQuickCreateWizard() {
   const generateAvatar = useCallback(async () => {
     updateState({ generatingImage: true });
     try {
-      const localizedTraits = l10nList(state.traits, isZh);
-      const prompt = [
-        state.imagePrompt,
-        isZh ? template.titleZh : template.titleEn,
-        isZh ? template.summaryZh : template.summaryEn,
-        localizedTraits.length
-          ? `Core traits: ${localizedTraits.join(', ')}`
-          : '',
-        state.relationship
-          ? `Relationship start: ${l10n(state.relationship, isZh)}`
-          : '',
-        template.visualStyleHint,
-      ]
-        .filter(Boolean)
-        .join('\n');
+      const imageContext = buildQuickCreateImageContext({
+        state,
+        template,
+        isZh,
+      });
       const referenceImage = state.gallery[0] || '';
       const res = await fetch('/api/roleplay/image', {
         method: 'POST',
         credentials: 'include',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          prompt,
-          characterStyle: template.visualStyleHint,
+          ...imageContext,
           imageStyleSuffix: template.visualStyleHint,
           characterAvatar: referenceImage || undefined,
           requestId: createRoleplayRequestId('rp-image'),
@@ -557,7 +710,19 @@ export function RoleplayQuickCreateWizard() {
     } finally {
       updateState({ generatingImage: false });
     }
-  }, [isZh, state.gallery, state.imagePrompt, state.relationship, state.traits, t, template, updateState]);
+  }, [isZh, state, t, template, updateState]);
+
+  const removeImage = useCallback((url: string) => {
+    setState((prev) => {
+      const nextGallery = prev.gallery.filter((item) => item !== url);
+      return {
+        ...prev,
+        ...syncAvatarFromGallery(nextGallery),
+        draft: mergeDraftAfterImageDelete(prev.draft, nextGallery),
+      };
+    });
+    toast.success(t('image_deleted'));
+  }, [t]);
 
   const saveDraft = useCallback(
     async (draft: AiWriterDraft, id?: string) => {
@@ -899,6 +1064,7 @@ export function RoleplayQuickCreateWizard() {
                 customInstruction={state.customInstruction}
                 uploadingImage={state.uploadingImage}
                 onGenerateImage={generateAvatar}
+                onDeleteImage={removeImage}
                 onPickImage={() => fileInputRef.current?.click()}
                 onUpdate={updateState}
               />
@@ -927,6 +1093,7 @@ export function RoleplayQuickCreateWizard() {
                 generatingImage={state.generatingImage}
                 uploadingImage={state.uploadingImage}
                 onGenerateImage={generateAvatar}
+                onDeleteImage={removeImage}
                 onPickImage={() => fileInputRef.current?.click()}
               />
             )}
@@ -1268,6 +1435,7 @@ function MemoryStep({
   customInstruction,
   uploadingImage,
   onGenerateImage,
+  onDeleteImage,
   onPickImage,
   onUpdate,
 }: {
@@ -1279,6 +1447,7 @@ function MemoryStep({
   customInstruction: string;
   uploadingImage: boolean;
   onGenerateImage: () => void;
+  onDeleteImage: (url: string) => void;
   onPickImage: () => void;
   onUpdate: (patch: Partial<QuickCreateState>) => void;
 }) {
@@ -1361,18 +1530,27 @@ function MemoryStep({
               {t('upload_avatar')}
             </button>
           </div>
-          {gallery.length > 1 ? (
+          {gallery.length > 0 ? (
             <div className="flex flex-wrap gap-2 pt-1">
               {gallery.map((url, index) => (
                 <div
                   key={`${url}-${index}`}
-                  className="overflow-hidden rounded-lg border border-white/10 bg-black/30"
+                  className="group relative overflow-hidden rounded-lg border border-white/10 bg-black/30"
                 >
                   <img
                     src={url}
                     alt={`${t('avatar_alt')} ${index + 1}`}
                     className="h-14 w-11 object-cover"
                   />
+                  <button
+                    type="button"
+                    onClick={() => onDeleteImage(url)}
+                    className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-black/70 text-zinc-200 opacity-0 transition-opacity hover:bg-red-500/80 group-hover:opacity-100"
+                    aria-label={t('delete_image')}
+                    title={t('delete_image')}
+                  >
+                    <Trash2 className="size-3" />
+                  </button>
                 </div>
               ))}
             </div>
@@ -1408,6 +1586,7 @@ function PreviewStep({
   generatingImage,
   uploadingImage,
   onGenerateImage,
+  onDeleteImage,
   onPickImage,
   onTune,
   onPublish,
@@ -1427,6 +1606,7 @@ function PreviewStep({
   generatingImage: boolean;
   uploadingImage: boolean;
   onGenerateImage: () => void;
+  onDeleteImage: (url: string) => void;
   onPickImage: () => void;
   onTune: (instruction: string) => void;
   onPublish: (visibility: VisibilityOption) => void;
@@ -1458,18 +1638,27 @@ function PreviewStep({
             </div>
           )}
         </div>
-        {gallery.length > 1 ? (
+        {gallery.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {gallery.map((url, index) => (
               <div
                 key={`${url}-${index}`}
-                className="overflow-hidden rounded-lg border border-white/10 bg-black/30"
+                className="group relative overflow-hidden rounded-lg border border-white/10 bg-black/30"
               >
                 <img
                   src={url}
                   alt={`${draft.name} ${index + 1}`}
                   className="h-14 w-11 object-cover"
                 />
+                <button
+                  type="button"
+                  onClick={() => onDeleteImage(url)}
+                  className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-black/70 text-zinc-200 opacity-0 transition-opacity hover:bg-red-500/80 group-hover:opacity-100"
+                  aria-label={t('delete_image')}
+                  title={t('delete_image')}
+                >
+                  <Trash2 className="size-3" />
+                </button>
               </div>
             ))}
           </div>

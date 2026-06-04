@@ -2,6 +2,7 @@ export type RoleplayUserPersona = {
   preferredName?: string;
   defaultRelationship?: string;
   tonePreference?: string;
+  firstImpression?: string;
 };
 
 export type RoleplayAddressHistoryMessage = {
@@ -32,6 +33,9 @@ export function normalizeUserPersona(
   const tonePreference = str('tonePreference', 400);
   if (tonePreference) persona.tonePreference = tonePreference;
 
+  const firstImpression = str('firstImpression', 240);
+  if (firstImpression) persona.firstImpression = firstImpression;
+
   return persona;
 }
 
@@ -59,6 +63,9 @@ export function serializeUserPersona(persona: RoleplayUserPersona): string {
   if (persona.tonePreference?.trim()) {
     compact.tonePreference = persona.tonePreference.trim().slice(0, 400);
   }
+  if (persona.firstImpression?.trim()) {
+    compact.firstImpression = persona.firstImpression.trim().slice(0, 240);
+  }
   return JSON.stringify(compact);
 }
 
@@ -78,6 +85,9 @@ export function renderUserPersonaSystemMessage(
       : '',
     persona.tonePreference
       ? `User tone preference: ${persona.tonePreference}`
+      : '',
+    persona.firstImpression
+      ? `User's first-meeting preference: ${persona.firstImpression}`
       : '',
   ].filter(Boolean);
 

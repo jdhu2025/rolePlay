@@ -63,8 +63,10 @@ import {
   createRoleplayApiError,
   createRoleplayRequestId,
   generateRoleplayReply,
+  generateRoleplayReplyStream,
   RoleplayApiError,
   type RoleplayCharacterPrompt,
+  type RoleplayClientPersona,
   type RoleplayHistoryMessage,
   type RoleplayInsufficientCreditsPayload,
 } from '@/shared/lib/roleplay-ai';
@@ -81,6 +83,7 @@ import {
   type RoleplayCharacterClient,
 } from '@/shared/lib/roleplay-client';
 import { parseMessage } from '@/shared/lib/roleplay-message-format';
+import { recordRoleplayMomentEvent } from '@/shared/lib/roleplay-moment-events';
 import { cn } from '@/shared/lib/utils';
 
 type ChatMessage = {
@@ -102,6 +105,9 @@ type ChatMessage = {
    */
   delivery?: 'pending' | 'sent' | 'error';
 };
+
+const FIRST_TOKEN_FALLBACK_MS = 12_000;
+const CHAT_IMAGE_REQUEST_TIMEOUT_MS = 100_000;
 
 type PendingSend = {
   messageId: string;
@@ -142,6 +148,13 @@ type RestoreDebug = {
 const COMPOSER_MAX_ROWS = 6;
 const ROLEPLAY_CHAT_HISTORY_LIMIT = 18;
 const TTS_EMOTION_STRATEGY_VERSION = 'emotion-v2';
+
+const FIRST_IMPRESSION_LABELS: Record<string, string> = {
+  quiet: 'The user chose quiet, attentive companionship for the first meeting.',
+  playful: 'The user chose playful teasing and lightness for the first meeting.',
+  guarded:
+    'The user chose someone a little hard to approach, with tension before warmth.',
+};
 
 function readMessageTTSUrl(message: ChatMessage, voicePreset?: string) {
   const currentVoicePreset = String(voicePreset || '').trim();
@@ -194,6 +207,38 @@ function buildRoleplayVoiceDirection(character: RoleplayCharacterClient) {
   return parts.join(' ');
 }
 
+function readLocalClientPersona(): RoleplayClientPersona | undefined {
+  if (typeof window === 'undefined') return undefined;
+  const choice = window.localStorage
+    .getItem('roleplay:first-impression')
+    ?.trim();
+  if (!choice) return undefined;
+  return {
+    firstImpression: FIRST_IMPRESSION_LABELS[choice] || choice.slice(0, 240),
+  };
+}
+
+function hasPeakVoiceCue(message: ChatMessage) {
+  const hooks = Array.isArray(message.metadata?.humanMomentHooks)
+    ? message.metadata.humanMomentHooks
+    : [];
+  const hasPeakHook = hooks.some(
+    (hook) =>
+      hook &&
+      typeof hook === 'object' &&
+      (hook as Record<string, unknown>).type === 'peak_multimodal'
+  );
+  if (!hasPeakHook) return false;
+
+  return /\b(voice note|voice message|recording|left a voice|short voice)\b/i.test(
+    message.text
+  ) || /语音|录音|低声|留下.*声音|声音.*留下/.test(message.text);
+}
+
+function removeLocalFallbackMessages(messages: ChatMessage[]) {
+  return messages.filter((message) => message.metadata?.localFallback !== true);
+}
+
 function normalizeStoredMessages(messages: StoredMessage[]): ChatMessage[] {
   return messages
     .filter((message) => message && typeof message === 'object')
@@ -204,6 +249,7 @@ function normalizeStoredMessages(messages: StoredMessage[]): ChatMessage[] {
         message.metadata && typeof message.metadata === 'object'
           ? message.metadata
           : undefined;
+      const wasInterruptedImageRequest = metadata?.pendingImage === true;
       const mediaType =
         message.mediaType === 'image' || metadata?.mediaType === 'image'
           ? 'image'
@@ -217,10 +263,16 @@ function normalizeStoredMessages(messages: StoredMessage[]): ChatMessage[] {
       return {
         id: message.id ?? `restore-${idx}`,
         role,
-        text: typeof message.text === 'string' ? message.text : '',
+        text: wasInterruptedImageRequest
+          ? '*照片发送被中断了，请再试一次。*'
+          : typeof message.text === 'string'
+            ? message.text
+            : '',
         mediaType,
         mediaUrl,
-        metadata,
+        metadata: wasInterruptedImageRequest
+          ? { ...metadata, pendingImage: false, failedImage: true }
+          : metadata,
       };
     })
     .filter((message) => message.text || message.mediaUrl);
@@ -302,6 +354,7 @@ export function RoleplayChat({ characterId }: Props) {
   const [regeneratingMessageId, setRegeneratingMessageId] = useState('');
   const [voiceLoadingMessageId, setVoiceLoadingMessageId] = useState('');
   const [voicePlayingMessageId, setVoicePlayingMessageId] = useState('');
+  const [replyWaitElapsedMs, setReplyWaitElapsedMs] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [insufficientCredits, setInsufficientCredits] =
     useState<RoleplayInsufficientCreditsPayload | null>(null);
@@ -316,6 +369,8 @@ export function RoleplayChat({ characterId }: Props) {
   const pendingQueueRef = useRef<PendingSend[]>([]);
   const processingQueueRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const userInteractedRef = useRef(false);
+  const continuationHintTrackedRef = useRef('');
 
   const updateMessages = useCallback((
     updater: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])
@@ -379,11 +434,15 @@ export function RoleplayChat({ characterId }: Props) {
           .catch(() => {});
       }
       const [data, latest] = await Promise.all([
-        localCharacter ? Promise.resolve(null) : characterPromise,
+        characterPromise,
         latestPromise,
       ]);
-      const found = localCharacter ?? data?.character ?? null;
+      const found = data?.character ?? localCharacter ?? null;
       setCharacter(found);
+      if (userInteractedRef.current) {
+        setLoading(false);
+        return;
+      }
 
       // Seed opening message + restore prior conversation if available.
       if (found && !seededRef.current) {
@@ -420,6 +479,10 @@ export function RoleplayChat({ characterId }: Props) {
               source: 'db',
             });
             if (restored.length || localIsSameConversation) {
+              if (userInteractedRef.current) {
+                setLoading(false);
+                return;
+              }
               updateMessages(
                 localIsSameConversation &&
                   localMessages.length > restored.length
@@ -452,6 +515,10 @@ export function RoleplayChat({ characterId }: Props) {
                   controller.signal
                 );
                 if (restored.length) {
+                  if (userInteractedRef.current) {
+                    setLoading(false);
+                    return;
+                  }
                   updateMessages(restored);
                   setLoading(false);
                   return;
@@ -466,6 +533,10 @@ export function RoleplayChat({ characterId }: Props) {
               ) {
                 const restored = normalizeStoredMessages(state.messages);
                 if (restored.length) {
+                  if (userInteractedRef.current) {
+                    setLoading(false);
+                    return;
+                  }
                   updateMessages(restored);
                   setLoading(false);
                   return;
@@ -522,11 +593,60 @@ export function RoleplayChat({ characterId }: Props) {
   }, [messages]);
 
   useEffect(() => {
+    const currentCharacter = character;
+    const continuationSeed =
+      currentCharacter?.personalityCard?.continuationSeed?.trim();
+    if (
+      !currentCharacter ||
+      !continuationSeed ||
+      !restoreDebug?.restoredMessages ||
+      restoreDebug.restoredMessages <= 1
+    ) {
+      return;
+    }
+
+    const key = `${currentCharacter.id}:${conversationId || ''}:${continuationSeed}`;
+    if (continuationHintTrackedRef.current === key) return;
+    continuationHintTrackedRef.current = key;
+
+    recordRoleplayMomentEvent({
+      eventType: 'continuation_hint_shown',
+      characterId: currentCharacter.id,
+      conversationId: conversationId || undefined,
+      metadata: {
+        restoredMessages: restoreDebug.restoredMessages,
+        restoreSource: restoreDebug.source,
+        continuationSeed,
+      },
+    });
+  }, [
+    character,
+    conversationId,
+    restoreDebug?.restoredMessages,
+    restoreDebug?.source,
+  ]);
+
+  useEffect(() => {
     return () => {
       audioRef.current?.pause();
       audioRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (pendingReplyCount <= 0) {
+      setReplyWaitElapsedMs(0);
+      return;
+    }
+
+    const startedAt = Date.now();
+    setReplyWaitElapsedMs(0);
+    const interval = window.setInterval(() => {
+      setReplyWaitElapsedMs(Date.now() - startedAt);
+    }, 500);
+
+    return () => window.clearInterval(interval);
+  }, [pendingReplyCount]);
 
   // Auto-scroll to bottom when messages change.
   useLayoutEffect(() => {
@@ -571,7 +691,7 @@ export function RoleplayChat({ characterId }: Props) {
   };
 
   const getHistoryBeforeMessage = (messageId: string) => {
-    const currentMessages = messagesRef.current;
+    const currentMessages = removeLocalFallbackMessages(messagesRef.current);
     const index = currentMessages.findIndex((message) => message.id === messageId);
     const historySource =
       index >= 0 ? currentMessages.slice(0, index) : currentMessages;
@@ -609,6 +729,30 @@ export function RoleplayChat({ characterId }: Props) {
     return nextMessages;
   };
 
+  const insertLocalFallbackReply = (
+    userMessageId: string,
+    fallbackMessage: ChatMessage
+  ) => {
+    updateMessages((prev) => {
+      if (prev.some((message) => message.id === fallbackMessage.id)) {
+        return prev;
+      }
+      const index = prev.findIndex((message) => message.id === userMessageId);
+      if (index < 0) return [...prev, fallbackMessage];
+      return [
+        ...prev.slice(0, index + 1),
+        fallbackMessage,
+        ...prev.slice(index + 1),
+      ];
+    });
+  };
+
+  const clearLocalFallbackReply = (fallbackMessageId: string) => {
+    if (!fallbackMessageId) return;
+    updateMessages((prev) =>
+      prev.filter((message) => message.id !== fallbackMessageId)
+    );
+  };
 
   const requestChatImage = useCallback(async ({
     reply,
@@ -633,11 +777,11 @@ export function RoleplayChat({ characterId }: Props) {
     writeLocalRoleplayChatState({
       characterId: character.id,
       conversationId: reply.conversationId || conversationIdRef.current || undefined,
-      messages: withPending,
+      messages: removeLocalFallbackMessages(withPending),
     });
 
     try {
-      const recentMessages = messagesRef.current
+      const recentMessages = removeLocalFallbackMessages(messagesRef.current)
         .slice(-6)
         .map((message) => ({ role: message.role, text: message.text }));
       const referenceImages = [
@@ -650,10 +794,12 @@ export function RoleplayChat({ characterId }: Props) {
         method: 'POST',
         credentials: 'include',
         headers: { 'content-type': 'application/json' },
+        signal: AbortSignal.timeout(CHAT_IMAGE_REQUEST_TIMEOUT_MS),
         body: JSON.stringify({
           characterId: character.id,
           conversationId: reply.conversationId || conversationIdRef.current || undefined,
           characterName: character.name,
+          characterGender: character.gender,
           characterAvatar: referenceImages[0] || undefined,
           characterReferenceImages: referenceImages,
           characterIntro: character.intro || character.settings || undefined,
@@ -671,7 +817,12 @@ export function RoleplayChat({ characterId }: Props) {
         }),
       });
       const payload = await imageResponse.json().catch(() => ({}));
-      if (!imageResponse.ok || (payload?.code && payload.code !== 0)) {
+      if (
+        !imageResponse.ok ||
+        payload?.code !== 0 ||
+        typeof payload?.data?.url !== 'string' ||
+        !payload.data.url
+      ) {
         throw createRoleplayApiError(payload, 'image generate failed');
       }
 
@@ -690,30 +841,36 @@ export function RoleplayChat({ characterId }: Props) {
             : undefined,
       };
 
-      const nextMessages = messagesRef.current.map((message) =>
-        message.id === pendingImageMessage.id ? generatedMessage : message
-      );
-      updateMessages(nextMessages);
-      writeLocalRoleplayChatState({
-        characterId: character.id,
-        conversationId: reply.conversationId || conversationIdRef.current || undefined,
-        messages: nextMessages,
+      updateMessages((currentMessages) => {
+        const nextMessages = currentMessages.map((message) =>
+          message.id === pendingImageMessage.id ? generatedMessage : message
+        );
+        writeLocalRoleplayChatState({
+          characterId: character.id,
+          conversationId:
+            reply.conversationId || conversationIdRef.current || undefined,
+          messages: removeLocalFallbackMessages(nextMessages),
+        });
+        return nextMessages;
       });
     } catch (error) {
-      const failedMessages = messagesRef.current.map((message) =>
-        message.id === pendingImageMessage.id
-          ? {
-              ...message,
-              text: '*照片没发成功……等我再试一次。*',
-              metadata: { pendingImage: false, failedImage: true },
-            }
-          : message
-      );
-      updateMessages(failedMessages);
-      writeLocalRoleplayChatState({
-        characterId: character.id,
-        conversationId: reply.conversationId || conversationIdRef.current || undefined,
-        messages: failedMessages,
+      updateMessages((currentMessages) => {
+        const failedMessages = currentMessages.map((message) =>
+          message.id === pendingImageMessage.id
+            ? {
+                ...message,
+                text: '*照片没发成功……等我再试一次。*',
+                metadata: { pendingImage: false, failedImage: true },
+              }
+            : message
+        );
+        writeLocalRoleplayChatState({
+          characterId: character.id,
+          conversationId:
+            reply.conversationId || conversationIdRef.current || undefined,
+          messages: removeLocalFallbackMessages(failedMessages),
+        });
+        return failedMessages;
       });
       setRoleplayError(error, t('error'));
     }
@@ -730,15 +887,72 @@ export function RoleplayChat({ characterId }: Props) {
         if (!item || !currentCharacter) continue;
 
         setPendingReplyCount((prev) => prev + 1);
+        let streamedMessageId = `c-stream-${Date.now()}`;
+        let insertedStreamMessage = false;
+        let fallbackMessageId = '';
+        let fallbackTimer: number | undefined;
+        const clearLocalFallback = () => {
+          if (!fallbackMessageId) return;
+          clearLocalFallbackReply(fallbackMessageId);
+          fallbackMessageId = '';
+        };
         try {
           const prompt = buildPrompt();
           if (!prompt) continue;
-          const reply = await generateRoleplayReply(
+          const appendStreamDelta = (delta: string) => {
+            if (!delta) return;
+            if (!insertedStreamMessage) {
+              insertedStreamMessage = true;
+              clearLocalFallback();
+              insertCharacterReply(item.messageId, {
+                id: streamedMessageId,
+                role: 'character',
+                text: delta,
+                metadata: { streaming: true },
+              });
+              return;
+            }
+
+            updateMessages((prev) =>
+              prev.map((message) =>
+                message.id === streamedMessageId
+                  ? { ...message, text: `${message.text}${delta}` }
+                  : message
+              )
+            );
+          };
+
+          fallbackTimer = window.setTimeout(() => {
+            if (insertedStreamMessage) return;
+            fallbackMessageId = `c-local-${Date.now()}`;
+            recordRoleplayMomentEvent({
+              eventType: 'local_fallback_shown',
+              characterId: currentCharacter.id,
+              conversationId: conversationIdRef.current || undefined,
+              metadata: {
+                thresholdMs: FIRST_TOKEN_FALLBACK_MS,
+                messageId: item.messageId,
+                requestId: item.requestId,
+              },
+            });
+            insertLocalFallbackReply(item.messageId, {
+              id: fallbackMessageId,
+              role: 'character',
+              text: t('first_token_fallback', { name: currentCharacter.name }),
+              metadata: { localFallback: true },
+            });
+          }, FIRST_TOKEN_FALLBACK_MS);
+
+          const reply = await generateRoleplayReplyStream(
             prompt,
             item.text,
             getHistoryBeforeMessage(item.messageId),
             conversationIdRef.current || undefined,
-            item.requestId
+            item.requestId,
+            readLocalClientPersona(),
+            {
+              onDelta: appendStreamDelta,
+            }
           );
           if (reply.conversationId) {
             conversationIdRef.current = reply.conversationId;
@@ -748,16 +962,32 @@ export function RoleplayChat({ characterId }: Props) {
             id: reply.characterMessageId || `c-${Date.now()}`,
             role: 'character',
             text: reply.text,
+            metadata: {
+              emotionalHooks: reply.emotionalHooks,
+              humanMomentHooks: reply.humanMomentHooks,
+            },
           };
-          const nextMessages = insertCharacterReply(
-            item.messageId,
-            characterMessage
-          );
+          let nextMessages: ChatMessage[] = [];
+          if (insertedStreamMessage) {
+            updateMessages((prev) => {
+              nextMessages = prev.map((message) =>
+                message.id === streamedMessageId
+                  ? characterMessage
+                  : message
+              );
+              return nextMessages;
+            });
+          } else {
+            clearLocalFallback();
+            streamedMessageId = characterMessage.id;
+            insertedStreamMessage = true;
+            nextMessages = insertCharacterReply(item.messageId, characterMessage);
+          }
           writeLocalRoleplayChatState({
             characterId: currentCharacter.id,
             conversationId:
               reply.conversationId || conversationIdRef.current || undefined,
-            messages: nextMessages,
+            messages: removeLocalFallbackMessages(nextMessages),
           });
           if (reply.imageRequest?.shouldGenerate) {
             await requestChatImage({
@@ -769,7 +999,7 @@ export function RoleplayChat({ characterId }: Props) {
         } catch (error) {
           console.warn('roleplay chat send failed', error);
           updateMessages((prev) =>
-            prev.map((message) =>
+            removeLocalFallbackMessages(prev).map((message) =>
               message.id === item.messageId
                 ? { ...message, delivery: 'error' }
                 : message
@@ -777,6 +1007,10 @@ export function RoleplayChat({ characterId }: Props) {
           );
           setRoleplayError(error, t('error'));
         } finally {
+          if (fallbackTimer) window.clearTimeout(fallbackTimer);
+          updateMessages((currentMessages) =>
+            removeLocalFallbackMessages(currentMessages)
+          );
           setPendingReplyCount((prev) => Math.max(0, prev - 1));
         }
       }
@@ -788,11 +1022,10 @@ export function RoleplayChat({ characterId }: Props) {
     }
   };
 
-  const handleSend = async (event?: FormEvent) => {
-    event?.preventDefault();
-    const text = draft.trim();
+  const sendText = (text: string) => {
     if (!text || !character) return;
 
+    userInteractedRef.current = true;
     clearRoleplayError();
     const messageId = `u-${Date.now()}`;
     const userMessage: ChatMessage = {
@@ -809,6 +1042,27 @@ export function RoleplayChat({ characterId }: Props) {
       text,
     });
     void processSendQueue();
+  };
+
+  const handleSend = async (event?: FormEvent) => {
+    event?.preventDefault();
+    const text = draft.trim();
+    if (!text) return;
+    sendText(text);
+  };
+
+  const handleWrapUp = () => {
+    if (!character) return;
+    if (pendingReplyCount > 0) return;
+    recordRoleplayMomentEvent({
+      eventType: 'wrap_up_clicked',
+      characterId: character.id,
+      conversationId: conversationIdRef.current || undefined,
+      metadata: {
+        messages: removeLocalFallbackMessages(messagesRef.current).length,
+      },
+    });
+    sendText(t('wrap_up_message'));
   };
 
   const handleRegenerateWithCheck = async (message: ChatMessage) => {
@@ -837,10 +1091,12 @@ export function RoleplayChat({ characterId }: Props) {
             messageId: message.id,
             userInput: previousUser.text,
             originalReply: message.text,
-            history: messages.slice(0, index).map((item) => ({
-              role: item.role,
-              text: item.text,
-            })),
+            history: removeLocalFallbackMessages(messages.slice(0, index)).map(
+              (item) => ({
+                role: item.role,
+                text: item.text,
+              })
+            ),
           }),
         }
       );
@@ -859,7 +1115,7 @@ export function RoleplayChat({ characterId }: Props) {
       writeLocalRoleplayChatState({
         characterId: character.id,
         conversationId: payload.data.conversationId || conversationId || undefined,
-        messages: nextMessages,
+        messages: removeLocalFallbackMessages(nextMessages),
       });
     } catch (error) {
       console.warn('roleplay OOC regenerate failed', error);
@@ -892,16 +1148,29 @@ export function RoleplayChat({ characterId }: Props) {
       let audioUrl = readMessageTTSUrl(message, character.voicePreset);
       clearRoleplayError();
       setVoiceLoadingMessageId(message.id);
+      if (hasPeakVoiceCue(message)) {
+        recordRoleplayMomentEvent({
+          eventType: 'keepsake_voice_clicked',
+          characterId: character.id,
+          conversationId: conversationIdRef.current || undefined,
+          metadata: {
+            messageId: message.id,
+            cached: Boolean(audioUrl),
+            textPreview: message.text.slice(0, 180),
+          },
+        });
+      }
 
       try {
         if (!audioUrl) {
-          const messageIndex = messagesRef.current.findIndex(
+          const cleanMessages = removeLocalFallbackMessages(messagesRef.current);
+          const messageIndex = cleanMessages.findIndex(
             (item) => item.id === message.id
           );
           const recentMessages = (
             messageIndex >= 0
-              ? messagesRef.current.slice(Math.max(0, messageIndex - 4), messageIndex + 1)
-              : messagesRef.current.slice(-5)
+              ? cleanMessages.slice(Math.max(0, messageIndex - 4), messageIndex + 1)
+              : cleanMessages.slice(-5)
           ).map((item) => ({
             role: item.role,
             text: item.text,
@@ -952,7 +1221,7 @@ export function RoleplayChat({ characterId }: Props) {
           writeLocalRoleplayChatState({
             characterId: character.id,
             conversationId: conversationIdRef.current || undefined,
-            messages: nextMessages,
+            messages: removeLocalFallbackMessages(nextMessages),
           });
         }
 
@@ -1022,6 +1291,15 @@ export function RoleplayChat({ characterId }: Props) {
       .filter(Boolean)
       .join(' · ') ||
     character.tagline;
+  const continuationSeed = character.personalityCard?.continuationSeed?.trim();
+  const showContinuationHint = Boolean(
+    continuationSeed &&
+      restoreDebug?.restoredMessages &&
+      restoreDebug.restoredMessages > 1
+  );
+  const hasLocalFallbackMessage = messages.some(
+    (message) => message.metadata?.localFallback === true
+  );
 
   return (
     <main className="flex min-h-dvh flex-col bg-[#0d0d10] text-white">
@@ -1065,6 +1343,24 @@ export function RoleplayChat({ characterId }: Props) {
         </Link>
       </header>
 
+      {showContinuationHint && continuationSeed && (
+        <div className="border-b border-white/5 bg-[#111215]/92 px-4 py-2 backdrop-blur md:px-6">
+          <div className="mx-auto flex w-full max-w-2xl items-start gap-2 text-xs text-zinc-400">
+            <Clock3
+              size={14}
+              className="mt-0.5 shrink-0 text-zinc-500"
+              aria-hidden="true"
+            />
+            <p className="min-w-0 leading-relaxed">
+              <span className="font-medium text-zinc-300">
+                {t('continuation_hint')}
+              </span>{' '}
+              <span>{continuationSeed}</span>
+            </p>
+          </div>
+        </div>
+      )}
+
       <div
         ref={scrollerRef}
         className="flex-1 overflow-y-auto px-4 py-5 md:px-6"
@@ -1086,13 +1382,19 @@ export function RoleplayChat({ characterId }: Props) {
                 regenerateTitle={t('ooc_regenerate_title')}
                 playVoiceTitle={t('play_voice')}
                 pauseVoiceTitle={t('pause_voice')}
+                keepsakeVoiceLabel={t('keepsake_voice')}
+                keepsakeVoiceTitle={t('keepsake_voice_title')}
                 voiceLoading={voiceLoadingMessageId === message.id}
                 voicePlaying={voicePlayingMessageId === message.id}
               />
             ))
           )}
-          {pendingReplyCount > 0 && (
-            <TypingIndicator avatar={character.avatar} name={character.name} />
+          {pendingReplyCount > 0 && !hasLocalFallbackMessage && (
+            <TypingIndicator
+              avatar={character.avatar}
+              name={character.name}
+              elapsedMs={replyWaitElapsedMs}
+            />
           )}
           {errorMessage && (
             insufficientCredits ? (
@@ -1137,7 +1439,26 @@ export function RoleplayChat({ characterId }: Props) {
         style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}
       >
         <div className="mx-auto flex w-full max-w-2xl items-end gap-2">
+          {messages.length > 1 && (
+            <button
+              type="button"
+              onClick={handleWrapUp}
+              disabled={pendingReplyCount > 0}
+              title={t('wrap_up_title')}
+              aria-label={t('wrap_up_title')}
+              className={cn(
+                'inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs font-semibold text-zinc-300 transition',
+                'hover:border-white/25 hover:bg-white/[0.08] hover:text-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60',
+                'disabled:cursor-not-allowed disabled:opacity-40'
+              )}
+            >
+              <Clock3 size={15} aria-hidden="true" />
+              <span className="hidden sm:inline">{t('wrap_up')}</span>
+            </button>
+          )}
           <textarea
+            id="roleplay-chat-message"
+            name="message"
             ref={textareaRef}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
@@ -1374,6 +1695,8 @@ function MessageRow({
   regenerateTitle,
   playVoiceTitle,
   pauseVoiceTitle,
+  keepsakeVoiceLabel,
+  keepsakeVoiceTitle,
   voiceLoading,
   voicePlaying,
 }: {
@@ -1387,11 +1710,20 @@ function MessageRow({
   regenerateTitle: string;
   playVoiceTitle: string;
   pauseVoiceTitle: string;
+  keepsakeVoiceLabel: string;
+  keepsakeVoiceTitle: string;
   voiceLoading?: boolean;
   voicePlaying?: boolean;
 }) {
   const isUser = message.role === 'user';
+  const isLocalFallback = message.metadata?.localFallback === true;
   const segments = isUser ? null : parseMessage(message.text);
+  const peakVoiceCue = !isUser && !isLocalFallback && hasPeakVoiceCue(message);
+  const voiceTitle = peakVoiceCue
+    ? keepsakeVoiceTitle
+    : voicePlaying
+      ? pauseVoiceTitle
+      : playVoiceTitle;
   return (
     <div
       className={cn(
@@ -1413,7 +1745,8 @@ function MessageRow({
             'whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed',
             isUser
               ? 'rounded-br-md bg-white text-black'
-              : 'rounded-bl-md bg-white/8 text-zinc-100'
+              : 'rounded-bl-md bg-white/8 text-zinc-100',
+            isLocalFallback && 'border border-white/8 bg-white/[0.04] text-zinc-400'
           )}
         >
           {segments
@@ -1441,23 +1774,33 @@ function MessageRow({
         {isUser && message.delivery ? (
           <DeliveryTick state={message.delivery} />
         ) : null}
-        {!isUser ? (
+        {!isUser && !isLocalFallback ? (
           <div className="mt-1 flex items-center gap-1.5">
             <button
               type="button"
               onClick={onPlayVoice}
               disabled={voiceLoading || message.mediaType === 'image'}
-              title={voicePlaying ? pauseVoiceTitle : playVoiceTitle}
-              aria-label={voicePlaying ? pauseVoiceTitle : playVoiceTitle}
-              className="grid h-7 w-7 place-items-center rounded-full border border-white/10 text-zinc-400 transition-colors hover:border-white/20 hover:bg-white/5 hover:text-zinc-100 disabled:cursor-wait disabled:opacity-60"
+              title={voiceTitle}
+              aria-label={voiceTitle}
+              className={cn(
+                'inline-flex h-7 items-center justify-center rounded-full border transition-colors disabled:cursor-wait disabled:opacity-60',
+                peakVoiceCue
+                  ? 'gap-1.5 border-amber-200/25 bg-amber-200/10 px-2.5 text-[11px] font-medium text-amber-100 hover:border-amber-100/45 hover:bg-amber-200/16'
+                  : 'w-7 border-white/10 text-zinc-400 hover:border-white/20 hover:bg-white/5 hover:text-zinc-100'
+              )}
             >
               {voiceLoading ? (
                 <Loader2 size={12} aria-hidden="true" className="animate-spin" />
               ) : voicePlaying ? (
                 <Pause size={12} aria-hidden="true" />
+              ) : peakVoiceCue ? (
+                <Sparkles size={12} aria-hidden="true" />
               ) : (
                 <Volume2 size={12} aria-hidden="true" />
               )}
+              {peakVoiceCue && !voiceLoading && !voicePlaying ? (
+                <span>{keepsakeVoiceLabel}</span>
+              ) : null}
             </button>
             <button
               type="button"
@@ -1521,16 +1864,44 @@ function DeliveryTick({ state }: { state: 'pending' | 'sent' | 'error' }) {
   );
 }
 
-function TypingIndicator({ avatar, name }: { avatar: string; name: string }) {
+function TypingIndicator({
+  avatar,
+  name,
+  elapsedMs,
+}: {
+  avatar: string;
+  name: string;
+  elapsedMs: number;
+}) {
   const t = useTranslations('roleplay.chat_page');
+  const phase =
+    elapsedMs >= 14_000 ? 'long' : elapsedMs >= 5_000 ? 'shaping' : 'noticed';
+  const status =
+    phase === 'long'
+      ? t('thinking_long', { name })
+      : phase === 'shaping'
+        ? t('thinking_shaping', { name })
+        : t('thinking_noticed', { name });
+
   return (
     <div className="flex items-end gap-2" aria-live="polite">
       <CharacterAvatar src={avatar} name={name} size={32} className="mb-1" />
-      <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-md bg-white/8 px-4 py-3 text-zinc-400">
+      <div className="max-w-[min(82vw,26rem)] rounded-2xl rounded-bl-md border border-white/8 bg-white/8 px-4 py-3 text-zinc-300 shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
         <span className="sr-only">{t('thinking', { name })}</span>
-        <Dot delay={0} />
-        <Dot delay={150} />
-        <Dot delay={300} />
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2.5 w-2.5 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-zinc-300/35" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-zinc-200" />
+          </span>
+          <span className="text-xs leading-relaxed text-zinc-300">
+            {status}
+          </span>
+        </div>
+        <div className="mt-2 flex items-center gap-1.5">
+          <Dot delay={0} />
+          <Dot delay={150} />
+          <Dot delay={300} />
+        </div>
       </div>
     </div>
   );

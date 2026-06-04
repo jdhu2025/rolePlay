@@ -110,6 +110,7 @@ type EditState = {
    * exposes a textarea once the user opts in via the disclosure toggle.
    */
   imageStyleSuffix: string;
+  voice: string;
   /**
    * AI-Writer/admin-configured TTS voice profile id. Legacy preset ids are
    * preserved when loaded so existing characters remain playable through the
@@ -160,6 +161,7 @@ const EMPTY: EditState = {
   gallery: [],
   personalityCard: EMPTY_PERSONALITY_CARD,
   imageStyleSuffix: '',
+  voice: '',
   voicePreset: '',
   styleExamples: [],
   formatStyle: EMPTY_FORMAT_STYLE,
@@ -313,6 +315,7 @@ export function RoleplayCharacterEditForm({ characterId }: Props) {
               : EMPTY_PERSONALITY_CARD,
           imageStyleSuffix:
             typeof c.imageStyleSuffix === 'string' ? c.imageStyleSuffix : '',
+          voice: typeof c.voice === 'string' ? c.voice : '',
           voicePreset: normalizeVoiceProfileId(c.voicePreset),
           styleExamples: normalizeStyleExamples(c.styleExamples),
           formatStyle: normalizeFormatStyle(c.formatStyle),
@@ -511,6 +514,7 @@ export function RoleplayCharacterEditForm({ characterId }: Props) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           characterName: state.name || undefined,
+          characterGender: state.gender,
           characterAvatar: referenceImage || undefined,
           characterIntro: state.intro || state.settings || undefined,
           characterStyle: state.tagline || undefined,
@@ -536,7 +540,7 @@ export function RoleplayCharacterEditForm({ characterId }: Props) {
     } finally {
       setGeneratingImage(false);
     }
-  }, [isLocked, state.gallery, state.imageStyleSuffix, state.intro, state.name, state.settings, state.tagline, t]);
+  }, [isLocked, state.gallery, state.gender, state.imageStyleSuffix, state.intro, state.name, state.settings, state.tagline, t]);
 
   const removeGalleryImage = useCallback(
     (url: string) => {
@@ -601,6 +605,7 @@ export function RoleplayCharacterEditForm({ characterId }: Props) {
         gallery: state.gallery,
         personalityCard: state.personalityCard,
         imageStyleSuffix: state.imageStyleSuffix,
+        voice: state.voice,
         voicePreset: state.voicePreset,
         styleExamples: normalizeStyleExamples(state.styleExamples),
         formatStyle: normalizeFormatStyle(state.formatStyle),

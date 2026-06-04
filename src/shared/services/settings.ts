@@ -947,16 +947,6 @@ export async function getSettings() {
       tab: 'ai',
     },
     {
-      name: 'roleplay_chat_image_size',
-      title: 'Chat Snapshot Image Size',
-      type: 'text',
-      value: '1k',
-      placeholder: '1k',
-      tip: 'Image size for chat-triggered roleplay photos. Keep this lower than portrait generation for faster replies.',
-      group: 'roleplay_ai',
-      tab: 'ai',
-    },
-    {
       name: 'roleplay_female_photo_prompt_template',
       title: 'Female Photo Prompt Template',
       type: 'textarea',

@@ -40,6 +40,8 @@ export type TTSProviderConfig = {
   pcmSampleRate?: number;
   pcmChannels?: number;
   pcmBitDepth?: number;
+  fallbackEndpoint?: string;
+  fallbackAccessToken?: string;
 };
 
 export type RoleplayTTSVoiceProfile = {
@@ -47,6 +49,7 @@ export type RoleplayTTSVoiceProfile = {
   label: string;
   provider: string;
   voiceType: string;
+  voiceTypeByLocale?: Record<string, string>;
   fallbackVoiceType?: string;
   instructions?: string;
   gender?: 'male' | 'female' | 'non-binary';
@@ -69,6 +72,7 @@ type ResolveImageProviderOptions = {
 };
 
 type ResolveTTSProviderOptions = {
+  provider?: string;
   voiceType?: string;
   fallbackVoiceType?: string;
   instructions?: string;
@@ -430,6 +434,34 @@ function inferTTSProviderFromConfig({
   const normalizedModel = model.trim().toLowerCase();
 
   if (
+    ['minimax', 'minimax-t2a', 'minimax-speech', 'minimax-t2a-v2'].includes(
+      normalizedProvider
+    ) ||
+    normalizedEndpoint.includes('api.minimax.io') ||
+    normalizedEndpoint.includes('api-uw.minimax.io') ||
+    normalizedEndpoint.includes('api.minimaxi.com') ||
+    normalizedEndpoint.includes('api-bj.minimaxi.com') ||
+    normalizedModel.startsWith('speech-')
+  ) {
+    return 'minimax';
+  }
+
+  if (
+    [
+      'alibaba',
+      'aliyun',
+      'dashscope',
+      'cosyvoice',
+      'alibaba-cosyvoice',
+      'aliyun-cosyvoice',
+    ].includes(normalizedProvider) ||
+    normalizedEndpoint.includes('dashscope.aliyuncs.com') ||
+    normalizedModel.includes('cosyvoice')
+  ) {
+    return 'alibaba-cosyvoice';
+  }
+
+  if (
     normalizedProvider === 'openrouter' ||
     normalizedProvider === 'open-router' ||
     normalizedEndpoint.includes('openrouter.ai') ||
@@ -455,13 +487,42 @@ function normalizeTTSResponseFormat(value: string) {
   return normalized === 'pcm' ? 'pcm' : 'mp3';
 }
 
+export function inferTTSTextLocale(text: string) {
+  return /[\u3400-\u9fff]/.test(text) ? 'zh-CN' : 'en-US';
+}
+
+export function resolveVoiceTypeForText(
+  profile: RoleplayTTSVoiceProfile | null | undefined,
+  text: string
+) {
+  if (!profile?.voiceTypeByLocale) return profile?.voiceType || '';
+
+  const locale = inferTTSTextLocale(text);
+  return (
+    profile.voiceTypeByLocale[locale] ||
+    profile.voiceTypeByLocale[locale.split('-')[0]] ||
+    profile.voiceType
+  );
+}
+
 function normalizeTTSVoiceForProvider(
   provider: string,
   voiceType: string,
   gender?: 'male' | 'female' | 'non-binary'
 ) {
   const normalized = voiceType.trim();
-  if (provider !== 'openrouter') return normalized;
+  if (provider !== 'openrouter') {
+    if (normalized) return normalized;
+    if (provider === 'minimax') {
+      return gender === 'male'
+        ? 'Chinese (Mandarin)_Warm_Bestie'
+        : 'Chinese (Mandarin)_Warm_HeartedGirl';
+    }
+    if (provider === 'alibaba-cosyvoice') {
+      return gender === 'male' ? 'longcheng' : 'longxiaochun';
+    }
+    return normalized;
+  }
 
   const lower = normalized.toLowerCase();
   if (!lower || lower.startsWith('zh_') || lower.includes('bigtts')) {
@@ -471,6 +532,59 @@ function normalizeTTSVoiceForProvider(
   }
 
   return normalized;
+}
+
+function resolveTTSModelForProvider(provider: string, configuredModel: string) {
+  const model = configuredModel.trim();
+
+  if (provider === 'minimax') {
+    return model.startsWith('speech-') ? model : 'speech-2.8-turbo';
+  }
+
+  if (provider === 'alibaba-cosyvoice') {
+    return model.includes('cosyvoice') ? model : 'cosyvoice-v3-flash';
+  }
+
+  return model;
+}
+
+function resolveTTSEndpointForProvider(
+  provider: string,
+  configuredEndpoint: string
+) {
+  const endpoint = configuredEndpoint.trim();
+  const normalized = endpoint.toLowerCase();
+
+  if (provider === 'openrouter') {
+    return normalized.includes('openrouter.ai')
+      ? endpoint
+      : 'https://openrouter.ai/api/v1/audio/speech';
+  }
+
+  if (provider === 'minimax') {
+    return normalized.includes('minimax')
+      ? endpoint
+      : 'https://api.minimax.io/v1/t2a_v2';
+  }
+
+  if (provider === 'alibaba-cosyvoice') {
+    return normalized.includes('dashscope.aliyuncs.com')
+      ? endpoint
+      : 'https://dashscope.aliyuncs.com/api/v1/services/audio/tts/SpeechSynthesizer';
+  }
+
+  return endpoint || 'https://openspeech.bytedance.com/api/v1/tts';
+}
+
+function getMiniMaxTTSEndpointCandidates(endpoint: string) {
+  return Array.from(
+    new Set([
+      endpoint,
+      'https://api.minimaxi.com/v1/t2a_v2',
+      'https://api-bj.minimaxi.com/v1/t2a_v2',
+      'https://api.minimax.io/v1/t2a_v2',
+    ])
+  );
 }
 
 function isGeminiTTSModel(model?: string) {
@@ -889,6 +1003,7 @@ type RawVoiceProfile = Partial<RoleplayTTSVoiceProfile> & {
   label?: unknown;
   provider?: unknown;
   voiceType?: unknown;
+  voiceTypeByLocale?: unknown;
   fallbackVoiceType?: unknown;
   instructions?: unknown;
   gender?: unknown;
@@ -924,6 +1039,19 @@ function normalizeVoiceProfile(
     label,
     provider: String(raw.provider || 'volcengine-v1').trim() || 'volcengine-v1',
     voiceType,
+    voiceTypeByLocale:
+      raw.voiceTypeByLocale &&
+      typeof raw.voiceTypeByLocale === 'object' &&
+      !Array.isArray(raw.voiceTypeByLocale)
+        ? Object.fromEntries(
+            Object.entries(raw.voiceTypeByLocale as Record<string, unknown>)
+              .map(([locale, value]) => [
+                String(locale || '').trim(),
+                String(value || '').trim(),
+              ])
+              .filter(([locale, value]) => locale && value)
+          )
+        : undefined,
     fallbackVoiceType,
     instructions,
     gender,
@@ -943,9 +1071,13 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   {
     id: 'warm-female',
     label: 'Warm Female (legacy)',
-    provider: 'openrouter',
-    voiceType: 'coral',
-    fallbackVoiceType: 'coral',
+    provider: 'minimax',
+    voiceType: 'Chinese (Mandarin)_Warm_HeartedGirl',
+    voiceTypeByLocale: {
+      'zh-CN': 'Chinese (Mandarin)_Warm_HeartedGirl',
+      'en-US': 'English_SereneWoman',
+    },
+    fallbackVoiceType: 'Chinese (Mandarin)_Warm_Bestie',
     instructions:
       'Warm, gentle female voice. Keep delivery natural and emotionally present.',
     gender: 'female',
@@ -957,9 +1089,13 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   {
     id: 'cool-female',
     label: 'Cool Female (legacy)',
-    provider: 'openrouter',
-    voiceType: 'marin',
-    fallbackVoiceType: 'marin',
+    provider: 'minimax',
+    voiceType: 'Chinese (Mandarin)_Mature_Woman',
+    voiceTypeByLocale: {
+      'zh-CN': 'Chinese (Mandarin)_Mature_Woman',
+      'en-US': 'English_ConfidentWoman',
+    },
+    fallbackVoiceType: 'Chinese (Mandarin)_Wise_Women',
     instructions: 'Cool, composed female voice with restrained emotion.',
     gender: 'female',
     traits: ['cool', 'composed'],
@@ -970,9 +1106,13 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   {
     id: 'playful-female',
     label: 'Playful Female (legacy)',
-    provider: 'openrouter',
-    voiceType: 'verse',
-    fallbackVoiceType: 'verse',
+    provider: 'minimax',
+    voiceType: 'Chinese (Mandarin)_Crisp_Girl',
+    voiceTypeByLocale: {
+      'zh-CN': 'Chinese (Mandarin)_Crisp_Girl',
+      'en-US': 'English_PlayfulGirl',
+    },
+    fallbackVoiceType: 'Chinese (Mandarin)_Warm_Girl',
     instructions:
       'Playful, expressive female voice. Add light smiles and lively emotional color.',
     gender: 'female',
@@ -984,9 +1124,13 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   {
     id: 'warm-male',
     label: 'Warm Male (legacy)',
-    provider: 'openrouter',
-    voiceType: 'ballad',
-    fallbackVoiceType: 'ballad',
+    provider: 'minimax',
+    voiceType: 'Chinese (Mandarin)_Gentleman',
+    voiceTypeByLocale: {
+      'zh-CN': 'Chinese (Mandarin)_Gentleman',
+      'en-US': 'English_Gentle-voiced_man',
+    },
+    fallbackVoiceType: 'Chinese (Mandarin)_Gentle_Youth',
     instructions:
       'Warm, emotionally open male voice. Keep it intimate and conversational.',
     gender: 'male',
@@ -998,9 +1142,13 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   {
     id: 'cool-male',
     label: 'Cool Male (legacy)',
-    provider: 'openrouter',
-    voiceType: 'ash',
-    fallbackVoiceType: 'ash',
+    provider: 'minimax',
+    voiceType: 'Chinese (Mandarin)_Reliable_Executive',
+    voiceTypeByLocale: {
+      'zh-CN': 'Chinese (Mandarin)_Reliable_Executive',
+      'en-US': 'English_Deep-VoicedGentleman',
+    },
+    fallbackVoiceType: 'Chinese (Mandarin)_Gentleman',
     instructions:
       'Cool, modern male voice. Keep delivery calm, direct, and natural.',
     gender: 'male',
@@ -1012,9 +1160,13 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   {
     id: 'playful-male',
     label: 'Playful Male (legacy)',
-    provider: 'openrouter',
-    voiceType: 'fable',
-    fallbackVoiceType: 'fable',
+    provider: 'minimax',
+    voiceType: 'Chinese (Mandarin)_Unrestrained_Young_Man',
+    voiceTypeByLocale: {
+      'zh-CN': 'Chinese (Mandarin)_Unrestrained_Young_Man',
+      'en-US': 'English_Jovialman',
+    },
+    fallbackVoiceType: 'Chinese (Mandarin)_Southern_Young_Man',
     instructions:
       'Playful, friendly male voice. Keep it lively without sounding cartoonish.',
     gender: 'male',
@@ -1026,9 +1178,13 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   {
     id: 'neutral',
     label: 'Neutral (legacy)',
-    provider: 'openrouter',
-    voiceType: 'sage',
-    fallbackVoiceType: 'sage',
+    provider: 'minimax',
+    voiceType: 'Chinese (Mandarin)_Sincere_Adult',
+    voiceTypeByLocale: {
+      'zh-CN': 'Chinese (Mandarin)_Sincere_Adult',
+      'en-US': 'English_FriendlyPerson',
+    },
+    fallbackVoiceType: 'Chinese (Mandarin)_Warm_Bestie',
     instructions:
       'Neutral, balanced voice. Keep gender presentation subtle and delivery responsive.',
     gender: 'non-binary',
@@ -1109,6 +1265,9 @@ export function resolveTTSProviderConfig(
     configs,
     'ROLEPLAY_TTS_ENDPOINT',
     'TTS_ENDPOINT',
+    'MINIMAX_TTS_ENDPOINT',
+    'DASHSCOPE_TTS_ENDPOINT',
+    'ALIBABA_TTS_ENDPOINT',
     'VOLCENGINE_TTS_ENDPOINT'
   );
   const model = readConfig(configs, 'ROLEPLAY_TTS_MODEL', 'TTS_MODEL');
@@ -1118,10 +1277,13 @@ export function resolveTTSProviderConfig(
     'TTS_FALLBACK_MODEL'
   );
   const provider = inferTTSProviderFromConfig({
-    provider: readConfig(configs, 'ROLEPLAY_TTS_PROVIDER', 'TTS_PROVIDER'),
+    provider:
+      options.provider ||
+      readConfig(configs, 'ROLEPLAY_TTS_PROVIDER', 'TTS_PROVIDER'),
     endpoint: configuredEndpoint,
     model,
   });
+  const resolvedModel = resolveTTSModelForProvider(provider, model);
   const fallbackVoiceType = normalizeTTSVoiceForProvider(
     provider,
     options.fallbackVoiceType ||
@@ -1133,12 +1295,28 @@ export function resolveTTSProviderConfig(
       'alloy',
     options.gender
   );
-  const openRouterApiKey = readConfig(
+  const genericTTSApiKey = readConfig(
     configs,
     'ROLEPLAY_TTS_API_KEY',
-    'TTS_API_KEY',
+    'TTS_API_KEY'
+  );
+  const openRouterFallbackApiKey = readConfig(
+    configs,
     'OPENROUTER_TTS_API_KEY',
     'OPENROUTER_API_KEY'
+  );
+  const openRouterApiKey = genericTTSApiKey || openRouterFallbackApiKey;
+  const minimaxApiKey = readConfig(
+    configs,
+    'MINIMAX_TTS_API_KEY',
+    'MINIMAX_API_KEY'
+  );
+  const dashscopeApiKey = readConfig(
+    configs,
+    'DASHSCOPE_API_KEY',
+    'ALIBABA_TTS_API_KEY',
+    'ALIYUN_TTS_API_KEY',
+    'ALIBABA_API_KEY'
   );
   const isOpenRouterGeminiTTS =
     provider === 'openrouter' && isGeminiTTSModel(model);
@@ -1157,29 +1335,40 @@ export function resolveTTSProviderConfig(
     provider,
     options.voiceType ||
       readConfig(configs, 'ROLEPLAY_TTS_VOICE', 'TTS_VOICE') ||
-      (provider === 'openrouter' ? '' : 'zh_female_kailangjiejie_moon_bigtts'),
+      (provider === 'volcengine-v1'
+        ? 'zh_female_kailangjiejie_moon_bigtts'
+        : ''),
     options.gender
   );
 
   return {
     provider,
-    endpoint:
-      provider === 'openrouter'
-        ? configuredEndpoint || 'https://openrouter.ai/api/v1/audio/speech'
-        : configuredEndpoint || 'https://openspeech.bytedance.com/api/v1/tts',
+    endpoint: resolveTTSEndpointForProvider(provider, configuredEndpoint),
     appId,
     accessToken:
-      provider === 'openrouter' ? openRouterApiKey || accessToken : accessToken,
+      provider === 'openrouter'
+        ? openRouterApiKey || accessToken
+        : provider === 'minimax'
+          ? minimaxApiKey || genericTTSApiKey || accessToken
+          : provider === 'alibaba-cosyvoice'
+            ? dashscopeApiKey || genericTTSApiKey || accessToken
+            : accessToken,
     cluster:
       readConfig(configs, 'ROLEPLAY_TTS_CLUSTER', 'VOLCENGINE_TTS_CLUSTER') ||
       'volcano_tts',
     voiceType: resolvedVoiceType,
     instructions: options.instructions,
-    model,
+    model:
+      resolvedModel ||
+      (provider === 'minimax'
+        ? 'speech-2.8-turbo'
+        : provider === 'alibaba-cosyvoice'
+          ? 'cosyvoice-v3-flash'
+          : model),
     fallbackModel:
       provider === 'openrouter'
-        ? fallbackModel || 'openai/gpt-4o-mini-tts-2025-12-15'
-        : fallbackModel,
+        ? fallbackModel || 'google/gemini-3.1-flash-tts-preview'
+        : '',
     fallbackVoiceType,
     responseFormat,
     storageFormat:
@@ -1193,6 +1382,12 @@ export function resolveTTSProviderConfig(
     pcmChannels: Number(readConfig(configs, 'ROLEPLAY_TTS_PCM_CHANNELS')) || 1,
     pcmBitDepth:
       Number(readConfig(configs, 'ROLEPLAY_TTS_PCM_BIT_DEPTH')) || 16,
+    fallbackEndpoint:
+      readConfig(configs, 'ROLEPLAY_TTS_FALLBACK_ENDPOINT') ||
+      'https://openrouter.ai/api/v1/audio/speech',
+    fallbackAccessToken:
+      openRouterFallbackApiKey ||
+      (provider === 'openrouter' ? openRouterApiKey : ''),
   };
 }
 
@@ -1450,6 +1645,169 @@ export async function generateVolcengineV1Speech({
   return Buffer.from(result.data, 'base64');
 }
 
+export async function generateMiniMaxSpeech({
+  config,
+  text,
+  timeoutMs = 45_000,
+}: {
+  config: TTSProviderConfig;
+  text: string;
+  timeoutMs?: number;
+}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const body = JSON.stringify({
+      model: config.model || 'speech-2.8-turbo',
+      text,
+      stream: false,
+      language_boost: 'auto',
+      output_format: 'hex',
+      voice_setting: {
+        voice_id: config.voiceType,
+        speed: 1,
+        vol: 1,
+        pitch: 0,
+      },
+      audio_setting: {
+        sample_rate: 32000,
+        bitrate: 128000,
+        format: config.responseFormat || 'mp3',
+        channel: 1,
+      },
+    });
+    let lastError = 'MiniMax TTS failed';
+
+    for (const endpoint of getMiniMaxTTSEndpointCandidates(config.endpoint)) {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${config.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body,
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        lastError = `MiniMax TTS failed (${response.status}) endpoint=${endpoint} ${await response.text()}`;
+        if (response.status === 401 || response.status === 403) continue;
+        throw new Error(lastError);
+      }
+
+      const result = await response.json();
+      const statusCode = Number(result?.base_resp?.status_code || 0);
+      const statusMessage = String(
+        result?.base_resp?.status_msg ||
+          `MiniMax TTS failed: ${result?.base_resp?.status_code}`
+      );
+      if (statusCode !== 0) {
+        lastError = `${statusMessage} endpoint=${endpoint}`;
+        if (/invalid api key/i.test(statusMessage)) continue;
+        throw new Error(lastError);
+      }
+
+      const audioHex = String(result?.data?.audio || '').trim();
+      if (!audioHex) {
+        throw new Error(
+          `MiniMax TTS returned no audio data endpoint=${endpoint}`
+        );
+      }
+
+      return Buffer.from(audioHex, 'hex');
+    }
+
+    throw new Error(lastError);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function generateAlibabaCosyVoiceSpeech({
+  config,
+  text,
+  timeoutMs = 45_000,
+}: {
+  config: TTSProviderConfig;
+  text: string;
+  timeoutMs?: number;
+}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(config.endpoint, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: config.model || 'cosyvoice-v3-flash',
+        input: {
+          text,
+          voice: config.voiceType,
+          format: config.responseFormat || 'mp3',
+          sample_rate: config.pcmSampleRate || 24000,
+          ...(config.instructions ? { instruction: config.instructions } : {}),
+        },
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
+    const result = await response.json();
+    const audioData = String(result?.output?.audio?.data || '').trim();
+    if (audioData) {
+      return Buffer.from(audioData, 'base64');
+    }
+
+    const audioUrl = String(result?.output?.audio?.url || '').trim();
+    if (!audioUrl) {
+      throw new Error('Alibaba CosyVoice TTS returned no audio URL or data');
+    }
+
+    const audioResponse = await fetch(audioUrl, { signal: controller.signal });
+    if (!audioResponse.ok) {
+      throw new Error(await audioResponse.text());
+    }
+
+    return Buffer.from(await audioResponse.arrayBuffer());
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function generateOpenRouterFallbackSpeech({
+  config,
+  text,
+}: {
+  config: TTSProviderConfig;
+  text: string;
+}) {
+  if (!config.fallbackAccessToken || !config.fallbackModel) return null;
+
+  return generateOpenRouterSpeech({
+    config: {
+      ...config,
+      provider: 'openrouter',
+      endpoint:
+        config.fallbackEndpoint || 'https://openrouter.ai/api/v1/audio/speech',
+      accessToken: config.fallbackAccessToken,
+      model: config.fallbackModel,
+      voiceType: config.fallbackVoiceType || 'alloy',
+      responseFormat: 'mp3',
+      storageFormat: 'mp3',
+      contentType: 'audio/mpeg',
+    },
+    text,
+  });
+}
+
 export async function generateTTSSpeech({
   config,
   text,
@@ -1463,7 +1821,24 @@ export async function generateTTSSpeech({
     return generateOpenRouterSpeech({ config, text });
   }
 
-  return generateVolcengineV1Speech({ config, text, userId });
+  try {
+    if (config.provider === 'minimax') {
+      return await generateMiniMaxSpeech({ config, text });
+    }
+
+    if (config.provider === 'alibaba-cosyvoice') {
+      return await generateAlibabaCosyVoiceSpeech({ config, text });
+    }
+
+    return await generateVolcengineV1Speech({ config, text, userId });
+  } catch (error) {
+    const fallbackAudio = await generateOpenRouterFallbackSpeech({
+      config,
+      text,
+    });
+    if (fallbackAudio) return fallbackAudio;
+    throw error;
+  }
 }
 
 export function getMissingTextProviderMessage() {

@@ -64,6 +64,20 @@ export type PersonalityCard = {
    * progress labels; the chat prompt uses them as emotional story moments.
    */
   trustMilestones?: string[];
+  /**
+   * The front-stage interaction promise: what makes this character fun to
+   * talk to in the first few turns (e.g. "温柔拆穿用户的逞强").
+   */
+  interactionPlay?: string;
+  /**
+   * A small unfinished life hook the character can leave behind so the next
+   * visit feels like a continuation, not a reset.
+   */
+  continuationSeed?: string;
+  /** How this character gives a personalized goodbye when the user leaves. */
+  goodbyeRitualStyle?: string;
+  /** How voice/photo should appear at rare emotional peak moments. */
+  peakMomentStyle?: string;
   /** [价值观] 2-3 non-negotiable lines + what truly matters. */
   values?: string[];
   /** [关系起点] How {{user}} and {{char}} know each other; current stage. */
@@ -146,6 +160,20 @@ export function normalizePersonalityCard(input: Record<string, unknown>): Person
   if (trustMilestones) {
     card.trustMilestones = trustMilestones.map((m) => m.slice(0, 180));
   }
+
+  const interactionPlay = str('interactionPlay');
+  if (interactionPlay) card.interactionPlay = interactionPlay.slice(0, 240);
+
+  const continuationSeed = str('continuationSeed');
+  if (continuationSeed) card.continuationSeed = continuationSeed.slice(0, 240);
+
+  const goodbyeRitualStyle = str('goodbyeRitualStyle');
+  if (goodbyeRitualStyle) {
+    card.goodbyeRitualStyle = goodbyeRitualStyle.slice(0, 240);
+  }
+
+  const peakMomentStyle = str('peakMomentStyle');
+  if (peakMomentStyle) card.peakMomentStyle = peakMomentStyle.slice(0, 240);
 
   const values = list('values', 5);
   if (values) card.values = values.map((v) => v.slice(0, 200));
@@ -314,6 +342,22 @@ export function renderPersonalityCardAsSettings(card: PersonalityCard): string {
     lines.push(
       ['[信任里程碑]', ...card.trustMilestones.map((m) => `- ${m}`)].join('\n')
     );
+  }
+
+  if (
+    card.interactionPlay ||
+    card.continuationSeed ||
+    card.goodbyeRitualStyle ||
+    card.peakMomentStyle
+  ) {
+    const block = ['[人性瞬间]'];
+    if (card.interactionPlay) block.push(`互动玩法：${card.interactionPlay}`);
+    if (card.continuationSeed) block.push(`未完成种子：${card.continuationSeed}`);
+    if (card.goodbyeRitualStyle) {
+      block.push(`告别仪式：${card.goodbyeRitualStyle}`);
+    }
+    if (card.peakMomentStyle) block.push(`高峰时刻：${card.peakMomentStyle}`);
+    lines.push(block.join('\n'));
   }
 
   if (card.values?.length) {

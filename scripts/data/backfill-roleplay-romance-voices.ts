@@ -13,11 +13,10 @@
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-
 import { ne, sql } from 'drizzle-orm';
 
-import { envConfigs } from '@/config';
 import { db } from '@/core/db';
+import { envConfigs } from '@/config';
 
 type CharacterRow = {
   id: string;
@@ -67,7 +66,9 @@ async function loadSchemaTables(): Promise<any> {
 }
 
 function normalizeGender(value: string) {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized.includes('female') || normalized === 'woman') return 'female';
   if (normalized.includes('male') || normalized === 'man') return 'male';
   return 'non-binary';
@@ -141,9 +142,7 @@ function chooseMalePool(text: string) {
     return MALE_POOLS.deep;
   }
   if (
-    /playful|teas|flirt|fun|bright|laugh|party|俏皮|玩笑|派对|笑|撩/.test(
-      text
-    )
+    /playful|teas|flirt|fun|bright|laugh|party|俏皮|玩笑|派对|笑|撩/.test(text)
   ) {
     return MALE_POOLS.playful;
   }
@@ -182,26 +181,30 @@ async function writeSnapshot(rows: unknown[]) {
 
 async function upsertVoiceProfileConfig(tables: any, profilesJson: string) {
   const { config } = tables;
-  await db()
-    .insert(config)
-    .values({
-      name: 'roleplay_tts_voice_profiles',
-      value: profilesJson,
-    })
-    .onConflictDoUpdate({
+  const values = {
+    roleplay_tts_provider: 'minimax',
+    roleplay_tts_model: 'speech-2.8-turbo',
+    roleplay_tts_endpoint: 'https://api.minimaxi.com/v1/t2a_v2',
+    roleplay_tts_default_voice_profile_id: 'romance_female_soft_coral',
+    roleplay_tts_voice_profiles: profilesJson,
+  };
+
+  for (const [name, value] of Object.entries(values)) {
+    await db().insert(config).values({ name, value }).onConflictDoUpdate({
       target: config.name,
-      set: { value: profilesJson },
+      set: { value },
     });
+  }
 
   await db()
     .insert(config)
     .values({
-      name: 'roleplay_tts_default_voice_profile_id',
-      value: 'romance_female_soft_coral',
+      name: 'roleplay_tts_fallback_model',
+      value: '',
     })
     .onConflictDoUpdate({
       target: config.name,
-      set: { value: 'romance_female_soft_coral' },
+      set: { value: '' },
     });
 }
 

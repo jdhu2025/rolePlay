@@ -102,6 +102,7 @@ export default async function ProfilePage() {
               'personaDefaultRelationship'
             ) as string,
             tonePreference: data.get('personaTonePreference') as string,
+            firstImpression: persona.firstImpression,
           }),
         };
 

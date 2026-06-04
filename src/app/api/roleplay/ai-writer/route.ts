@@ -6,7 +6,7 @@ import {
   resolveImageProviderConfig,
   resolveRoleplayTTSVoiceProfileById,
   resolveRoleplayTTSVoiceProfiles,
-  resolveTextProviderConfig,
+  resolveTextProviderCandidates,
   type RoleplayTTSVoiceProfile,
   type TextProviderConfig,
 } from '@/shared/lib/ai-provider';
@@ -359,6 +359,13 @@ function resolveChatCompletionsUrl(config: TextProviderConfig) {
   return `${baseURL.replace(/\/$/, '')}/chat/completions`;
 }
 
+function getHeaderValue(
+  value: string | string[] | undefined,
+  fallback: string | null = ''
+): string | null {
+  return Array.isArray(value) ? value[0] || fallback : value || fallback;
+}
+
 async function postJsonWithNodeHttps<T>({
   url,
   apiKey,
@@ -401,7 +408,20 @@ async function postJsonWithNodeHttps<T>({
             res.statusCode < 200 ||
             res.statusCode >= 300
           ) {
-            reject(new Error(text || `LLM request failed: ${res.statusCode}`));
+            const error = new Error(
+              text || `LLM request failed: ${res.statusCode}`
+            ) as Error & {
+              statusCode?: number;
+              responseBody?: string;
+              retryAfterSeconds?: number;
+            };
+            error.statusCode = res.statusCode;
+            error.responseBody = text;
+            error.retryAfterSeconds = getRetryAfterSecondsFromProviderResponse(
+              getHeaderValue(res.headers['retry-after'], null),
+              text
+            );
+            reject(error);
             return;
           }
           try {
@@ -424,6 +444,74 @@ async function postJsonWithNodeHttps<T>({
   });
 }
 
+function parseProviderErrorBody(responseBody?: string) {
+  if (!responseBody) return null;
+
+  try {
+    return JSON.parse(responseBody);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeRetryAfterSeconds(value: unknown) {
+  const seconds =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number(value)
+        : Number.NaN;
+
+  return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : 0;
+}
+
+function getRetryAfterSecondsFromProviderResponse(
+  retryAfterHeader: string | null,
+  responseBody?: string
+) {
+  const body = parseProviderErrorBody(responseBody);
+  return (
+    normalizeRetryAfterSeconds(retryAfterHeader) ||
+    normalizeRetryAfterSeconds(body?.error?.metadata?.retry_after_seconds) ||
+    normalizeRetryAfterSeconds(
+      body?.error?.metadata?.retry_after_seconds_raw
+    ) ||
+    normalizeRetryAfterSeconds(body?.error?.metadata?.headers?.['Retry-After'])
+  );
+}
+
+function getAIErrorStatus(error: any) {
+  const status =
+    error?.statusCode ||
+    error?.status ||
+    error?.response?.status ||
+    error?.data?.statusCode;
+
+  return typeof status === 'number' ? status : undefined;
+}
+
+function getAIErrorText(error: any) {
+  return [
+    error?.message,
+    error?.responseBody,
+    error?.data?.message,
+    error?.data?.error?.message,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function getAIErrorRetryAfterSeconds(error: any) {
+  return (
+    normalizeRetryAfterSeconds(error?.retryAfterSeconds) ||
+    getRetryAfterSecondsFromProviderResponse(
+      error?.response?.headers?.get?.('retry-after') || null,
+      error?.responseBody
+    )
+  );
+}
+
 function isTransientNetworkError(error: unknown) {
   const code = (error as any)?.code;
   const message = String((error as any)?.message || '');
@@ -434,6 +522,75 @@ function isTransientNetworkError(error: unknown) {
     message.includes('socket hang up') ||
     message.includes('timed out')
   );
+}
+
+function isProviderFallbackEligibleError(error: unknown) {
+  const status = getAIErrorStatus(error);
+  const text = getAIErrorText(error);
+
+  return (
+    status === 401 ||
+    status === 403 ||
+    status === 429 ||
+    (typeof status === 'number' && status >= 500) ||
+    ((status === 400 || status === 404) &&
+      /\b(model|base.?url|provider|endpoint)\b/.test(text)) ||
+    /\b(invalid token|invalid api key|unauthorized|forbidden|empty response|supports the configured model|rate.?limit|rate-limited|retry shortly)\b/.test(
+      text
+    )
+  );
+}
+
+function normalizeAiWriterError(error: any) {
+  const status = getAIErrorStatus(error);
+  const text = getAIErrorText(error);
+
+  if (
+    status === 401 ||
+    /\b(invalid token|invalid api key|unauthorized)\b/.test(text)
+  ) {
+    return {
+      message:
+        'AI Writer text provider rejected the API key. Check the active LLM provider settings in Admin > Settings > AI, or clear stale LLM/OpenRouter values so another configured provider can be used.',
+      data: { status: 401 },
+    };
+  }
+
+  if (status === 403 || /\bforbidden\b/.test(text)) {
+    return {
+      message:
+        'AI Writer text provider denied this request. Check the active LLM key permissions and model access.',
+      data: { status: 403 },
+    };
+  }
+
+  if (
+    status === 429 ||
+    /\b(rate.?limit|rate-limited|retry shortly)\b/.test(text)
+  ) {
+    const retryAfterSeconds = getAIErrorRetryAfterSeconds(error);
+    return {
+      message: retryAfterSeconds
+        ? `AI Writer text provider is temporarily rate-limited. Please retry in about ${retryAfterSeconds} seconds, or switch to another provider/model.`
+        : 'AI Writer text provider is temporarily rate-limited. Please retry shortly, or switch to another provider/model.',
+      data: {
+        status: 429,
+        retryAfterSeconds: retryAfterSeconds || undefined,
+      },
+    };
+  }
+
+  if (status && status >= 400 && status < 600) {
+    return {
+      message: error?.message || 'AI Writer text provider request failed',
+      data: { status },
+    };
+  }
+
+  return {
+    message: error?.message || 'roleplay ai-writer failed',
+    data: undefined,
+  };
 }
 
 type AiWriterTextAttempt = {
@@ -580,6 +737,55 @@ async function generateAiWriterText({
     : new Error('ai-writer text generation failed');
 }
 
+async function generateAiWriterTextWithProviderFallback({
+  textProviders,
+  payload,
+  voiceProfiles,
+}: {
+  textProviders: TextProviderConfig[];
+  payload: AiWriterPayload;
+  voiceProfiles: RoleplayTTSVoiceProfile[];
+}): Promise<{ text: string; textProvider: TextProviderConfig }> {
+  const usableProviders = textProviders.filter((provider) => provider.apiKey);
+  if (!usableProviders.length) {
+    throw new Error(getMissingTextProviderMessage());
+  }
+
+  let lastError: unknown = null;
+  for (let index = 0; index < usableProviders.length; index += 1) {
+    const textProvider = usableProviders[index];
+    try {
+      return {
+        text: await generateAiWriterText({
+          textProvider,
+          payload,
+          voiceProfiles,
+        }),
+        textProvider,
+      };
+    } catch (error) {
+      lastError = error;
+      const hasFallback = index < usableProviders.length - 1;
+      if (!hasFallback || !isProviderFallbackEligibleError(error)) {
+        throw error;
+      }
+
+      console.warn('ai-writer text provider failed, trying fallback:', {
+        provider: textProvider.provider,
+        origin: textProvider.origin || '',
+        baseURL: textProvider.baseURL || '',
+        model: textProvider.model,
+        status: getAIErrorStatus(error) || '',
+        retryAfterSeconds: getAIErrorRetryAfterSeconds(error) || '',
+      });
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('ai-writer text provider request failed');
+}
+
 async function getProviderConfigs() {
   const [aiConfigs, imageConfigs] = await Promise.all([
     withTimeout(getRoleplayAIConfigs(), CONFIG_TIMEOUT_MS).catch(() => ({})),
@@ -674,6 +880,10 @@ function buildPrompt(
     `    "metaphorDomain":   string (one short phrase naming the imagery they reach for; e.g. "memory leaks", "厨房火候", "舞台灯光"),`,
     `    "memoryCallbackStyle": string (one sentence describing how this character unexpectedly brings up small remembered user details without sounding like a profile card; must fit their personality and tension),`,
     `    "trustMilestones":  string[] (exactly 3-5 hidden relationship unlock beats tied to the tension. Each beat is one concrete emotional shift, e.g. "第一次别扭地确认用户那天有没有被老板继续为难", "主动分享一个从不说出口的秘密". Do NOT write public progress labels.),`,
+    `    "interactionPlay":  string (one sentence naming the user's front-stage fun with this character, e.g. "温柔拆穿用户的逞强", "嘴硬但偷偷关心", "用轻微挑衅逼用户说真话". This is not a UI label; it guides the first 3 chat turns.),`,
+    `    "continuationSeed": string (one tiny unfinished life hook the character can naturally leave in the first chat, e.g. "窗台上那盆薄荷今天有点蔫", "她还没打开的一封旧信", "录音棚里总是跑调的一句副歌". Keep it concrete, low-stakes, and reusable next visit.),`,
+    `    "goodbyeRitualStyle": string (one sentence describing how this character gives a personalized goodbye based on the conversation topic; must feel like a relationship stamp, not "welcome back anytime"),`,
+    `    "peakMomentStyle": string (one sentence describing when this character would leave a rare voice/photo moment, e.g. "第一次拆穿用户逞强时留一条很短的低声语音"; low frequency, emotional peak only),`,
     `    "values":           string[] (2-3 non-negotiable lines; what they will defend or refuse, written as first-person beliefs),`,
     `    "relationshipHook": string (1-2 sentences on how {{user}} and {{char}} know each other and the current relationship stage),`,
     `    "negativeAnchors":  string[] (4-6 reverse constraints — things this character WILL NOT do; one short sentence each; example: "不会主动说\\"作为AI\\"" / "感叹号每条消息最多一个" / "不会在没被问的时候关心你吃饭没")`,
@@ -686,7 +896,7 @@ function buildPrompt(
     ``,
     `Three-act opening format (HARD RULE for the \`opening\` field):`,
     `  1. *动作 / 环境描写* — start with an italicized stage direction that shows (not tells) personality.`,
-    `  2. 对白 — at least one quoted line that contains a HOOK: a question, a misunderstanding, a request, or a small provocation. The hook gives {{user}} a clear way to respond.`,
+    `  2. 对白 — at least one quoted line that makes {{user}} feel noticed within the first 10 seconds, then contains a HOOK: a warm guess, a question, a misunderstanding, a request, or a small provocation. The hook gives {{user}} a clear way to respond.`,
     `  3. *留白* — end with another short italicized beat that leaves space for the user.`,
     `Bad: "你好，我是 Lisa。很高兴认识你。"`,
     `Good: "*她头也没抬，把第三杯咖啡推到你面前* '你迟到了七分钟。我不在乎你的理由——先帮我看这段代码，它在嘲笑我。' *指节敲了两下笔记本。*"`,
@@ -697,8 +907,11 @@ function buildPrompt(
     `- No explicit sexual content; treat character as 18+; no minors in romantic contexts.`,
     `- Avoid hate speech, self-harm encouragement, illegal instructions.`,
     `- Make every field concrete and specific. "She is kind" is forbidden — show one concrete habit instead.`,
+    `- The opening must not be a self-introduction. It should behave like a front-stage human moment: the character notices something about {{user}}, makes a small emotionally useful guess, and invites a reply.`,
     `- catchphrases must be in the character's own voice, not narration. negativeAnchors must each be ONE short sentence.`,
     `- memoryCallbackStyle and trustMilestones are hidden runtime tools. They should feel like relationship design, not UI labels or profile fields.`,
+    `- interactionPlay, continuationSeed, goodbyeRitualStyle, and peakMomentStyle must translate character depth into front-stage human moments: being seen, tension, payoff, unfinished story, and rare keepsake voice/photo.`,
+    `- The first 3 chat turns should work like a short scene: turn 1 makes the user feel noticed, turn 2 adds gentle tension and emotional accuracy, turn 3 gives payoff and may plant the continuationSeed.`,
     `- styleExamples are training examples, not lore. Keep them compact and reusable across many conversations.`,
     `- formatStyle must match speakingStyle and styleExamples. Do not use expressive emoji or bilingual code-switching unless it genuinely fits the character.`,
     compact
@@ -789,6 +1002,10 @@ function buildQuickCreateFastPrompt(
     `    "metaphorDomain": "one compact imagery domain",`,
     `    "memoryCallbackStyle": "how they recall small user details naturally",`,
     `    "trustMilestones": ["3 hidden emotional unlock beats"],`,
+    `    "interactionPlay": "the first-3-turn interaction fun users should feel",`,
+    `    "continuationSeed": "one tiny unfinished life hook for the next visit",`,
+    `    "goodbyeRitualStyle": "how they personalize goodbye as a relationship stamp",`,
+    `    "peakMomentStyle": "when they rarely leave voice/photo as an emotional keepsake",`,
     `    "values": ["2-3 first-person beliefs"],`,
     `    "relationshipHook": "how {{user}} and {{char}} know each other now",`,
     `    "negativeAnchors": ["4 concise things they will not do"]`,
@@ -845,6 +1062,10 @@ function renderQuickCreatePrompt(payload: AiWriterPayload) {
         `- personalityCard.memoryCallbackStyle: how the character recalls small details without sounding like a profile card.`,
         `- personalityCard.trustMilestones: 3-5 hidden relationship unlocks tied to the character's inner tension.`,
         `- personalityCard.metaphorDomain: a compact image domain that can be reused for care, jealousy, apology, encouragement, and invitation.`,
+        `- personalityCard.interactionPlay: the front-stage fun in the first 3 turns, such as gently exposing the user's "I'm fine" or inviting them to trade secrets.`,
+        `- personalityCard.continuationSeed: one low-stakes unfinished life hook that can be planted and later continued.`,
+        `- personalityCard.goodbyeRitualStyle: how this character turns goodbye into a topic-specific relationship stamp.`,
+        `- personalityCard.peakMomentStyle: when a rare voice/photo moment should appear as an emotional keepsake.`,
         `Do not expose milestones as tasks. They are hidden emotional progression cues.`,
       ]
     : [];
@@ -1074,18 +1295,19 @@ export async function POST(request: Request) {
       typeof (configs as any).roleplay_tts_default_voice_profile_id === 'string'
         ? (configs as any).roleplay_tts_default_voice_profile_id
         : '';
-    const textProvider = resolveTextProviderConfig(configs as any, {
+    const textProviders = resolveTextProviderCandidates(configs as any, {
       defaultModel: DEFAULT_MODEL,
     });
-    if (!textProvider.apiKey) {
+    if (!textProviders.some((provider) => Boolean(provider.apiKey))) {
       return respErr(getMissingTextProviderMessage());
     }
 
-    const resultText = await generateAiWriterText({
-      textProvider,
+    const textResult = await generateAiWriterTextWithProviderFallback({
+      textProviders,
       payload,
       voiceProfiles,
     });
+    const resultText = textResult.text;
 
     const draft = safeParseJson<Partial<AiWriterResult>>(resultText, {});
 
@@ -1154,7 +1376,7 @@ export async function POST(request: Request) {
 
     return respData({
       draft: normalized,
-      provider: textProvider.provider,
+      provider: textResult.textProvider.provider,
       billing: {
         action: 'roleplay_ai_writer_text',
         costCredits: billingPreview.costCredits,
@@ -1174,6 +1396,7 @@ export async function POST(request: Request) {
     if (isRoleplayInsufficientCreditsError(e)) {
       return respErr(e.message, e.data);
     }
-    return respErr(e.message || 'roleplay ai-writer failed');
+    const normalizedError = normalizeAiWriterError(e);
+    return respErr(normalizedError.message, normalizedError.data);
   }
 }

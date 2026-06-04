@@ -3,6 +3,7 @@ import {
   getMissingTTSProviderMessage,
   resolveRoleplayTTSVoiceProfileById,
   resolveTTSProviderConfig,
+  resolveVoiceTypeForText,
 } from '@/shared/lib/ai-provider';
 import { md5 } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
@@ -304,12 +305,10 @@ export async function POST(request: Request) {
     );
     const selectedVoiceType =
       voiceType ||
-      configuredProfile?.voiceType ||
+      resolveVoiceTypeForText(configuredProfile, speechText) ||
       presetVoiceType ||
-      defaultProfile?.voiceType ||
-      (gender === 'male'
-        ? 'zh_male_M392_conversation_wvae_bigtts'
-        : 'zh_female_kailangjiejie_moon_bigtts');
+      resolveVoiceTypeForText(defaultProfile, speechText) ||
+      '';
     const selectedProfile = configuredProfile || defaultProfile;
     const instructions = buildTTSInstructions({
       gender,
@@ -328,6 +327,7 @@ export async function POST(request: Request) {
       text: normalizedText,
     });
     const ttsConfig = resolveTTSProviderConfig(configs, {
+      provider: selectedProfile?.provider,
       voiceType: selectedVoiceType,
       fallbackVoiceType: selectedProfile?.fallbackVoiceType,
       gender,
@@ -338,7 +338,7 @@ export async function POST(request: Request) {
       return respErr(getMissingTTSProviderMessage());
     }
 
-    if (ttsConfig.provider !== 'openrouter' && !ttsConfig.appId) {
+    if (ttsConfig.provider === 'volcengine-v1' && !ttsConfig.appId) {
       return respErr(getMissingTTSProviderMessage());
     }
 

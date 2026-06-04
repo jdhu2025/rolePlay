@@ -1,0 +1,317 @@
+[
+  {
+    "id": "rp-011",
+    "name": "Camila",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "warm-female",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "rp-anime-006",
+    "name": "Yun Lan",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_whisper_shimmer",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "6c55b8d8-67b0-4497-80fe-c6a1ee2077bf",
+    "name": "Publish Test",
+    "gender": "non-binary",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_neutral_alloy",
+    "newVoicePreset": "romance_neutral_alloy"
+  },
+  {
+    "id": "rp-anime-009",
+    "name": "Nyra Kade",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_whisper_shimmer",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "7fcc49cd-15a0-4671-8f55-36e081faf13f",
+    "name": "Chloe",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_whisper_shimmer",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "rp-anime-010",
+    "name": "Rin Shiro",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_soft_coral",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-anime-002",
+    "name": "Serina Vale",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_clear_nova",
+    "newVoicePreset": "romance_female_clear_nova"
+  },
+  {
+    "id": "rp-anime-003",
+    "name": "Liora Lin",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_whisper_shimmer",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "rp-003",
+    "name": "Amara",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "warm-female",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-005",
+    "name": "Leila",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "cool-female",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-004",
+    "name": "Valeria",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "playful-female",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "rp-010",
+    "name": "Zuri",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "playful-female",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "rp-007",
+    "name": "Elena",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "playful-female",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "9dbc1955-cb2b-4e2f-a362-4b4add82cc4c",
+    "name": "林知夏",
+    "gender": "female",
+    "status": "published",
+    "visibility": "private",
+    "oldVoicePreset": "romance_female_playful_verse",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-012",
+    "name": "Noor",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "cool-female",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-anime-004",
+    "name": "Akane Vey",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_soft_coral",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-anime-012",
+    "name": "Arin Sol",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_playful_fable",
+    "newVoicePreset": "romance_male_playful_fable"
+  },
+  {
+    "id": "rp-anime-013",
+    "name": "Noel Hart",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_modern_ash",
+    "newVoicePreset": "romance_male_modern_ash"
+  },
+  {
+    "id": "rp-anime-014",
+    "name": "Kael Orion",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_smooth_cedar",
+    "newVoicePreset": "romance_male_smooth_cedar"
+  },
+  {
+    "id": "rp-anime-015",
+    "name": "Ren Kisar",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_warm_ballad",
+    "newVoicePreset": "romance_male_warm_ballad"
+  },
+  {
+    "id": "rp-008",
+    "name": "Maya",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "playful-female",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-anime-016",
+    "name": "Toma Aster",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_modern_ash",
+    "newVoicePreset": "romance_male_modern_ash"
+  },
+  {
+    "id": "rp-anime-018",
+    "name": "Lucian Reed",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_modern_ash",
+    "newVoicePreset": "romance_male_modern_ash"
+  },
+  {
+    "id": "rp-001",
+    "name": "Chloe",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "warm-female",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-anime-020",
+    "name": "Caspian Tide",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_deep_onyx",
+    "newVoicePreset": "romance_male_deep_onyx"
+  },
+  {
+    "id": "rp-anime-019",
+    "name": "Mika Rowan",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_modern_ash",
+    "newVoicePreset": "romance_male_modern_ash"
+  },
+  {
+    "id": "rp-009",
+    "name": "Freya",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "cool-female",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-anime-008",
+    "name": "Daphne Noir",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_clear_nova",
+    "newVoicePreset": "romance_female_clear_nova"
+  },
+  {
+    "id": "rp-anime-007",
+    "name": "Mira Bell",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_whisper_shimmer",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "rp-anime-005",
+    "name": "Emi-09",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_clear_nova",
+    "newVoicePreset": "romance_female_clear_nova"
+  },
+  {
+    "id": "rp-anime-001",
+    "name": "Elira Frost",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_female_whisper_shimmer",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  },
+  {
+    "id": "rp-006",
+    "name": "Priya",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "cool-female",
+    "newVoicePreset": "romance_female_soft_coral"
+  },
+  {
+    "id": "rp-anime-011",
+    "name": "Kieran Voss",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_deep_onyx",
+    "newVoicePreset": "romance_male_deep_onyx"
+  },
+  {
+    "id": "rp-anime-017",
+    "name": "Soren Vale",
+    "gender": "male",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "romance_male_deep_onyx",
+    "newVoicePreset": "romance_male_deep_onyx"
+  },
+  {
+    "id": "rp-002",
+    "name": "Sienna",
+    "gender": "female",
+    "status": "published",
+    "visibility": "public",
+    "oldVoicePreset": "playful-female",
+    "newVoicePreset": "romance_female_whisper_shimmer"
+  }
+]
