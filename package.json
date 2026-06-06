@@ -18,8 +18,9 @@
   ],
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
-    "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' next build",
+    "build": "next build --webpack",
+    "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' next build --webpack",
+    "build:turbo": "next build --turbopack",
     "start": "next start",
     "lint": "eslint .",
     "smoke:ai-writer": "node scripts/smoke-ai-writer.mjs",

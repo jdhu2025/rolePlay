@@ -1,6 +1,5 @@
 import '@/config/style/global.css';
 
-import { JetBrains_Mono, Merriweather, Noto_Sans_Mono } from 'next/font/google';
 import { getLocale, setRequestLocale } from 'next-intl/server';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -12,28 +11,6 @@ import { getAdsService } from '@/shared/services/ads';
 import { getAffiliateService } from '@/shared/services/affiliate';
 import { getAnalyticsService } from '@/shared/services/analytics';
 import { getCustomerService } from '@/shared/services/customer_service';
-
-const notoSansMono = Noto_Sans_Mono({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
-  preload: true,
-});
-
-const merriweather = Merriweather({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-serif',
-  display: 'swap',
-  preload: true,
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-  display: 'swap',
-  preload: true,
-});
 
 export default async function RootLayout({
   children,
@@ -105,7 +82,6 @@ export default async function RootLayout({
     <html
       lang={locale}
       translate="no"
-      className={`${notoSansMono.variable} ${merriweather.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <head>
