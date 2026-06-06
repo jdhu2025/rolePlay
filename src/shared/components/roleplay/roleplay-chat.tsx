@@ -1440,24 +1440,7 @@ export function RoleplayChat({ characterId }: Props) {
         className="z-20 shrink-0 border-t border-white/5 bg-[#0d0d10]/85 px-3 py-3 backdrop-blur sm:px-4 md:px-6"
         style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}
       >
-        <div className="mx-auto flex w-full min-w-0 max-w-2xl items-end gap-2">
-          {messages.length > 1 && (
-            <button
-              type="button"
-              onClick={handleWrapUp}
-              disabled={pendingReplyCount > 0}
-              title={t('wrap_up_title')}
-              aria-label={t('wrap_up_title')}
-              className={cn(
-                'inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs font-semibold text-zinc-300 transition',
-                'hover:border-white/25 hover:bg-white/[0.08] hover:text-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60',
-                'disabled:cursor-not-allowed disabled:opacity-40'
-              )}
-            >
-              <Clock3 size={15} aria-hidden="true" />
-              <span className="hidden sm:inline">{t('wrap_up')}</span>
-            </button>
-          )}
+        <div className="mx-auto flex w-full min-w-0 max-w-2xl flex-col gap-2 sm:flex-row sm:items-end">
           <textarea
             id="roleplay-chat-message"
             name="message"
@@ -1472,17 +1455,51 @@ export function RoleplayChat({ characterId }: Props) {
               'focus:border-white/30 focus:bg-white/10 focus:outline-none'
             )}
           />
-          <button
-            type="submit"
-            disabled={!draft.trim()}
-            aria-label={t('send')}
-            className={cn(
-              'grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-black transition-opacity',
-              'disabled:cursor-not-allowed disabled:opacity-40'
-            )}
-          >
-            <Send size={18} aria-hidden="true" />
-          </button>
+          <div className="flex min-w-0 items-center justify-between gap-2 sm:contents">
+            <button
+              type="button"
+              onClick={handleBack}
+              className={cn(
+                'inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs font-semibold text-zinc-300 transition sm:hidden',
+                'hover:border-white/25 hover:bg-white/[0.08] hover:text-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60'
+              )}
+            >
+              <ArrowLeft size={15} aria-hidden="true" />
+              <span>{t('back')}</span>
+            </button>
+            <div className="flex min-w-0 items-center justify-end gap-2">
+              {messages.length > 1 && (
+                <button
+                  type="button"
+                  onClick={handleWrapUp}
+                  disabled={pendingReplyCount > 0}
+                  title={t('wrap_up_title')}
+                  aria-label={t('wrap_up_title')}
+                  className={cn(
+                    'inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-xs font-semibold text-zinc-300 transition sm:h-11',
+                    'hover:border-white/25 hover:bg-white/[0.08] hover:text-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60',
+                    'disabled:cursor-not-allowed disabled:opacity-40'
+                  )}
+                >
+                  <Clock3 size={15} aria-hidden="true" />
+                  <span className="hidden min-[360px]:inline sm:inline">
+                    {t('wrap_up')}
+                  </span>
+                </button>
+              )}
+              <button
+                type="submit"
+                disabled={!draft.trim()}
+                aria-label={t('send')}
+                className={cn(
+                  'grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-black transition-opacity sm:h-11 sm:w-11',
+                  'disabled:cursor-not-allowed disabled:opacity-40'
+                )}
+              >
+                <Send size={18} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
         </div>
       </form>
     </main>

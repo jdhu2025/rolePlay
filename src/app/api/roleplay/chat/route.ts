@@ -624,15 +624,18 @@ function buildEmotionalHookSystemMessages({
 }
 
 function detectGoodbyeIntent(input: string) {
-  return /\b(bye|goodbye|good night|sleep|later|gtg|gotta go|go work|back later|see you)\b/i.test(
-    input
-  ) || /再见|拜拜|晚安|睡了|先走|下次聊|回头聊|去忙|走了|改天/.test(input);
+  return (
+    /\b(bye|goodbye|good night|sleep|later|gtg|gotta go|go work|back later|see you)\b/i.test(
+      input
+    ) || /再见|拜拜|晚安|睡了|先走|下次聊|回头聊|去忙|走了|改天/.test(input)
+  );
 }
 
 function detectReturnIntent(input: string) {
-  return /\b(back|again|returned|i'm here|still there|remember me)\b/i.test(
-    input
-  ) || /回来了|又来了|还在吗|还记得|记得我|我又来/.test(input);
+  return (
+    /\b(back|again|returned|i'm here|still there|remember me)\b/i.test(input) ||
+    /回来了|又来了|还在吗|还记得|记得我|我又来/.test(input)
+  );
 }
 
 function getNextUserTurn(history: RoleplayChatMessage[]) {
@@ -775,7 +778,8 @@ function buildHumanMomentSystemMessages({
     hooks.push({
       type: 'goodbye_ritual',
       label: 'Goodbye ritual',
-      detail: card.goodbyeRitualStyle || relationshipState.lastTopic || undefined,
+      detail:
+        card.goodbyeRitualStyle || relationshipState.lastTopic || undefined,
     });
   }
 
@@ -838,9 +842,7 @@ function readEmotionalHooksFromMessage(message: any): EmotionalHook[] {
     {}
   );
   const hooks = [
-    ...(Array.isArray(metadata.emotionalHooks)
-      ? metadata.emotionalHooks
-      : []),
+    ...(Array.isArray(metadata.emotionalHooks) ? metadata.emotionalHooks : []),
     ...(Array.isArray(metadata.humanMomentHooks)
       ? metadata.humanMomentHooks
       : []),
@@ -1320,6 +1322,21 @@ function getAIErrorText(error: any) {
     .toLowerCase();
 }
 
+function getAIErrorDebugSummary(error: any) {
+  const responseBody = String(error?.responseBody || '').slice(0, 500);
+  const parsed = parseProviderErrorBody(responseBody);
+  const providerMessage =
+    parsed?.error?.message || parsed?.message || responseBody || error?.message;
+
+  return {
+    providerStatus: getAIErrorStatus(error) || '',
+    retryAfterSeconds: getAIErrorRetryAfterSeconds(error) || '',
+    providerMessage: String(providerMessage || '').slice(0, 300),
+    providerErrorType: parsed?.error?.type || parsed?.type || '',
+    providerErrorCode: parsed?.error?.code || parsed?.code || '',
+  };
+}
+
 function parseProviderErrorBody(responseBody?: string) {
   if (!responseBody) return null;
 
@@ -1380,9 +1397,7 @@ function isProviderConfigError(error: any) {
     /\b(invalid token|invalid api key|unauthorized|forbidden|empty response|supports the configured model)\b/.test(
       text
     ) ||
-    /\b(invalid url|failed to parse url|err_invalid_url)\b/.test(
-      text
-    )
+    /\b(invalid url|failed to parse url|err_invalid_url)\b/.test(text)
   );
 }
 
@@ -1479,8 +1494,7 @@ async function generateTextWithProviderFallback(
         origin: provider.origin || '',
         baseURL: provider.baseURL || '',
         model: provider.model,
-        status: getAIErrorStatus(error) || '',
-        retryAfterSeconds: getAIErrorRetryAfterSeconds(error) || '',
+        ...getAIErrorDebugSummary(error),
       });
     }
   }
@@ -1530,14 +1544,16 @@ async function streamTextWithProviderFallback({
         throw error;
       }
 
-      console.warn('roleplay text provider failed before stream, trying fallback:', {
-        provider: provider.provider,
-        origin: provider.origin || '',
-        baseURL: provider.baseURL || '',
-        model: provider.model,
-        status: getAIErrorStatus(error) || '',
-        retryAfterSeconds: getAIErrorRetryAfterSeconds(error) || '',
-      });
+      console.warn(
+        'roleplay text provider failed before stream, trying fallback:',
+        {
+          provider: provider.provider,
+          origin: provider.origin || '',
+          baseURL: provider.baseURL || '',
+          model: provider.model,
+          ...getAIErrorDebugSummary(error),
+        }
+      );
     }
   }
 
@@ -2592,7 +2608,7 @@ export async function POST(request: Request) {
     console.log('roleplay chat failed:', {
       status: error.status,
       message: error.message,
-      retryAfterSeconds: getAIErrorRetryAfterSeconds(e) || '',
+      ...getAIErrorDebugSummary(e),
     });
     return Response.json(
       {

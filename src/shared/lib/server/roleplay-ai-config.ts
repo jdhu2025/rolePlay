@@ -1,9 +1,12 @@
 import {
+  hasUsableTextProviderConnection,
+  normalizeProviderBaseURL,
+} from '@/shared/lib/ai-provider';
+import {
   getAllConfigs,
   getConfigs,
   type Configs,
 } from '@/shared/models/config';
-import { normalizeProviderBaseURL } from '@/shared/lib/ai-provider';
 
 const TEXT_PROVIDER_CANDIDATES_KEY = '__text_provider_candidates';
 const DISABLE_ENV_FALLBACK_FLAG = '__disable_env_fallback';
@@ -85,39 +88,46 @@ function readFromEnv(...keys: string[]) {
   return '';
 }
 
-function buildTextProviderCandidates(adminConfigs: Configs) {
-  const candidates: Array<{
-    provider: string;
-    source: 'generic' | 'volcengine' | 'openrouter';
-    origin: 'admin' | 'env';
-    apiKey: string;
-    baseURL?: string;
-    model?: string;
-  }> = [];
+type TextProviderCandidateSource = 'generic' | 'volcengine' | 'openrouter';
+type TextProviderCandidateOrigin = 'admin' | 'env';
+type TextProviderCandidate = {
+  provider: string;
+  source: TextProviderCandidateSource;
+  origin: TextProviderCandidateOrigin;
+  apiKey: string;
+  baseURL?: string;
+  model?: string;
+};
 
-  if (hasAdminConfig(adminConfigs, OPENROUTER_TEXT_CONFIG_KEYS)) {
-    candidates.push({
-      provider: 'openrouter',
-      source: 'openrouter',
-      origin: 'admin',
-      apiKey: readFromConfigs(adminConfigs, 'openrouter_api_key'),
-      baseURL:
-        normalizeProviderBaseURL(
-          readFromConfigs(adminConfigs, 'openrouter_base_url')
-        ) || undefined,
-      model: readFromConfigs(
-        adminConfigs,
-        'openrouter_model',
-        'roleplay_model'
-      ),
-    });
+function pushTextProviderCandidate(
+  candidates: TextProviderCandidate[],
+  candidate: TextProviderCandidate
+) {
+  if (
+    hasUsableTextProviderConnection({
+      source: candidate.source,
+      provider: candidate.provider,
+      apiKey: candidate.apiKey,
+      baseURL: candidate.baseURL,
+    })
+  ) {
+    candidates.push(candidate);
   }
+}
+
+function buildTextProviderCandidates(
+  adminConfigs: Configs,
+  { includeEnvFallback = true }: { includeEnvFallback?: boolean } = {}
+) {
+  const candidates: TextProviderCandidate[] = [];
 
   if (hasAdminConfig(adminConfigs, ROLEPLAY_LLM_CONFIG_KEYS)) {
-    candidates.push({
-      provider:
-        readFromConfigs(adminConfigs, 'llm_provider', 'ai_provider') ||
-        'openai-compatible',
+    const provider =
+      readFromConfigs(adminConfigs, 'llm_provider', 'ai_provider') ||
+      'openai-compatible';
+
+    pushTextProviderCandidate(candidates, {
+      provider,
       source: 'generic',
       origin: 'admin',
       apiKey: readFromConfigs(
@@ -139,7 +149,26 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
     });
   }
 
+  if (hasAdminConfig(adminConfigs, OPENROUTER_TEXT_CONFIG_KEYS)) {
+    pushTextProviderCandidate(candidates, {
+      provider: 'openrouter',
+      source: 'openrouter',
+      origin: 'admin',
+      apiKey: readFromConfigs(adminConfigs, 'openrouter_api_key'),
+      baseURL:
+        normalizeProviderBaseURL(
+          readFromConfigs(adminConfigs, 'openrouter_base_url')
+        ) || undefined,
+      model: readFromConfigs(
+        adminConfigs,
+        'openrouter_model',
+        'roleplay_model'
+      ),
+    });
+  }
+
   if (
+    includeEnvFallback &&
     readFromEnv(
       'LLM_API_KEY',
       'AI_API_KEY',
@@ -151,9 +180,11 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
       'AI_MODEL'
     )
   ) {
-    candidates.push({
-      provider:
-        readFromEnv('LLM_PROVIDER', 'AI_PROVIDER') || 'openai-compatible',
+    const provider =
+      readFromEnv('LLM_PROVIDER', 'AI_PROVIDER') || 'openai-compatible';
+
+    pushTextProviderCandidate(candidates, {
+      provider,
       source: 'generic',
       origin: 'env',
       apiKey: readFromEnv(
@@ -174,6 +205,7 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
   }
 
   if (
+    includeEnvFallback &&
     readFromEnv(
       'VOLCENGINE_API_KEY',
       'VOLCENGINE_MODEL_BASE_URL',
@@ -181,7 +213,7 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
       'VOLCENGINE_TEXT_VISION_TEXT_MODEL'
     )
   ) {
-    candidates.push({
+    pushTextProviderCandidate(candidates, {
       provider: 'volcengine',
       source: 'volcengine',
       origin: 'env',
@@ -189,13 +221,13 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
       baseURL:
         normalizeProviderBaseURL(
           readFromEnv('VOLCENGINE_MODEL_BASE_URL', 'VOLCENGINE_BASE_URL')
-        ) ||
-        undefined,
+        ) || undefined,
       model: readFromEnv('VOLCENGINE_TEXT_VISION_TEXT_MODEL'),
     });
   }
 
   if (
+    includeEnvFallback &&
     readFromEnv(
       'OPENROUTER_API_KEY',
       'OPENROUTER_BASE_URL',
@@ -203,7 +235,7 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
       'ROLEPLAY_MODEL'
     )
   ) {
-    candidates.push({
+    pushTextProviderCandidate(candidates, {
       provider: 'openrouter',
       source: 'openrouter',
       origin: 'env',
@@ -233,10 +265,17 @@ async function getAdminFirstConfigs(keys: string[]) {
 
 export async function getRoleplayAIConfigs() {
   const adminConfigs = await getConfigs().catch(() => ({}) as Configs);
-  const candidates = buildTextProviderCandidates(adminConfigs);
+  const hasAdminTextConfig = hasAdminConfig(adminConfigs, [
+    ...OPENROUTER_TEXT_CONFIG_KEYS,
+    ...ROLEPLAY_LLM_CONFIG_KEYS,
+  ]);
+  const candidates = buildTextProviderCandidates(adminConfigs, {
+    includeEnvFallback: !hasAdminTextConfig,
+  });
 
   return {
     ...adminConfigs,
+    ...(hasAdminTextConfig ? { [DISABLE_ENV_FALLBACK_FLAG]: 'true' } : {}),
     [TEXT_PROVIDER_CANDIDATES_KEY]: JSON.stringify(candidates),
   } as Record<string, any>;
 }

@@ -6,8 +6,11 @@ import packageJson from '../../package.json';
 export type ConfigMap = Record<string, string>;
 
 export function normalizeAbsoluteUrl(value: unknown, fallback = '') {
-  const raw = String(value || '').trim().replace(/^['"]|['"]$/g, '');
+  const raw = String(value || '')
+    .trim()
+    .replace(/^['"]|['"]$/g, '');
   if (!raw) return fallback;
+  if (['undefined', 'null'].includes(raw.toLowerCase())) return fallback;
 
   const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
   try {
@@ -28,15 +31,18 @@ function readVercelUrl() {
 }
 
 export function getConfiguredAppUrl(fallback = 'http://localhost:3000') {
-  return normalizeAbsoluteUrl(
-    process.env.NEXT_PUBLIC_APP_URL || readVercelUrl(),
+  return (
+    normalizeAbsoluteUrl(process.env.NEXT_PUBLIC_APP_URL) ||
+    normalizeAbsoluteUrl(readVercelUrl()) ||
     fallback
   );
 }
 
 export function getConfiguredAuthUrl(fallback = '') {
-  return normalizeAbsoluteUrl(
-    process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || readVercelUrl(),
+  return (
+    normalizeAbsoluteUrl(process.env.AUTH_URL) ||
+    normalizeAbsoluteUrl(process.env.NEXT_PUBLIC_APP_URL) ||
+    normalizeAbsoluteUrl(readVercelUrl()) ||
     fallback
   );
 }

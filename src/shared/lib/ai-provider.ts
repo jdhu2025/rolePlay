@@ -99,8 +99,11 @@ function readConfig(configs: Configs, ...keys: string[]) {
 }
 
 export function normalizeProviderBaseURL(value: unknown) {
-  const raw = String(value || '').trim().replace(/^['"]|['"]$/g, '');
+  const raw = String(value || '')
+    .trim()
+    .replace(/^['"]|['"]$/g, '');
   if (!raw) return '';
+  if (['undefined', 'null'].includes(raw.toLowerCase())) return '';
 
   const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
   try {
@@ -109,6 +112,33 @@ export function normalizeProviderBaseURL(value: unknown) {
   } catch {
     return '';
   }
+}
+
+export function hasUsableTextProviderConnection({
+  source,
+  provider,
+  apiKey,
+  baseURL,
+}: {
+  source: TextProviderCandidate['source'];
+  provider?: unknown;
+  apiKey?: unknown;
+  baseURL?: unknown;
+}) {
+  if (!String(apiKey || '').trim()) return false;
+
+  const normalizedProvider = String(provider || '')
+    .trim()
+    .toLowerCase();
+  if (
+    source === 'openrouter' ||
+    normalizedProvider === 'openrouter' ||
+    normalizedProvider === 'open-router'
+  ) {
+    return true;
+  }
+
+  return Boolean(normalizeProviderBaseURL(baseURL));
 }
 
 function hasConfig(configs: Configs, ...keys: string[]) {
@@ -157,17 +187,32 @@ function readTextProviderCandidatesFromConfig(
           return null;
         }
 
+        const apiKey = String(candidate?.apiKey || '').trim();
+        const baseURL =
+          normalizeProviderBaseURL(candidate?.baseURL) || undefined;
+        const provider =
+          String(candidate?.provider || '').trim() ||
+          (source === 'generic' ? 'openai-compatible' : source);
+        if (
+          !hasUsableTextProviderConnection({
+            source,
+            provider,
+            apiKey,
+            baseURL,
+          })
+        ) {
+          return null;
+        }
+
         return {
           source,
           origin:
             candidate?.origin === 'admin' || candidate?.origin === 'env'
               ? candidate.origin
               : 'legacy',
-          provider:
-            String(candidate?.provider || '').trim() ||
-            (source === 'generic' ? 'openai-compatible' : source),
-          apiKey: String(candidate?.apiKey || '').trim(),
-          baseURL: normalizeProviderBaseURL(candidate?.baseURL) || undefined,
+          provider,
+          apiKey,
+          baseURL,
           model:
             options.requestModel ||
             String(candidate?.model || '').trim() ||
@@ -208,9 +253,16 @@ export function resolveTextProviderCandidates(
     'AI_BASE_URL',
     'OPENAI_COMPATIBLE_BASE_URL'
   );
+  const normalizedGenericBaseURL = normalizeProviderBaseURL(genericBaseURL);
   const genericModel = readConfig(configs, 'LLM_MODEL', 'AI_MODEL');
   const genericIsConfigured =
-    hasConfig(
+    hasUsableTextProviderConnection({
+      source: 'generic',
+      provider: explicitProvider,
+      apiKey: genericApiKey,
+      baseURL: normalizedGenericBaseURL,
+    }) &&
+    (hasConfig(
       configs,
       'LLM_API_KEY',
       'AI_API_KEY',
@@ -221,9 +273,9 @@ export function resolveTextProviderCandidates(
       'LLM_MODEL',
       'AI_MODEL'
     ) ||
-    (explicitProvider &&
-      !matchesProviderAlias(explicitProvider, 'volcengine') &&
-      !matchesProviderAlias(explicitProvider, 'openrouter'));
+      (explicitProvider &&
+        !matchesProviderAlias(explicitProvider, 'volcengine') &&
+        !matchesProviderAlias(explicitProvider, 'openrouter')));
 
   if (genericIsConfigured) {
     candidates.push({
@@ -231,7 +283,7 @@ export function resolveTextProviderCandidates(
       origin: 'legacy',
       provider: explicitProvider || 'openai-compatible',
       apiKey: genericApiKey,
-      baseURL: normalizeProviderBaseURL(genericBaseURL) || undefined,
+      baseURL: normalizedGenericBaseURL,
       model:
         options.requestModel ||
         genericModel ||
@@ -240,28 +292,17 @@ export function resolveTextProviderCandidates(
     });
   }
 
-  if (
-    hasConfig(
-      configs,
-      'VOLCENGINE_API_KEY',
-      'VOLCENGINE_MODEL_BASE_URL',
-      'VOLCENGINE_BASE_URL',
-      'VOLCENGINE_TEXT_VISION_TEXT_MODEL'
-    )
-  ) {
+  const volcengineApiKey = readConfig(configs, 'VOLCENGINE_API_KEY');
+  const volcengineBaseURL = normalizeProviderBaseURL(
+    readConfig(configs, 'VOLCENGINE_MODEL_BASE_URL', 'VOLCENGINE_BASE_URL')
+  );
+  if (volcengineApiKey && volcengineBaseURL) {
     candidates.push({
       source: 'volcengine',
       origin: 'legacy',
       provider: 'volcengine',
-      apiKey: readConfig(configs, 'VOLCENGINE_API_KEY'),
-      baseURL:
-        normalizeProviderBaseURL(
-          readConfig(
-            configs,
-            'VOLCENGINE_MODEL_BASE_URL',
-            'VOLCENGINE_BASE_URL'
-          )
-        ) || undefined,
+      apiKey: volcengineApiKey,
+      baseURL: volcengineBaseURL,
       model:
         options.requestModel ||
         readConfig(configs, 'VOLCENGINE_TEXT_VISION_TEXT_MODEL') ||
@@ -270,20 +311,13 @@ export function resolveTextProviderCandidates(
     });
   }
 
-  if (
-    hasConfig(
-      configs,
-      'OPENROUTER_API_KEY',
-      'OPENROUTER_BASE_URL',
-      'OPENROUTER_MODEL',
-      'ROLEPLAY_MODEL'
-    )
-  ) {
+  const openRouterApiKey = readConfig(configs, 'OPENROUTER_API_KEY');
+  if (openRouterApiKey) {
     candidates.push({
       source: 'openrouter',
       origin: 'legacy',
       provider: 'openrouter',
-      apiKey: readConfig(configs, 'OPENROUTER_API_KEY'),
+      apiKey: openRouterApiKey,
       baseURL:
         normalizeProviderBaseURL(readConfig(configs, 'OPENROUTER_BASE_URL')) ||
         undefined,
