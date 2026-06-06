@@ -46,6 +46,42 @@ function topByCount(values: string[], limit = 3) {
     .map(([label, count]) => ({ label, count }));
 }
 
+const HUMAN_MOMENT_EVENT_TYPES = [
+  'first_impression_selected',
+  'continuation_hint_shown',
+  'wrap_up_clicked',
+  'local_fallback_shown',
+  'keepsake_voice_clicked',
+] as const;
+
+type HumanMomentEventType = (typeof HUMAN_MOMENT_EVENT_TYPES)[number];
+
+const HUMAN_MOMENT_EVENT_LABELS: Record<HumanMomentEventType, string> = {
+  first_impression_selected: '首次偏好',
+  continuation_hint_shown: '续接提示',
+  wrap_up_clicked: '稍后告别',
+  local_fallback_shown: '慢首响兜底',
+  keepsake_voice_clicked: '纪念语音',
+};
+
+function countHumanMomentEvents(events: RoleplayQualityEvent[]) {
+  const counts = Object.fromEntries(
+    HUMAN_MOMENT_EVENT_TYPES.map((type) => [type, 0])
+  ) as Record<HumanMomentEventType, number>;
+
+  events.forEach((event) => {
+    if (HUMAN_MOMENT_EVENT_TYPES.includes(event.eventType as HumanMomentEventType)) {
+      counts[event.eventType as HumanMomentEventType] += 1;
+    }
+  });
+
+  return counts;
+}
+
+function sumHumanMomentEvents(counts: Record<HumanMomentEventType, number>) {
+  return HUMAN_MOMENT_EVENT_TYPES.reduce((sum, type) => sum + counts[type], 0);
+}
+
 type CardAuditConflict = {
   severity: 'low' | 'medium' | 'high';
   type: string;
@@ -206,6 +242,8 @@ export async function getRoleplayQualityReport({
         event.eventType === 'regenerate_requested' ||
         event.eventType === 'ooc_regenerate_requested'
     ).length;
+    const humanMomentCounts = countHumanMomentEvents(characterEvents);
+    const humanMomentTotal = sumHumanMomentEvents(humanMomentCounts);
     const explicitOocCount = characterEvents.filter(
       (event) => event.eventType === 'ooc_flagged'
     ).length;
@@ -284,6 +322,12 @@ export async function getRoleplayQualityReport({
       auditConflicts.some((conflict) => conflict.severity === 'high')
         ? '角色卡存在高风险字段冲突，优先修正人设/视觉/音色/关系设定'
         : '',
+      rate(humanMomentCounts.local_fallback_shown, Math.max(1, userMessages.length)) >= 20
+        ? '慢首响兜底出现偏多，优先检查首 token、模型路由或供应商延迟'
+        : '',
+      humanMomentCounts.wrap_up_clicked > 0 && avgTurns < 4
+        ? '用户会点“稍后”但平均轮数仍短，告别仪式可能还没形成回访钩子'
+        : '',
     ].filter(Boolean);
 
     return {
@@ -303,6 +347,18 @@ export async function getRoleplayQualityReport({
         regenerateRate: rate(regenerateCount, Math.max(1, userMessages.length)),
         evaluationCount: characterEvaluations.length,
       },
+      humanMoments: {
+        total: humanMomentTotal,
+        firstImpression: humanMomentCounts.first_impression_selected,
+        continuationHint: humanMomentCounts.continuation_hint_shown,
+        wrapUp: humanMomentCounts.wrap_up_clicked,
+        localFallback: humanMomentCounts.local_fallback_shown,
+        keepsakeVoice: humanMomentCounts.keepsake_voice_clicked,
+        localFallbackRate: rate(
+          humanMomentCounts.local_fallback_shown,
+          Math.max(1, userMessages.length)
+        ),
+      },
       rubric,
       topIssues: topByCount(issueLabels),
       topRecommendations: topByCount(recommendationLabels),
@@ -319,18 +375,25 @@ export async function getRoleplayQualityReport({
     };
   });
 
+  const humanMomentCounts = countHumanMomentEvents(events);
   const totals = {
     characters: items.length,
     conversations: conversations.length,
     userMessages: messages.filter((message) => message.role === 'user').length,
     qualityEvents: events.length,
     evaluations: evaluations.length,
+    humanMomentEvents: sumHumanMomentEvents(humanMomentCounts),
   };
 
   return {
     days,
     since: since.toISOString(),
     totals,
+    humanMomentFunnel: HUMAN_MOMENT_EVENT_TYPES.map((type) => ({
+      type,
+      label: HUMAN_MOMENT_EVENT_LABELS[type],
+      count: humanMomentCounts[type],
+    })),
     items: items.sort((a, b) => {
       const aRisk =
         a.metrics.regenerateRate +

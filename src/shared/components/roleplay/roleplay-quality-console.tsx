@@ -32,6 +32,15 @@ type ReportItem = {
     regenerateRate: number;
     evaluationCount: number;
   };
+  humanMoments: {
+    total: number;
+    firstImpression: number;
+    continuationHint: number;
+    wrapUp: number;
+    localFallback: number;
+    keepsakeVoice: number;
+    localFallbackRate: number;
+  };
   rubric: {
     voice: number;
     values: number;
@@ -74,7 +83,13 @@ type Report = {
     userMessages: number;
     qualityEvents: number;
     evaluations: number;
+    humanMomentEvents: number;
   };
+  humanMomentFunnel: {
+    type: string;
+    label: string;
+    count: number;
+  }[];
   items: ReportItem[];
   migrationRequired?: boolean;
 };
@@ -226,7 +241,7 @@ export function RoleplayQualityConsole() {
           <ReportSkeleton />
         ) : report ? (
           <>
-            <section className="grid gap-3 md:grid-cols-4">
+            <section className="grid gap-3 md:grid-cols-5">
               <Metric label="角色数" value={report.totals.characters} icon={Target} />
               <Metric
                 label="会话数"
@@ -239,6 +254,11 @@ export function RoleplayQualityConsole() {
                 icon={Activity}
               />
               <Metric
+                label="人性瞬间"
+                value={report.totals.humanMomentEvents}
+                icon={Target}
+              />
+              <Metric
                 label="rubric 样本"
                 value={report.totals.evaluations}
                 icon={BarChart3}
@@ -247,6 +267,7 @@ export function RoleplayQualityConsole() {
 
             {topRisk ? (
               <>
+                <HumanMomentBrief report={report} />
                 <section className="grid gap-4 lg:grid-cols-[1.1fr_1.9fr]">
                   <RiskBrief item={topRisk} />
                   <AuditBrief item={topRisk} />
@@ -262,6 +283,55 @@ export function RoleplayQualityConsole() {
         ) : null}
       </div>
     </main>
+  );
+}
+
+function HumanMomentBrief({ report }: { report: Report }) {
+  const topCharacter = report.items
+    .filter((item) => item.humanMoments.total > 0)
+    .sort((a, b) => b.humanMoments.total - a.humanMoments.total)[0];
+
+  return (
+    <section className="rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          Human moments
+        </p>
+        <h2 className="text-lg font-semibold">前台吸引力瞬间</h2>
+        <p className="text-sm text-muted-foreground">
+          这些事件来自用户真正看到或点击的瞬间，用来判断首聊体验是否抓人。
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        {report.humanMomentFunnel.map((item) => (
+          <div
+            key={item.type}
+            className="rounded-md border border-border bg-background px-3 py-2"
+          >
+            <p className="text-xs text-muted-foreground">{item.label}</p>
+            <p className="mt-1 text-xl font-semibold tabular-nums">
+              {item.count}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {topCharacter ? (
+        <p className="mt-3 text-sm text-muted-foreground">
+          当前触发最多的是{' '}
+          <span className="font-medium text-foreground">
+            {topCharacter.character.name}
+          </span>
+          ：{topCharacter.humanMoments.total} 次；慢首响兜底率{' '}
+          {topCharacter.humanMoments.localFallbackRate}%。
+        </p>
+      ) : (
+        <p className="mt-3 text-sm text-muted-foreground">
+          暂无前台人性瞬间数据，继续积累首聊样本。
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -474,6 +544,12 @@ function QualityTable({ items }: { items: ReportItem[] }) {
               <p className="mt-2 text-xs text-muted-foreground">
                 {item.metrics.conversations} 会话 · {item.metrics.userMessages}{' '}
                 用户消息 · {item.metrics.regenerateRate}% 重发
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                人性瞬间 {item.humanMoments.total} · 慢首响{' '}
+                {item.humanMoments.localFallback} · 稍后{' '}
+                {item.humanMoments.wrapUp} · 纪念语音{' '}
+                {item.humanMoments.keepsakeVoice}
               </p>
             </div>
             <div className="grid gap-1.5">

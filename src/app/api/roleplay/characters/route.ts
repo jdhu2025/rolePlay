@@ -13,6 +13,7 @@ import {
   parsePersonalityCard,
   serializePersonalityCard,
 } from '@/shared/lib/roleplay-personality';
+import { ensureHumanMomentPersonalityCard } from '@/shared/lib/roleplay-human-moments';
 import {
   normalizeStyleExamples,
   parseStyleExamples,
@@ -227,9 +228,20 @@ export async function POST(request: Request) {
         : RoleplayStatus.PUBLISHED;
 
     const opening = payload.opening || payload.firstMessage || '';
-    const personalityCard = payload.personalityCard
-      ? normalizePersonalityCard(payload.personalityCard)
-      : {};
+    const personalityCard = ensureHumanMomentPersonalityCard(
+      payload.personalityCard,
+      {
+        name,
+        tagline: payload.tagline,
+        intro: payload.intro,
+        settings: payload.settings,
+        style: payload.style,
+        relationship: payload.relationship,
+        scene: payload.scene,
+        personality: payload.personality,
+        tags: payload.tags,
+      }
+    );
     const character = await createRoleplayCharacter({
       userId: user.id,
       status: initialStatus,
@@ -271,6 +283,7 @@ export async function POST(request: Request) {
       model: payload.model || '',
       metadata: serializeJson({
         source: payload.status ? 'v2-create' : 'talkie-mvp',
+        humanMomentVersion: 'auto-create-v1',
       }),
     });
 

@@ -291,7 +291,7 @@ function buildPatch(character: RoleplayOfficialCharacter) {
     styleExamples: serializeStyleExamples(buildStyleExamples(character)),
     metadata: JSON.stringify({
       source: 'official-backfill',
-      humanMomentVersion: '2026-06-03',
+      humanMomentVersion: '2026-06-05-human-moments-v2',
       sortOrder: character.sortOrder,
       backfilledAt: new Date().toISOString(),
     }),

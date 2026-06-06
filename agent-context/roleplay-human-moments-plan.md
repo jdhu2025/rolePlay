@@ -111,6 +111,35 @@
 
 验收：后续能看出用户被哪个瞬间吸引、在哪个等待点流失，而不是只看总消息数。
 
+### P8：人性瞬间质量看板
+
+| 任务 | 状态 | 说明 |
+| --- | :---: | --- |
+| P8-1 | ✅ done | Admin quality report 聚合 `first_impression_selected / continuation_hint_shown / wrap_up_clicked / local_fallback_shown / keepsake_voice_clicked` |
+| P8-2 | ✅ done | Admin quality console 新增“人性瞬间”总指标、funnel 区块，并在角色表显示慢首响、稍后和纪念语音计数 |
+
+验收：运营/产品能直接看到哪些前台瞬间在发生、哪个角色慢首响兜底偏多。
+
+### P9：存量角色数据刷新
+
+| 任务 | 状态 | 说明 |
+| --- | :---: | --- |
+| P9-1 | ✅ done | 新增系统存量角色通用回填脚本，补齐 `interactionPlay / continuationSeed / goodbyeRitualStyle / peakMomentStyle` 和 style examples |
+| P9-2 | ✅ done | 实际刷新 32 个系统平台角色：12 个真人官方 + 20 个 anime 原创；真人官方随后用专属脚本二次覆盖，保留更细的人设种子 |
+| P9-3 | ✅ done | 新增只读 audit 脚本，验证系统存量角色四个字段缺失数为 0 |
+
+验收：存量角色不需要重新创建，也能进入首聊 3 轮、续接、告别仪式和高峰语音/图片逻辑。
+
+### P10：新增角色自动补齐
+
+| 任务 | 状态 | 说明 |
+| --- | :---: | --- |
+| P10-1 | ✅ done | 新增 `ensureHumanMomentPersonalityCard`，根据角色名称、标签、人设、场景自动补齐四个人性瞬间字段 |
+| P10-2 | ✅ done | `/api/roleplay/characters` POST 创建时自动补齐，覆盖快速新增角色和 Create Talkie 手动创建 |
+| P10-3 | ✅ done | `/api/roleplay/characters/[id]` PATCH 保存时自动补齐，覆盖草稿编辑和快速新增二次保存；已有 AI Writer 生成字段不会被覆盖 |
+
+验收：新增角色即使没有 AI Writer 完整输出，也默认具备首聊、续接、告别、高峰时刻的运行数据。
+
 ---
 
 ## 操作日志
@@ -152,6 +181,13 @@
 | 2026-06-04 | P2-8 验证：`pnpm exec tsc --noEmit` 通过；定向 eslint 通过（仅 baseline-browser-mapping 旧数据提示）。浏览器打开 `/en/chat/profile/rp-001` 无运行错误；通过临时 mock 慢流式响应确认 12 秒兜底动作句能出现。 |
 | 2026-06-04 | 完成 P7：新增客户端人性瞬间事件 API 和 helper，记录 `first_impression_selected / continuation_hint_shown / wrap_up_clicked / local_fallback_shown / keepsake_voice_clicked`；事件统一进入 `roleplay_quality_event`，metadata 固定 `source: client_moment`。 |
 | 2026-06-04 | P7 验证：`pnpm exec tsc --noEmit` 通过；定向 eslint 通过（仅 baseline-browser-mapping 旧数据提示）。浏览器直接 POST `/api/roleplay/moment-event` 返回 `{ recorded: true }`；页面无新增 runtime error。验证时观察到一次 `/api/auth/get-session` 500 后自动恢复为 200，和 moment event 接口无关。 |
+| 2026-06-05 | 完成 P8：`getRoleplayQualityReport` 增加 `humanMomentFunnel` 和角色级 `humanMoments` 指标；质量控制台新增“人性瞬间”指标卡和 funnel 区块，角色列表显示慢首响、稍后、纪念语音计数。 |
+| 2026-06-05 | P8 验证：`pnpm exec tsc --noEmit` 通过；定向 eslint 通过（仅 baseline-browser-mapping 旧数据提示）。本机已有 dev server 占用 3000 且 admin API 未带登录态返回 `no auth, please sign in`，页面路由正确 307 到登录页；未终止用户现有 dev 进程。 |
+| 2026-06-05 | 完成 P9：新增 `scripts/data/backfill-roleplay-human-moments.ts` 通用回填脚本和 `scripts/data/audit-roleplay-human-moments.ts` 只读核验脚本；更新官方回填版本号为 `2026-06-05-human-moments-v2`。 |
+| 2026-06-05 | P9 实际刷新：先运行通用回填命中 32 个系统平台角色，并写入快照 `scripts/data/human-moments-backfill-snapshot-2026-06-05T01-09-30-280Z.json`；再运行 `backfill-official-characters.ts` 覆盖 12 个真人官方角色，并写入快照 `scripts/data/backfill-snapshot-2026-06-05T01-09-56-928Z.json`。 |
+| 2026-06-05 | P9 验证：`audit-roleplay-human-moments.ts` 返回 `total: 32`、`missing: []`；抽查 Chloe / Maya / Elira Frost 均已有 `interactionPlay / continuationSeed / goodbyeRitualStyle / peakMomentStyle`。`pnpm exec tsc --noEmit` 通过。 |
+| 2026-06-05 | 完成 P10：新增 `src/shared/lib/roleplay-human-moments.ts`，并接入角色 POST/PATCH API；快速新增角色、Create Talkie 手动创建、AI Writer 保存草稿都会在后端自动补齐四个人性瞬间字段。 |
+| 2026-06-05 | P10 验证：`pnpm exec tsc --noEmit` 通过；定向 eslint 通过（仅 baseline-browser-mapping 旧数据提示）；纯函数验证确认空 personalityCard 会生成四个字段，已有 `continuationSeed` 保持不覆盖。 |
 
 ---
 

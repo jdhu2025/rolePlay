@@ -13,6 +13,7 @@ import {
   parsePersonalityCard,
   serializePersonalityCard,
 } from '@/shared/lib/roleplay-personality';
+import { ensureHumanMomentPersonalityCard } from '@/shared/lib/roleplay-human-moments';
 import {
   normalizeStyleExamples,
   parseStyleExamples,
@@ -212,8 +213,27 @@ export async function PATCH(
     if (payload.personalityCard !== undefined) {
       // Always normalize before persisting so a misbehaving client can't
       // poison the chat pipeline with overlong / wrong-shape fields.
+      const nextName =
+        update.name !== undefined ? update.name : character.name;
       update.personalityCard = serializePersonalityCard(
-        normalizePersonalityCard(payload.personalityCard)
+        ensureHumanMomentPersonalityCard(payload.personalityCard, {
+          name: nextName,
+          tagline:
+            payload.tagline !== undefined ? payload.tagline : character.tagline,
+          intro: payload.intro !== undefined ? payload.intro : character.intro,
+          settings:
+            payload.settings !== undefined ? payload.settings : character.settings,
+          style: payload.style !== undefined ? payload.style : character.style,
+          relationship:
+            payload.relationship !== undefined
+              ? payload.relationship
+              : character.relationship,
+          scene: payload.scene !== undefined ? payload.scene : character.scene,
+          personality:
+            payload.personality ||
+            safeJsonParse<string[]>(character.personality, []),
+          tags: payload.tags || safeJsonParse<string[]>(character.tags, []),
+        })
       );
     }
     if (payload.visualIdentity !== undefined)
