@@ -1,5 +1,11 @@
 import { md5 } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
+import {
+  createRoleplayAsset,
+  isMissingRoleplayTable,
+  serializeJson,
+} from '@/shared/models/roleplay';
+import { getUserInfo } from '@/shared/models/user';
 import { getStorageService } from '@/shared/services/storage';
 
 const extFromMime = (mimeType: string) => {
@@ -19,8 +25,17 @@ const extFromMime = (mimeType: string) => {
 
 export async function POST(req: Request) {
   try {
+    const user = await getUserInfo();
+    if (!user) {
+      return respErr('no auth, please sign in');
+    }
+
     const formData = await req.formData();
     const files = formData.getAll('files') as File[];
+    const type = String(formData.get('type') || 'image');
+    const characterId = String(formData.get('characterId') || '') || null;
+    const conversationId = String(formData.get('conversationId') || '') || null;
+    const messageId = String(formData.get('messageId') || '') || null;
 
     console.log('[API] Received files:', files.length);
     files.forEach((file, i) => {
@@ -58,11 +73,30 @@ export async function POST(req: Request) {
       if (exists) {
         const publicUrl = storageService.getPublicUrl({ key });
         if (publicUrl) {
+          const asset = await createRoleplayAsset({
+            userId: user.id,
+            characterId,
+            conversationId,
+            messageId,
+            type,
+            url: publicUrl,
+            storageKey: key,
+            contentType: file.type,
+            status: 'created',
+            metadata: serializeJson({
+              filename: file.name,
+              size: file.size,
+              deduped: true,
+              source: 'storage-upload-image',
+            }),
+          });
+
           uploadResults.push({
             url: publicUrl,
             key,
             filename: file.name,
             deduped: true,
+            asset,
           });
           continue;
         }
@@ -88,6 +122,24 @@ export async function POST(req: Request) {
         key: result.key,
         filename: file.name,
         deduped: false,
+        asset: await createRoleplayAsset({
+          userId: user.id,
+          characterId,
+          conversationId,
+          messageId,
+          type,
+          url: result.url || '',
+          storageKey: result.key || key,
+          contentType: file.type,
+          status: 'created',
+          metadata: serializeJson({
+            filename: file.name,
+            size: file.size,
+            provider: result.provider,
+            deduped: false,
+            source: 'storage-upload-image',
+          }),
+        }),
       });
     }
 
@@ -100,8 +152,11 @@ export async function POST(req: Request) {
       urls: uploadResults.map((r) => r.url),
       results: uploadResults,
     });
-  } catch (e) {
+  } catch (e: any) {
+    if (isMissingRoleplayTable(e)) {
+      return respErr('roleplay database tables are not migrated yet');
+    }
     console.error('upload image failed:', e);
-    return respErr('upload image failed');
+    return respErr(e.message || 'upload image failed');
   }
 }
