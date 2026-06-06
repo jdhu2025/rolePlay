@@ -4,7 +4,8 @@ import {
   isMissingRoleplayTable,
 } from '@/shared/models/roleplay';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 /**
  * `/api/roleplay/tags` — public read of the canonical tag taxonomy.
@@ -26,7 +27,10 @@ export async function GET() {
       })),
     });
   } catch (e: any) {
-    if (isMissingRoleplayTable(e)) {
+    if (
+      isMissingRoleplayTable(e) ||
+      String(e?.message || '').includes('DATABASE_URL is not set')
+    ) {
       return respData({ tags: [], migrationRequired: true });
     }
     console.log('list roleplay tags failed:', e);
