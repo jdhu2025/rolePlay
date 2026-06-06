@@ -57,6 +57,7 @@ type Props = {
 
 export function RoleplayLanding({ initialData }: Props) {
   const t = useTranslations('roleplay.picker');
+  const tHome = useTranslations('roleplay.home');
   const locale = useLocale();
   const localDefaultCharacters = useMemo(
     () =>
@@ -229,7 +230,7 @@ export function RoleplayLanding({ initialData }: Props) {
       <section className="mx-auto max-w-6xl px-4 pt-6 md:px-6 md:pt-10">
         <div className="flex flex-col gap-1 pb-4">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
-            Explore
+            {tHome('explore_label')}
           </p>
           <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
             {t('title')}
@@ -237,7 +238,7 @@ export function RoleplayLanding({ initialData }: Props) {
         </div>
       </section>
 
-      <div className="sticky top-14 z-10 mx-auto max-w-6xl bg-[#0d0d10]/85 pb-2 pt-2 backdrop-blur supports-[backdrop-filter]:bg-[#0d0d10]/70">
+      <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-10 mx-auto max-w-6xl bg-[#0d0d10]/85 pb-2 pt-2 backdrop-blur supports-[backdrop-filter]:bg-[#0d0d10]/70">
         <TagChips
           active={activeTag}
           onChange={setActiveTag}
@@ -404,12 +405,14 @@ function ForYouSection({
   characters: RoleplayCharacterClient[];
   loading: boolean;
 }) {
+  const t = useTranslations('roleplay.home');
+
   return (
     <section className="relative border-b border-white/5 bg-[radial-gradient(circle_at_20%_0%,rgba(244,114,182,0.14),transparent_34%),linear-gradient(115deg,#111113_0%,#101113_58%,#0b1415_100%)]">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pb-8 pt-10 md:px-6 md:pb-10 md:pt-14">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 pb-6 pt-8 md:gap-6 md:px-6 md:pb-10 md:pt-14">
         <header className="flex items-center gap-3">
           <h1 className="text-3xl font-black tracking-tight md:text-4xl">
-            For You
+            {t('for_you')}
           </h1>
           <Sparkles size={26} className="text-white/45" aria-hidden="true" />
         </header>
@@ -420,7 +423,7 @@ function ForYouSection({
               ? Array.from({ length: 3 }).map((_, idx) => (
                   <div
                     key={idx}
-                    className="w-[82vw] shrink-0 sm:w-[44vw] md:w-[calc((100%_-_2rem)/3)]"
+                    className="w-[76vw] max-w-[296px] shrink-0 sm:w-[44vw] sm:max-w-none md:w-[calc((100%_-_2rem)/3)]"
                   >
                     <CardSkeleton />
                   </div>
@@ -434,11 +437,14 @@ function ForYouSection({
                 : characters.map((character, idx) => (
                     <div
                       key={character.id}
-                      className="w-[82vw] shrink-0 sm:w-[44vw] md:w-[calc((100%_-_2rem)/3)]"
+                      className="w-[76vw] max-w-[296px] shrink-0 sm:w-[44vw] sm:max-w-none md:w-[calc((100%_-_2rem)/3)]"
                     >
                       <RoleplayCharacterCard
                         character={character}
                         priority={idx < 3}
+                        imageAspectClassName="aspect-[4/5] sm:aspect-[3/4]"
+                        contentClassName="max-sm:px-3 max-sm:pb-3 max-sm:pt-2.5"
+                        introClassName="max-sm:line-clamp-1"
                       />
                     </div>
                   ))}

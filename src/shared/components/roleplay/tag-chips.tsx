@@ -69,7 +69,7 @@ export function TagChips({
 
   if (loading) {
     return (
-      <div className="flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:px-6">
+      <div className="flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:overflow-visible md:px-6">
         {Array.from({ length: 6 }).map((_, idx) => (
           <Skeleton key={idx} className="h-8 w-20 shrink-0 rounded-full bg-white/5" />
         ))}
@@ -80,7 +80,7 @@ export function TagChips({
   return (
     <nav
       aria-label="Tag filters"
-      className="flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:px-6"
+      className="flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:overflow-visible md:px-6"
     >
       <Chip
         label={allLabel}
@@ -114,7 +114,7 @@ function Chip({
       onClick={onClick}
       data-active={active}
       className={cn(
-        'shrink-0 whitespace-nowrap rounded-full border border-white/10 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors',
+        'max-w-[72vw] shrink-0 truncate whitespace-nowrap rounded-full border border-white/10 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors md:max-w-none',
         'hover:bg-white/5',
         'data-[active=true]:border-white data-[active=true]:bg-white data-[active=true]:text-black'
       )}

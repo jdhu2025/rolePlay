@@ -276,25 +276,32 @@ export function PhotoCarousel({
         </ul>
       </div>
 
-      {/* Arrows: visible on hover (md+) only, hidden on touch viewports. */}
+      {/* Arrows stay visible on touch so nested homepage rails can still
+          change photos without fighting the outer character carousel. */}
       <button
         type="button"
-        onClick={() => scrollBy(-1)}
+        onClick={(event) => {
+          event.stopPropagation();
+          scrollBy(-1);
+        }}
         aria-label={t('prev')}
         className={cn(
-          'absolute left-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white opacity-0 backdrop-blur transition-opacity md:flex',
-          'group-hover:opacity-100 focus-visible:opacity-100'
+          'absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/38 text-white backdrop-blur transition-opacity',
+          'opacity-80 hover:bg-black/55 hover:opacity-100 focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100'
         )}
       >
         <ChevronLeft size={18} aria-hidden="true" />
       </button>
       <button
         type="button"
-        onClick={() => scrollBy(1)}
+        onClick={(event) => {
+          event.stopPropagation();
+          scrollBy(1);
+        }}
         aria-label={t('next')}
         className={cn(
-          'absolute right-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white opacity-0 backdrop-blur transition-opacity md:flex',
-          'group-hover:opacity-100 focus-visible:opacity-100'
+          'absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/38 text-white backdrop-blur transition-opacity',
+          'opacity-80 hover:bg-black/55 hover:opacity-100 focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100'
         )}
       >
         <ChevronRight size={18} aria-hidden="true" />

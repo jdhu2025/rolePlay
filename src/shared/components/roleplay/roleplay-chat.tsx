@@ -1304,8 +1304,8 @@ export function RoleplayChat({ characterId }: Props) {
   );
 
   return (
-    <main className="flex min-h-dvh flex-col bg-[#0d0d10] text-white">
-      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-white/5 bg-[#0d0d10]/85 px-4 py-3 backdrop-blur md:px-6">
+    <main className="flex h-dvh min-h-0 flex-col overflow-hidden bg-[#0d0d10] text-white">
+      <header className="sticky top-0 z-20 flex shrink-0 items-center gap-3 border-b border-white/5 bg-[#0d0d10]/85 px-4 py-3 backdrop-blur md:px-6">
         <button
           type="button"
           onClick={handleBack}
@@ -1365,7 +1365,7 @@ export function RoleplayChat({ characterId }: Props) {
 
       <div
         ref={scrollerRef}
-        className="flex-1 overflow-y-auto px-4 py-5 md:px-6"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 md:px-6"
       >
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
           {messages.length === 0 ? (
@@ -1437,10 +1437,10 @@ export function RoleplayChat({ characterId }: Props) {
 
       <form
         onSubmit={handleSend}
-        className="sticky bottom-0 z-20 border-t border-white/5 bg-[#0d0d10]/85 px-4 py-3 backdrop-blur md:px-6"
+        className="z-20 shrink-0 border-t border-white/5 bg-[#0d0d10]/85 px-3 py-3 backdrop-blur sm:px-4 md:px-6"
         style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}
       >
-        <div className="mx-auto flex w-full max-w-2xl items-end gap-2">
+        <div className="mx-auto flex w-full min-w-0 max-w-2xl items-end gap-2">
           {messages.length > 1 && (
             <button
               type="button"
@@ -1468,7 +1468,7 @@ export function RoleplayChat({ characterId }: Props) {
             rows={1}
             placeholder={t('placeholder', { name: character.name })}
             className={cn(
-              'min-h-[44px] flex-1 resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm leading-relaxed text-zinc-100 caret-white placeholder:text-zinc-500',
+              'min-h-[44px] min-w-0 flex-1 resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm leading-relaxed text-zinc-100 caret-white placeholder:text-zinc-500',
               'focus:border-white/30 focus:bg-white/10 focus:outline-none'
             )}
           />

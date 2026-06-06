@@ -233,6 +233,7 @@ export function RoleplayTopbar() {
   const displayName = user?.name || user?.email || tNav('account');
   const initial = displayName.slice(0, 1).toUpperCase();
   const showCreateShortcut = !pathname.startsWith('/create');
+  const isImmersiveChatRoute = pathname.startsWith('/chat/profile');
 
   const handleSignOut = async (next: 'home' | 'signin') => {
     if (signingOut) return;
@@ -246,6 +247,10 @@ export function RoleplayTopbar() {
       window.location.assign(target);
     }
   };
+
+  if (isImmersiveChatRoute) {
+    return null;
+  }
 
   return (
     <>

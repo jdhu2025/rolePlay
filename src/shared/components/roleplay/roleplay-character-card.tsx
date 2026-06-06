@@ -31,12 +31,18 @@ type Props = {
   /** Whether this card is in the first viewport (priority image hint). */
   priority?: boolean;
   className?: string;
+  imageAspectClassName?: string;
+  contentClassName?: string;
+  introClassName?: string;
 };
 
 export function RoleplayCharacterCard({
   character,
   priority = false,
   className,
+  imageAspectClassName = 'aspect-[3/4]',
+  contentClassName,
+  introClassName,
 }: Props) {
   const settings = readCharacterSettings(character);
   const location = settings.location || character.scene || '';
@@ -115,7 +121,7 @@ export function RoleplayCharacterCard({
           images={character.gallery}
           alt={character.name}
           priority={priority}
-          aspectClassName="aspect-[3/4]"
+          aspectClassName={imageAspectClassName}
           className="cursor-pointer rounded-none rounded-t-[20px]"
           onImageClick={() => router.push(detailHref)}
         />
@@ -154,7 +160,10 @@ export function RoleplayCharacterCard({
       <Link
         href={detailHref}
         prefetch={false}
-        className="relative z-[1] flex flex-col gap-2 px-4 pb-4 pt-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+        className={cn(
+          'relative z-[1] flex flex-col gap-2 px-4 pb-4 pt-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60',
+          contentClassName
+        )}
         aria-label={`${character.name}, ${character.age}`}
       >
         <div className="flex min-w-0 items-baseline gap-2">
@@ -172,7 +181,12 @@ export function RoleplayCharacterCard({
           </div>
         )}
 
-        <p className="line-clamp-2 text-sm leading-snug text-zinc-300">
+        <p
+          className={cn(
+            'line-clamp-2 text-sm leading-snug text-zinc-300',
+            introClassName
+          )}
+        >
           {character.intro || character.tagline}
         </p>
 
