@@ -5,8 +5,44 @@ import packageJson from '../../package.json';
 
 export type ConfigMap = Record<string, string>;
 
+export function normalizeAbsoluteUrl(value: unknown, fallback = '') {
+  const raw = String(value || '').trim().replace(/^['"]|['"]$/g, '');
+  if (!raw) return fallback;
+
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  try {
+    const url = new URL(withProtocol);
+    return url.toString().replace(/\/$/, '');
+  } catch {
+    return fallback;
+  }
+}
+
+function readVercelUrl() {
+  return (
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_BRANCH_URL ||
+    process.env.VERCEL_URL ||
+    ''
+  );
+}
+
+export function getConfiguredAppUrl(fallback = 'http://localhost:3000') {
+  return normalizeAbsoluteUrl(
+    process.env.NEXT_PUBLIC_APP_URL || readVercelUrl(),
+    fallback
+  );
+}
+
+export function getConfiguredAuthUrl(fallback = '') {
+  return normalizeAbsoluteUrl(
+    process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || readVercelUrl(),
+    fallback
+  );
+}
+
 export const envConfigs: ConfigMap = {
-  app_url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+  app_url: getConfiguredAppUrl(),
   app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'RolePlay',
   app_description: process.env.NEXT_PUBLIC_APP_DESCRIPTION ?? '',
   app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/logo.png',
@@ -46,7 +82,7 @@ export const envConfigs: ConfigMap = {
   s3_secret_key: process.env.S3_SECRET_KEY ?? '',
   s3_bucket: process.env.S3_BUCKET ?? '',
   s3_domain: process.env.S3_DOMAIN ?? '',
-  auth_url: process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || '',
+  auth_url: getConfiguredAuthUrl(),
   auth_secret: process.env.AUTH_SECRET ?? '', // openssl rand -base64 32
   version: packageJson.version,
   locale_detect_enabled:

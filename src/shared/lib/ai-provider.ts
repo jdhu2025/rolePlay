@@ -98,6 +98,19 @@ function readConfig(configs: Configs, ...keys: string[]) {
   return '';
 }
 
+export function normalizeProviderBaseURL(value: unknown) {
+  const raw = String(value || '').trim().replace(/^['"]|['"]$/g, '');
+  if (!raw) return '';
+
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  try {
+    const url = new URL(withProtocol);
+    return url.toString().replace(/\/$/, '');
+  } catch {
+    return '';
+  }
+}
+
 function hasConfig(configs: Configs, ...keys: string[]) {
   return keys.some((key) => Boolean(readConfig(configs, key)));
 }
@@ -154,7 +167,7 @@ function readTextProviderCandidatesFromConfig(
             String(candidate?.provider || '').trim() ||
             (source === 'generic' ? 'openai-compatible' : source),
           apiKey: String(candidate?.apiKey || '').trim(),
-          baseURL: String(candidate?.baseURL || '').trim() || undefined,
+          baseURL: normalizeProviderBaseURL(candidate?.baseURL) || undefined,
           model:
             options.requestModel ||
             String(candidate?.model || '').trim() ||
@@ -218,7 +231,7 @@ export function resolveTextProviderCandidates(
       origin: 'legacy',
       provider: explicitProvider || 'openai-compatible',
       apiKey: genericApiKey,
-      baseURL: genericBaseURL || undefined,
+      baseURL: normalizeProviderBaseURL(genericBaseURL) || undefined,
       model:
         options.requestModel ||
         genericModel ||
@@ -242,10 +255,12 @@ export function resolveTextProviderCandidates(
       provider: 'volcengine',
       apiKey: readConfig(configs, 'VOLCENGINE_API_KEY'),
       baseURL:
-        readConfig(
-          configs,
-          'VOLCENGINE_MODEL_BASE_URL',
-          'VOLCENGINE_BASE_URL'
+        normalizeProviderBaseURL(
+          readConfig(
+            configs,
+            'VOLCENGINE_MODEL_BASE_URL',
+            'VOLCENGINE_BASE_URL'
+          )
         ) || undefined,
       model:
         options.requestModel ||
@@ -269,7 +284,9 @@ export function resolveTextProviderCandidates(
       origin: 'legacy',
       provider: 'openrouter',
       apiKey: readConfig(configs, 'OPENROUTER_API_KEY'),
-      baseURL: readConfig(configs, 'OPENROUTER_BASE_URL') || undefined,
+      baseURL:
+        normalizeProviderBaseURL(readConfig(configs, 'OPENROUTER_BASE_URL')) ||
+        undefined,
       model:
         options.requestModel ||
         readConfig(configs, 'OPENROUTER_MODEL', 'ROLEPLAY_MODEL') ||
@@ -381,7 +398,7 @@ export function resolveImageProviderConfig(
   return {
     provider,
     apiKey,
-    baseURL,
+    baseURL: normalizeProviderBaseURL(baseURL),
     model: options.requestModel || model || options.defaultModel,
     size: size || (shouldUseDefaultSize ? options.defaultSize : undefined),
   };

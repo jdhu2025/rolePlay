@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     return limited;
   }
 
-  const auth = await getAuth();
+  const auth = await getAuth(request);
   const handler = toNextJsHandler(auth.handler);
   return handler.POST(request);
 }
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     return limited;
   }
 
-  const auth = await getAuth();
+  const auth = await getAuth(request);
   const handler = toNextJsHandler(auth.handler);
   return handler.GET(request);
 }

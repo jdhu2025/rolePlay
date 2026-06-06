@@ -3,6 +3,7 @@ import {
   getConfigs,
   type Configs,
 } from '@/shared/models/config';
+import { normalizeProviderBaseURL } from '@/shared/lib/ai-provider';
 
 const TEXT_PROVIDER_CANDIDATES_KEY = '__text_provider_candidates';
 const DISABLE_ENV_FALLBACK_FLAG = '__disable_env_fallback';
@@ -101,7 +102,9 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
       origin: 'admin',
       apiKey: readFromConfigs(adminConfigs, 'openrouter_api_key'),
       baseURL:
-        readFromConfigs(adminConfigs, 'openrouter_base_url') || undefined,
+        normalizeProviderBaseURL(
+          readFromConfigs(adminConfigs, 'openrouter_base_url')
+        ) || undefined,
       model: readFromConfigs(
         adminConfigs,
         'openrouter_model',
@@ -124,11 +127,13 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
         'openai_compatible_api_key'
       ),
       baseURL:
-        readFromConfigs(
-          adminConfigs,
-          'llm_base_url',
-          'ai_base_url',
-          'openai_compatible_base_url'
+        normalizeProviderBaseURL(
+          readFromConfigs(
+            adminConfigs,
+            'llm_base_url',
+            'ai_base_url',
+            'openai_compatible_base_url'
+          )
         ) || undefined,
       model: readFromConfigs(adminConfigs, 'llm_model', 'ai_model'),
     });
@@ -157,10 +162,12 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
         'OPENAI_COMPATIBLE_API_KEY'
       ),
       baseURL:
-        readFromEnv(
-          'LLM_BASE_URL',
-          'AI_BASE_URL',
-          'OPENAI_COMPATIBLE_BASE_URL'
+        normalizeProviderBaseURL(
+          readFromEnv(
+            'LLM_BASE_URL',
+            'AI_BASE_URL',
+            'OPENAI_COMPATIBLE_BASE_URL'
+          )
         ) || undefined,
       model: readFromEnv('LLM_MODEL', 'AI_MODEL'),
     });
@@ -180,7 +187,9 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
       origin: 'env',
       apiKey: readFromEnv('VOLCENGINE_API_KEY'),
       baseURL:
-        readFromEnv('VOLCENGINE_MODEL_BASE_URL', 'VOLCENGINE_BASE_URL') ||
+        normalizeProviderBaseURL(
+          readFromEnv('VOLCENGINE_MODEL_BASE_URL', 'VOLCENGINE_BASE_URL')
+        ) ||
         undefined,
       model: readFromEnv('VOLCENGINE_TEXT_VISION_TEXT_MODEL'),
     });
@@ -199,7 +208,9 @@ function buildTextProviderCandidates(adminConfigs: Configs) {
       source: 'openrouter',
       origin: 'env',
       apiKey: readFromEnv('OPENROUTER_API_KEY'),
-      baseURL: readFromEnv('OPENROUTER_BASE_URL') || undefined,
+      baseURL:
+        normalizeProviderBaseURL(readFromEnv('OPENROUTER_BASE_URL')) ||
+        undefined,
       model: readFromEnv('OPENROUTER_MODEL', 'ROLEPLAY_MODEL'),
     });
   }

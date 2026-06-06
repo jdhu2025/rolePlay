@@ -1,9 +1,15 @@
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { oneTap } from 'better-auth/plugins';
+import { headers } from 'next/headers';
 import { getLocale } from 'next-intl/server';
 
 import { db } from '@/core/db';
-import { envConfigs } from '@/config';
+import {
+  envConfigs,
+  getConfiguredAppUrl,
+  getConfiguredAuthUrl,
+  normalizeAbsoluteUrl,
+} from '@/config';
 import * as schema from '@/config/db/schema';
 import { VerifyEmail } from '@/shared/blocks/email/verify-email';
 import {
@@ -23,12 +29,43 @@ import { grantRoleForNewUser } from '@/shared/services/rbac';
 const recentVerificationEmailSentAt = new Map<string, number>();
 const VERIFICATION_EMAIL_MIN_INTERVAL_MS = 60_000;
 
-function getTrustedOrigins() {
+function readOriginFromHeaders(requestHeaders: Pick<Headers, 'get'>) {
+  const origin = normalizeAbsoluteUrl(requestHeaders.get('origin'));
+  if (origin) return origin;
+
+  const host =
+    requestHeaders.get('x-forwarded-host') || requestHeaders.get('host');
+  if (!host) return '';
+
+  const proto = requestHeaders.get('x-forwarded-proto') || 'https';
+  return normalizeAbsoluteUrl(`${proto}://${host}`);
+}
+
+async function getCurrentRequestOrigin(request?: Request) {
+  if (request) {
+    return readOriginFromHeaders(request.headers);
+  }
+
+  try {
+    return readOriginFromHeaders(await headers());
+  } catch {
+    return '';
+  }
+}
+
+async function getTrustedOrigins(request?: Request) {
   const origins = new Set<string>();
   if (envConfigs.app_url) origins.add(envConfigs.app_url);
+  const configuredAppUrl = getConfiguredAppUrl('');
+  if (configuredAppUrl) origins.add(configuredAppUrl);
+  const configuredAuthUrl = getConfiguredAuthUrl('');
+  if (configuredAuthUrl) origins.add(configuredAuthUrl);
+  const currentOrigin = await getCurrentRequestOrigin(request);
+  if (currentOrigin) origins.add(currentOrigin);
   if (process.env.AUTH_TRUSTED_ORIGINS) {
     process.env.AUTH_TRUSTED_ORIGINS.split(',')
       .map((origin) => origin.trim())
+      .map((origin) => normalizeAbsoluteUrl(origin))
       .filter(Boolean)
       .forEach((origin) => origins.add(origin));
   }
@@ -47,9 +84,7 @@ function getTrustedOrigins() {
 // This ensures zero database calls during build time
 const authOptions = {
   appName: envConfigs.app_name,
-  baseURL: envConfigs.auth_url,
   secret: envConfigs.auth_secret,
-  trustedOrigins: getTrustedOrigins(),
   user: {
     // Allow persisting custom columns on user table.
     // Without this, better-auth may ignore extra properties during create/update.
@@ -91,8 +126,13 @@ const authOptions = {
 };
 
 // get auth options with configs
-export async function getAuthOptions(configs: Record<string, string>) {
+export async function getAuthOptions(
+  configs: Record<string, string>,
+  request?: Request
+) {
   const isProduction = process.env.NODE_ENV === 'production';
+  const currentOrigin = await getCurrentRequestOrigin(request);
+  const authBaseURL = currentOrigin || getConfiguredAuthUrl(envConfigs.auth_url);
   const emailVerificationEnabled =
     isProduction &&
     configs.email_verification_enabled === 'true' &&
@@ -101,6 +141,8 @@ export async function getAuthOptions(configs: Record<string, string>) {
 
   return {
     ...authOptions,
+    baseURL: authBaseURL || undefined,
+    trustedOrigins: await getTrustedOrigins(request),
     // Add database connection only when actually needed (runtime)
     database: envConfigs.database_url
       ? drizzleAdapter(db(), {

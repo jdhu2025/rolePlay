@@ -84,26 +84,11 @@ function getClientAuthBaseURL() {
     return envConfigs.auth_url;
   }
 
-  const configuredUrl = envConfigs.auth_url;
   if (process.env.NODE_ENV !== 'production') {
     return window.location.origin;
   }
 
-  if (!configuredUrl) {
-    return window.location.origin;
-  }
-
-  try {
-    const configured = new URL(configuredUrl);
-    const current = new URL(window.location.origin);
-    const isLocalhost =
-      ['localhost', '127.0.0.1', '::1'].includes(configured.hostname) &&
-      ['localhost', '127.0.0.1', '::1'].includes(current.hostname);
-
-    return isLocalhost ? window.location.origin : configuredUrl;
-  } catch {
-    return window.location.origin;
-  }
+  return window.location.origin;
 }
 
 // create default auth client, without plugins

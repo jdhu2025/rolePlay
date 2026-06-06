@@ -1379,6 +1379,9 @@ function isProviderConfigError(error: any) {
       /\b(model|base.?url|provider|endpoint)\b/.test(text)) ||
     /\b(invalid token|invalid api key|unauthorized|forbidden|empty response|supports the configured model)\b/.test(
       text
+    ) ||
+    /\b(invalid url|failed to parse url|err_invalid_url)\b/.test(
+      text
     )
   );
 }
@@ -1402,6 +1405,14 @@ function normalizeChatError(error: any) {
       status: 401,
       message:
         'Roleplay text provider rejected the API key. Check the active LLM provider settings in Admin > Settings > AI, or clear stale LLM/OpenRouter values so the Volcengine fallback can be used.',
+    };
+  }
+
+  if (/\b(invalid url|failed to parse url|err_invalid_url)\b/.test(text)) {
+    return {
+      status: 500,
+      message:
+        'Roleplay text provider Base URL is invalid. Use a full URL such as https://openrouter.ai/api/v1 or https://ark.cn-beijing.volces.com/api/v3.',
     };
   }
 
