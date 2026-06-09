@@ -210,7 +210,7 @@
         {
           "title": "邮箱",
           "icon": "Mail",
-          "url": "mailto:support@your-domain.com",
+          "url": "mailto:support.dpdns.org",
           "target": "_self"
         }
       ]

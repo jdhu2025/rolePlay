@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import {
   buildLocalizedPath,
@@ -51,6 +52,34 @@ assert.deepEqual(
     'https://keepsay.dpdns.org/en/character/rp-001',
   ]
 );
+
+for (const file of [
+  'content/pages/privacy-policy.mdx',
+  'content/pages/privacy-policy.zh.mdx',
+  'content/pages/terms-of-service.mdx',
+  'content/pages/terms-of-service.zh.mdx',
+  'src/config/locale/messages/en/landing.json',
+  'src/config/locale/messages/zh/landing.json',
+  'src/config/locale/messages/en/ai/chat.json',
+  'src/config/locale/messages/zh/ai/chat.json',
+  'src/config/locale/messages/en/admin/sidebar.json',
+  'src/config/locale/messages/zh/admin/sidebar.json',
+]) {
+  const content = readFileSync(file, 'utf8');
+  assert.ok(!content.includes('your-domain.com'), `${file} has your-domain.com`);
+  assert.ok(
+    !content.includes('support@your-domain.com'),
+    `${file} has placeholder support email`
+  );
+}
+
+const dynamicLandingPage = readFileSync(
+  'src/app/[locale]/(landing)/[...slug]/page.tsx',
+  'utf8'
+);
+
+assert.match(dynamicLandingPage, /openGraph:\s*{/);
+assert.match(dynamicLandingPage, /url:\s*canonicalUrl/);
 
 async function main() {
   process.env.NEXT_PUBLIC_APP_URL = appUrl;

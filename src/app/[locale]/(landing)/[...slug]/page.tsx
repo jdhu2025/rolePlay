@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
@@ -8,6 +9,33 @@ import { buildLocalizedUrl } from '@/shared/lib/seo-url';
 import { getLocalPage } from '@/shared/models/post';
 
 export const revalidate = 3600;
+
+function buildDynamicPageMetadata({
+  title,
+  description,
+  canonicalUrl,
+}: {
+  title: string;
+  description: string;
+  canonicalUrl: string;
+}): Metadata {
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+    },
+    twitter: {
+      title,
+      description,
+    },
+  };
+}
 
 // dynamic page metadata
 export async function generateMetadata({
@@ -49,13 +77,11 @@ export async function generateMetadata({
     title = staticPage.title || '';
     description = staticPage.description || '';
 
-    return {
+    return buildDynamicPageMetadata({
       title,
       description,
-      alternates: {
-        canonical: canonicalUrl,
-      },
-    };
+      canonicalUrl,
+    });
   }
 
   // 2. static page not found, try to get dynamic page metadata from
@@ -73,13 +99,11 @@ export async function generateMetadata({
     title = t.raw('metadata.title');
     description = t.raw('metadata.description');
 
-    return {
+    return buildDynamicPageMetadata({
       title,
       description,
-      alternates: {
-        canonical: canonicalUrl,
-      },
-    };
+      canonicalUrl,
+    });
   }
 
   // 3. return common metadata
@@ -88,13 +112,11 @@ export async function generateMetadata({
   title = tc('title');
   description = tc('description');
 
-  return {
+  return buildDynamicPageMetadata({
     title,
     description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-  };
+    canonicalUrl,
+  });
 }
 
 export default async function DynamicPage({

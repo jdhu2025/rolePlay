@@ -1,6 +1,6 @@
 # RolePlay SEO Implementation Plan
 
-Last updated: 2026-06-09 13:17 Asia/Shanghai
+Last updated: 2026-06-09 17:32 Asia/Shanghai
 
 ## Goal
 
@@ -391,7 +391,11 @@ required competitor-alternative pages.
 - [x] Add the primary SEO landing paths to the dynamic sitemap.
 - [x] Add first-pass English and Chinese MDX landing pages for the primary SEO paths.
 - [x] Fix dynamic landing-page canonical generation to respect `localePrefix = always`.
-- [ ] Add `keepsay.dpdns.org` to Vercel and set production `NEXT_PUBLIC_APP_URL=https://keepsay.dpdns.org`.
+- [x] Deploy the Keepsay SEO changes to production.
+- [x] Verify production `keepsay.dpdns.org` homepage, SEO landing page, robots.txt, and sitemap.
+- [x] Fix dynamic landing-page Open Graph URL to match each page canonical URL.
+- [x] Replace user-visible `your-domain.com` placeholders in legal/contact/footer surfaces.
+- [x] Add `keepsay.dpdns.org` to Vercel and set production `NEXT_PUBLIC_APP_URL=https://keepsay.dpdns.org`.
 - [ ] Submit `https://keepsay.dpdns.org/sitemap.xml` in Google Search Console after DNS and Vercel are live.
 
 ## Verification Log
@@ -406,6 +410,8 @@ alternative`, and `PolyBuzz alternative`.
 - `pnpm exec tsc --noEmit`: passed.
 - `pnpm build`: passed. `/sitemap.xml` is generated with 1 hour revalidation. Local build logs `DATABASE_URL is not set`, then falls back to local official character IDs as intended.
 - `node --import tsx -e "...sitemap sample..."`: generated 80 local sitemap entries, included `https://keepsay.dpdns.org/en/ai-companion-that-remembers-you` and `https://keepsay.dpdns.org/zh/ai-roleplay-secret-memory`, and contained no `https://ai-companion-that-remembers-you.dpdns.org` URLs.
+- Production `curl` checks after deployment: `/en`, `/en/ai-companion-that-remembers-you`, `/robots.txt`, and `/sitemap.xml` returned 200. Robots points to `https://keepsay.dpdns.org/sitemap.xml`; sitemap includes the primary SEO landing URLs.
+- Follow-up local checks after Open Graph/contact cleanup: `pnpm exec fumadocs-mdx`, `node --import tsx scripts/check-seo-url-rules.ts`, `node --import tsx scripts/check-seo-copy.ts`, `pnpm exec tsc --noEmit`, `pnpm lint`, and `pnpm build` passed.
 
 ## Status Log
 
@@ -432,3 +438,5 @@ alternative`, and `PolyBuzz alternative`.
 - 2026-06-09 13:08: Marked `keepsay.dpdns.org` as the recommended single canonical domain. Dropped the two-domain plan because `ai-companion-that-remembers-you.dpdns.org` is unavailable.
 - 2026-06-09 13:15: Executed the single-domain plan in code: added primary SEO landing paths to sitemap, added first-pass localized MDX landing pages, updated dynamic landing-page canonical generation, and expanded SEO URL verification for `keepsay.dpdns.org`.
 - 2026-06-09 13:17: Verified MDX generation, SEO URL rules, SEO copy rules, lint, typecheck, production build, and sitemap sampling after the Keepsay single-domain update.
+- 2026-06-09 17:20: Pushed `main` through `f409f80`, deploying the Keepsay SEO code to production.
+- 2026-06-09 17:32: Production verification found the new SEO page live and sitemap/robots on the Keepsay host. Added a follow-up cleanup for dynamic-page `og:url` and user-visible `your-domain.com` placeholders.
