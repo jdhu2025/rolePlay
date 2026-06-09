@@ -4,8 +4,9 @@ import { getLocale, setRequestLocale } from 'next-intl/server';
 import NextTopLoader from 'nextjs-toploader';
 
 import { envConfigs } from '@/config';
-import { locales } from '@/config/locale';
+import { defaultLocale, localePrefix, locales } from '@/config/locale';
 import { UtmCapture } from '@/shared/blocks/common/utm-capture';
+import { buildLocalizedUrl } from '@/shared/lib/seo-url';
 import { getAllConfigs } from '@/shared/models/config';
 import { getAdsService } from '@/shared/services/ads';
 import { getAffiliateService } from '@/shared/services/affiliate';
@@ -79,11 +80,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html
-      lang={locale}
-      translate="no"
-      suppressHydrationWarning
-    >
+    <html lang={locale} translate="no" suppressHydrationWarning>
       <head>
         <link rel="icon" href={envConfigs.app_favicon} />
         <link rel="alternate icon" href="/favicon.ico" />
@@ -98,9 +95,22 @@ export default async function RootLayout({
                 key={loc}
                 rel="alternate"
                 hrefLang={loc}
-                href={`${appUrl}${loc === 'en' ? '' : `/${loc}`}`}
+                href={buildLocalizedUrl('/', loc, {
+                  appUrl,
+                  defaultLocale,
+                  localePrefix,
+                })}
               />
             ))}
+            <link
+              rel="alternate"
+              hrefLang="x-default"
+              href={buildLocalizedUrl('/', defaultLocale, {
+                appUrl,
+                defaultLocale,
+                localePrefix,
+              })}
+            />
           </>
         ) : null}
 

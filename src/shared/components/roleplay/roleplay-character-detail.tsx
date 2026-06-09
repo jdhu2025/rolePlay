@@ -114,6 +114,9 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
                   {[occupation, location].filter(Boolean).join(' · ')}
                 </p>
               )}
+              <p className="max-w-xl text-sm leading-relaxed text-zinc-300">
+                {t('seo_line', { name: character.name })}
+              </p>
             </header>
 
             {character.intro && (

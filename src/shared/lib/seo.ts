@@ -1,7 +1,8 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
-import { defaultLocale } from '@/config/locale';
+import { defaultLocale, localePrefix } from '@/config/locale';
+import { buildLocalizedUrl } from '@/shared/lib/seo-url';
 
 // get metadata for page component
 export function getMetadata(
@@ -143,13 +144,11 @@ async function getCanonicalUrl(canonicalUrl: string, locale: string) {
       canonicalUrl = `/${canonicalUrl}`;
     }
 
-    canonicalUrl = `${envConfigs.app_url}${
-      !locale || locale === defaultLocale ? '' : `/${locale}`
-    }${canonicalUrl}`;
-
-    if (locale !== defaultLocale && canonicalUrl.endsWith('/')) {
-      canonicalUrl = canonicalUrl.slice(0, -1);
-    }
+    canonicalUrl = buildLocalizedUrl(canonicalUrl, locale, {
+      appUrl: envConfigs.app_url,
+      defaultLocale,
+      localePrefix,
+    });
   }
 
   return canonicalUrl;

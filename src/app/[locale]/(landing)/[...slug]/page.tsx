@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
 import { envConfigs } from '@/config';
+import { defaultLocale, localePrefix } from '@/config/locale';
+import { buildLocalizedUrl } from '@/shared/lib/seo-url';
 import { getLocalPage } from '@/shared/models/post';
 
 export const revalidate = 3600;
@@ -33,10 +35,11 @@ export async function generateMetadata({
   }
 
   // build canonical url
-  canonicalUrl =
-    locale !== envConfigs.locale
-      ? `${envConfigs.app_url}/${locale}/${staticPageSlug}`
-      : `${envConfigs.app_url}/${staticPageSlug}`;
+  canonicalUrl = buildLocalizedUrl(`/${staticPageSlug}`, locale, {
+    appUrl: envConfigs.app_url,
+    defaultLocale,
+    localePrefix,
+  });
 
   // get static page content
   const staticPage = await getLocalPage({ slug: staticPageSlug, locale });

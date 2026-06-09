@@ -411,10 +411,22 @@ function ForYouSection({
     <section className="relative border-b border-white/5 bg-[radial-gradient(circle_at_20%_0%,rgba(244,114,182,0.14),transparent_34%),linear-gradient(115deg,#111113_0%,#101113_58%,#0b1415_100%)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 pb-6 pt-8 md:gap-6 md:px-6 md:pb-10 md:pt-14">
         <header className="flex items-center gap-3">
-          <h1 className="text-3xl font-black tracking-tight md:text-4xl">
-            {t('for_you')}
-          </h1>
-          <Sparkles size={26} className="text-white/45" aria-hidden="true" />
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
+              {t('for_you')}
+            </p>
+            <h1 className="text-3xl font-black tracking-tight md:text-4xl">
+              {t('seo_title')}
+            </h1>
+            <p className="max-w-2xl text-sm leading-relaxed text-zinc-300 md:text-base">
+              {t('seo_subtitle')}
+            </p>
+          </div>
+          <Sparkles
+            size={26}
+            className="mt-7 shrink-0 text-white/45"
+            aria-hidden="true"
+          />
         </header>
 
         <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:-mx-6 md:px-6">
