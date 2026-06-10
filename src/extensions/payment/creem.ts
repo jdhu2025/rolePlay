@@ -21,6 +21,7 @@ import {
  */
 export interface CreemConfigs extends PaymentConfigs {
   apiKey: string;
+  apiBaseUrl?: string;
   signingSecret?: string;
   environment?: 'sandbox' | 'production';
 }
@@ -38,9 +39,10 @@ export class CreemProvider implements PaymentProvider {
   constructor(configs: CreemConfigs) {
     this.configs = configs;
     this.baseUrl =
-      configs.environment === 'production'
+      configs.apiBaseUrl ||
+      (configs.environment === 'production'
         ? 'https://api.creem.io'
-        : 'https://test-api.creem.io';
+        : 'https://test-api.creem.io');
   }
 
   // create payment

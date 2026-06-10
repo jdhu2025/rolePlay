@@ -44,8 +44,15 @@
     "claw_channels": "Discord · Telegram · 角色代理",
     "view_all": "查看全部",
     "for_you": "为你推荐",
-    "seo_title": "AI Character Chat & AI Roleplay",
-    "seo_subtitle": "遇见心动型陪伴、动漫人格和沉浸式角色故事，支持语音、照片、记忆和深夜陪伴。",
+    "seo_title": "会记住你的 AI 角色。",
+    "seo_subtitle": "和心动对象、动漫人格、故事伙伴聊天；他们会记住你们的片段，接上上次没说完的话，把关系继续聊下去。",
+    "primary_cta": "开始聊天",
+    "secondary_cta": "创建角色",
+    "proof_points": [
+      "会延续的长期记忆",
+      "心动、动漫、故事角色",
+      "语音和照片高峰时刻"
+    ],
     "explore_label": "探索更多",
     "tasks": "完成你的任务",
     "tasks_subtitle": "用角色扮演外壳完成真实任务的助手。",

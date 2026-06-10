@@ -44,8 +44,15 @@
     "claw_channels": "Discord · Telegram · Role agents",
     "view_all": "View all",
     "for_you": "For You",
-    "seo_title": "AI Character Chat & AI Roleplay",
-    "seo_subtitle": "Meet crush-style companions, anime personas, and immersive stories with voice, photos, memory, and late-night company.",
+    "seo_title": "AI characters that remember you.",
+    "seo_subtitle": "Chat with crushes, anime personas, and story companions who remember your moments, continue your scenes, and feel different every night.",
+    "primary_cta": "Start chatting",
+    "secondary_cta": "Create your character",
+    "proof_points": [
+      "Memory that carries over",
+      "Crush, anime, and story roles",
+      "Voice and photo moments"
+    ],
     "explore_label": "Explore",
     "tasks": "Complete your tasks",
     "tasks_subtitle": "Helper bots that complete practical jobs inside a roleplay shell.",

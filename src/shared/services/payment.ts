@@ -73,6 +73,7 @@ export function getPaymentServiceWithConfigs(configs: Configs) {
     paymentManager.addProvider(
       new CreemProvider({
         apiKey: configs.creem_api_key,
+        apiBaseUrl: configs.creem_api_base_url,
         environment:
           configs.creem_environment === 'production' ? 'production' : 'sandbox',
         signingSecret: configs.creem_signing_secret,
@@ -141,7 +142,10 @@ export async function handleCheckoutSuccess({
   }
 
   // Only process orders in CREATED or PENDING status
-  if (order.status !== OrderStatus.CREATED && order.status !== OrderStatus.PENDING) {
+  if (
+    order.status !== OrderStatus.CREATED &&
+    order.status !== OrderStatus.PENDING
+  ) {
     console.log(`Order ${orderNo} status is ${order.status}, not processing`);
     return;
   }

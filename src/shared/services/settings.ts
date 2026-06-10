@@ -591,6 +591,15 @@ export async function getSettings() {
       tab: 'payment',
     },
     {
+      name: 'creem_api_base_url',
+      title: 'Creem API Base URL',
+      type: 'input',
+      placeholder: 'https://api.creem.io',
+      group: 'creem',
+      tab: 'payment',
+      tip: 'Optional. Override Creem API base URL, for example https://api.creem.io or https://test-api.creem.io.',
+    },
+    {
       name: 'creem_signing_secret',
       title: 'Creem Signing Secret',
       type: 'password',

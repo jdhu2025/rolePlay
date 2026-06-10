@@ -17,6 +17,10 @@ export type Configs = Record<string, string>;
 
 export const CACHE_TAG_CONFIGS = 'configs';
 
+const ENV_ALIASES: Record<string, string[]> = {
+  creem_api_key: ['CREEM_API_Key'],
+};
+
 export async function saveConfigs(configs: Record<string, string>) {
   const result = await db().transaction(async (tx: any) => {
     const configEntries = Object.entries(configs);
@@ -101,6 +105,12 @@ export async function getAllConfigs(): Promise<Configs> {
       fallbackEnvConfigs[key] = process.env[upperKey] ?? '';
     } else if (process.env[key]) {
       fallbackEnvConfigs[key] = process.env[key] ?? '';
+    } else {
+      const aliases = ENV_ALIASES[key] || [];
+      const alias = aliases.find((name) => process.env[name]);
+      if (alias) {
+        fallbackEnvConfigs[key] = process.env[alias] ?? '';
+      }
     }
   });
 

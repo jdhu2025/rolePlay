@@ -23,6 +23,8 @@
     "build:turbo": "next build --turbopack",
     "start": "next start",
     "lint": "eslint .",
+    "check:home-positioning": "tsx scripts/check-home-positioning.ts",
+    "check:creem-webhook": "node scripts/check-creem-webhook.mjs",
     "smoke:ai-writer": "node scripts/smoke-ai-writer.mjs",
     "smoke:relationship-state": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/smoke-relationship-state.ts",
     "format": "prettier --write .",

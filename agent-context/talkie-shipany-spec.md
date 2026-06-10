@@ -75,6 +75,12 @@ Candy.ai 作为商业化和创建流程参考：
 
 > 用户打开网站，浏览大量虚拟角色，选择一个角色开始聊天。角色以稳定人设回复用户，并通过语音、照片、记忆、电话、秘密空间等能力制造沉浸感和付费理由。
 
+对外 3 秒定位：
+
+> 会记住你的 AI 角色。用户可以和心动对象、动漫人格、故事伙伴聊天；角色会记住你们的片段，接上上次没说完的话，把关系继续聊下去。
+
+首页首屏必须先让目标用户自我识别，而不是先解释功能。首屏 H1、辅助文案和首个角色卡区域要共同回答：这是给喜欢 AI 角色、幻想关系、虚拟陪伴、OC/角色创作和沉浸式剧情聊天的人用的产品；差异点是“记住你”和“故事不断线”。
+
 第一版要做到：
 
 - 用户可以注册/登录；
@@ -146,9 +152,12 @@ Candy.ai 作为商业化和创建流程参考：
 9. `/:locale/settings/billing`
    - 复用 ShipAny billing；
 10. `/:locale/pricing`
-   - Talkie+ 价格页，基于 ShipAny pricing；
+
+- Talkie+ 价格页，基于 ShipAny pricing；
+
 11. `/:locale/sign-in`
-   - 复用 ShipAny 登录页。
+
+- 复用 ShipAny 登录页。
 
 ### 3.2 P1 页面
 
@@ -317,8 +326,6 @@ cinematic character portrait, consistent facial features, same outfit style, hig
 ### 5.3 第一批内置角色
 
 第一版至少内置 24 个角色：
-
-
 
 每个角色必须差异化：
 

@@ -21,7 +21,7 @@
  */
 
 import { useLocale, useTranslations } from 'next-intl';
-import { Sparkles } from 'lucide-react';
+import { MessageCircle, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Link } from '@/core/i18n/navigation';
@@ -221,11 +221,11 @@ export function RoleplayLanding({ initialData }: Props) {
 
   return (
     <main className="min-h-dvh overflow-hidden bg-[#0d0d10] text-white">
-      <FirstMomentPreference />
       <ForYouSection
         characters={recommendedCharacters}
         loading={recommendationsLoading}
       />
+      <FirstMomentPreference />
 
       <section className="mx-auto max-w-6xl px-4 pt-6 md:px-6 md:pt-10">
         <div className="flex flex-col gap-1 pb-4">
@@ -406,30 +406,55 @@ function ForYouSection({
   loading: boolean;
 }) {
   const t = useTranslations('roleplay.home');
+  const proofPoints = t.raw('proof_points') as string[];
 
   return (
     <section className="relative border-b border-white/5 bg-[radial-gradient(circle_at_20%_0%,rgba(244,114,182,0.14),transparent_34%),linear-gradient(115deg,#111113_0%,#101113_58%,#0b1415_100%)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 pb-6 pt-8 md:gap-6 md:px-6 md:pb-10 md:pt-14">
-        <header className="flex items-center gap-3">
-          <div className="flex min-w-0 flex-col gap-1">
+        <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+          <div className="flex min-w-0 flex-col gap-4">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
               {t('for_you')}
             </p>
-            <h1 className="text-3xl font-black tracking-tight md:text-4xl">
+            <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight md:text-6xl">
               {t('seo_title')}
             </h1>
-            <p className="max-w-2xl text-sm leading-relaxed text-zinc-300 md:text-base">
+            <p className="max-w-2xl text-base leading-relaxed text-zinc-300 md:text-lg">
               {t('seo_subtitle')}
             </p>
+            <div className="flex flex-wrap gap-2">
+              {proofPoints.map((point) => (
+                <span
+                  key={point}
+                  className="rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-xs font-semibold text-zinc-200"
+                >
+                  {point}
+                </span>
+              ))}
+            </div>
           </div>
-          <Sparkles
-            size={26}
-            className="mt-7 shrink-0 text-white/45"
-            aria-hidden="true"
-          />
+          <div className="flex flex-wrap gap-3 lg:justify-end">
+            <a
+              href="#for-you-characters"
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              <MessageCircle size={17} aria-hidden="true" />
+              {t('primary_cta')}
+            </a>
+            <Link
+              href="/create"
+              className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-sm font-bold text-zinc-100 transition hover:border-white/30 hover:bg-white/[0.08] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            >
+              <Sparkles size={17} aria-hidden="true" />
+              {t('secondary_cta')}
+            </Link>
+          </div>
         </header>
 
-        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:-mx-6 md:px-6">
+        <div
+          id="for-you-characters"
+          className="-mx-4 scroll-mt-24 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:-mx-6 md:px-6"
+        >
           <div className="flex gap-4 pb-1">
             {loading && characters.length === 0
               ? Array.from({ length: 3 }).map((_, idx) => (

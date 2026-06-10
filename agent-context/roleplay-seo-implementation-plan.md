@@ -396,7 +396,7 @@ required competitor-alternative pages.
 - [x] Fix dynamic landing-page Open Graph URL to match each page canonical URL.
 - [x] Replace user-visible `your-domain.com` placeholders in legal/contact/footer surfaces.
 - [x] Add `keepsay.dpdns.org` to Vercel and set production `NEXT_PUBLIC_APP_URL=https://keepsay.dpdns.org`.
-- [ ] Submit `https://keepsay.dpdns.org/sitemap.xml` in Google Search Console after DNS and Vercel are live.
+- [x] Submit `https://keepsay.dpdns.org/sitemap.xml` in Google Search Console after DNS and Vercel are live.
 
 ## Verification Log
 
@@ -412,6 +412,7 @@ alternative`, and `PolyBuzz alternative`.
 - `node --import tsx -e "...sitemap sample..."`: generated 80 local sitemap entries, included `https://keepsay.dpdns.org/en/ai-companion-that-remembers-you` and `https://keepsay.dpdns.org/zh/ai-roleplay-secret-memory`, and contained no `https://ai-companion-that-remembers-you.dpdns.org` URLs.
 - Production `curl` checks after deployment: `/en`, `/en/ai-companion-that-remembers-you`, `/robots.txt`, and `/sitemap.xml` returned 200. Robots points to `https://keepsay.dpdns.org/sitemap.xml`; sitemap includes the primary SEO landing URLs.
 - Follow-up local checks after Open Graph/contact cleanup: `pnpm exec fumadocs-mdx`, `node --import tsx scripts/check-seo-url-rules.ts`, `node --import tsx scripts/check-seo-copy.ts`, `pnpm exec tsc --noEmit`, `pnpm lint`, and `pnpm build` passed.
+- Google Search Console sitemap submission: completed externally for `https://keepsay.dpdns.org/sitemap.xml`.
 
 ## Status Log
 
@@ -440,3 +441,4 @@ alternative`, and `PolyBuzz alternative`.
 - 2026-06-09 13:17: Verified MDX generation, SEO URL rules, SEO copy rules, lint, typecheck, production build, and sitemap sampling after the Keepsay single-domain update.
 - 2026-06-09 17:20: Pushed `main` through `f409f80`, deploying the Keepsay SEO code to production.
 - 2026-06-09 17:32: Production verification found the new SEO page live and sitemap/robots on the Keepsay host. Added a follow-up cleanup for dynamic-page `og:url` and user-visible `your-domain.com` placeholders.
+- 2026-06-09 17:40: Google Search Console sitemap submission completed for `https://keepsay.dpdns.org/sitemap.xml`; SEO implementation plan is fully checked off.
