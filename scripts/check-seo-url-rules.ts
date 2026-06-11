@@ -58,6 +58,8 @@ for (const file of [
   'content/pages/privacy-policy.zh.mdx',
   'content/pages/terms-of-service.mdx',
   'content/pages/terms-of-service.zh.mdx',
+  'content/pages/acceptable-use-policy.mdx',
+  'content/pages/acceptable-use-policy.zh.mdx',
   'src/config/locale/messages/en/landing.json',
   'src/config/locale/messages/zh/landing.json',
   'src/config/locale/messages/en/ai/chat.json',
@@ -66,7 +68,10 @@ for (const file of [
   'src/config/locale/messages/zh/admin/sidebar.json',
 ]) {
   const content = readFileSync(file, 'utf8');
-  assert.ok(!content.includes('your-domain.com'), `${file} has your-domain.com`);
+  assert.ok(
+    !content.includes('your-domain.com'),
+    `${file} has your-domain.com`
+  );
   assert.ok(
     !content.includes('support@your-domain.com'),
     `${file} has placeholder support email`
@@ -88,6 +93,9 @@ async function main() {
   const urls = (await sitemap()).map((entry) => entry.url);
 
   for (const path of [
+    '/privacy-policy',
+    '/terms-of-service',
+    '/acceptable-use-policy',
     '/ai-companion-that-remembers-you',
     '/ai-roleplay-secret-memory',
     '/ai-roleplay-shared-memory',

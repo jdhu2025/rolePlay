@@ -7,6 +7,7 @@ import {
   generateOpenAICompatibleImage,
   resolveImageProviderConfig,
 } from '@/shared/lib/ai-provider';
+import { moderatePromptForCreem } from '@/shared/lib/creem-moderation';
 import { md5 } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { buildCharacterImageUrl } from '@/shared/lib/roleplay-assets';
@@ -671,6 +672,20 @@ export async function POST(request: Request) {
       ? REFERENCE_IDENTITY_LOCK
       : NO_REFERENCE_IDENTITY_LOCK;
     const providerPrompt = buildFinalProviderPrompt(imagePrompt, identityLock);
+    const moderation = await moderatePromptForCreem({
+      prompt: imagePrompt,
+      configs,
+      externalId: `user_${user.id}:roleplay_image_${requestId || idempotencyKey}`,
+    });
+    timing.mark('creem_moderation');
+
+    if (!moderation.allowed) {
+      return respErr(moderation.message || 'prompt rejected', {
+        reason: moderation.reason,
+        decision: moderation.decision,
+        moderationId: moderation.moderationId,
+      });
+    }
 
     let generated;
     try {

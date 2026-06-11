@@ -2,10 +2,10 @@
   "header": {
     "id": "header",
     "brand": {
-      "title": "ShipAny Two",
+      "title": "Keepsay",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny Two",
+        "alt": "Keepsay",
         "width": 100,
         "height": 100
       },
@@ -14,14 +14,14 @@
     "nav": {
       "items": [
         {
-          "title": "功能亮点",
-          "url": "/#features",
-          "icon": "Sparkles"
+          "title": "角色",
+          "url": "/",
+          "icon": "MessageCircle"
         },
         {
-          "title": "案例展示",
-          "url": "/showcases",
-          "icon": "Box"
+          "title": "创建",
+          "url": "/create",
+          "icon": "Sparkles"
         },
         {
           "title": "价格",
@@ -29,56 +29,25 @@
           "icon": "DollarSign"
         },
         {
-          "title": "AI",
-          "icon": "RiRobot2Line",
-          "children": [
-            {
-              "title": "AI 图片生成器",
-              "description": "使用 AI 生成图片",
-              "url": "/ai-image-generator",
-              "icon": "RiImage2Line"
-            },
-            {
-              "title": "AI 音乐生成器",
-              "description": "使用 AI 生成美妙的音乐",
-              "url": "/ai-music-generator",
-              "icon": "RiMusic2Line"
-            },
-            {
-              "title": "AI 视频生成器",
-              "description": "使用 AI 生成视频",
-              "url": "/ai-video-generator",
-              "icon": "RiVideoLine"
-            },
-            {
-              "title": "AI 聊天机器人",
-              "description": "与 AI 聊天机器人对话",
-              "url": "/chat",
-              "icon": "RiMessage2Line"
-            }
-          ]
-        },
-        {
-          "title": "内容",
+          "title": "资源",
           "icon": "FileText",
           "children": [
             {
               "title": "博客",
-              "description": "阅读博客文章",
+              "description": "阅读产品更新和角色扮演内容",
               "url": "/blog",
               "icon": "Newspaper"
             },
             {
               "title": "更新日志",
-              "description": "阅读更新日志",
+              "description": "查看产品变更记录",
               "url": "/updates",
               "icon": "Clock"
             },
             {
-              "title": "文档",
-              "description": "阅读文档",
-              "url": "/docs",
-              "target": "_blank",
+              "title": "可接受使用",
+              "description": "查看内容和安全规则",
+              "url": "/acceptable-use-policy",
               "icon": "BookOpenText"
             }
           ]
@@ -107,17 +76,18 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "此网站是 ShipAny 模板的演示站点，购买 ShipAny 模板，请访问 <a href='https://shipany.ai/zh/pricing' class='text-orange-300' target='_blank'>ShipAny 官网</a>"
+      "enabled": false,
+      "text": ""
     }
   },
   "footer": {
     "id": "footer",
     "brand": {
-      "title": "ShipAny Two",
-      "description": "ShipAny 是专为 AI SaaS 创业项目打造的 NextJS 模板。丰富模板与组件，极速交付你的产品。",
+      "title": "Keepsay",
+      "description": "Keepsay 是面向虚构角色聊天和故事连续性的 AI roleplay 应用，支持记忆、语音和合规的角色图片生成。",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny Two",
+        "alt": "Keepsay",
         "width": 100,
         "height": 100
       },
@@ -126,16 +96,16 @@
     "nav": {
       "items": [
         {
-          "title": "关于我们",
+          "title": "产品",
           "children": [
             {
-              "title": "功能亮点",
-              "url": "/#features",
+              "title": "角色",
+              "url": "/",
               "target": "_self"
             },
             {
-              "title": "案例展示",
-              "url": "/showcases",
+              "title": "创建角色",
+              "url": "/create",
               "target": "_self"
             },
             {
@@ -146,42 +116,42 @@
           ]
         },
         {
-          "title": "资源",
+          "title": "账户",
           "children": [
             {
-              "title": "文档",
-              "url": "/docs",
+              "title": "账单",
+              "url": "/settings/billing",
               "target": "_self"
             },
             {
-              "title": "博客",
-              "url": "/blog",
+              "title": "付款记录",
+              "url": "/settings/payments",
               "target": "_self"
             },
             {
-              "title": "对话",
-              "url": "/chat",
-              "target": "_blank"
+              "title": "联系支持",
+              "url": "mailto:support@keepsay.dpdns.org",
+              "target": "_self"
             }
           ]
         },
         {
-          "title": "合作伙伴",
+          "title": "政策",
           "children": [
             {
-              "title": "ShipAny",
-              "url": "https://shipany.ai",
-              "target": "_blank"
+              "title": "可接受使用",
+              "url": "/acceptable-use-policy",
+              "target": "_self"
             },
             {
-              "title": "ThinkAny",
-              "url": "https://thinkany.ai",
-              "target": "_blank"
+              "title": "隐私政策",
+              "url": "/privacy-policy",
+              "target": "_self"
             },
             {
-              "title": "MCP.so",
-              "url": "https://mcp.so",
-              "target": "_blank"
+              "title": "服务条款",
+              "url": "/terms-of-service",
+              "target": "_self"
             }
           ]
         }
@@ -190,27 +160,15 @@
     "social": {
       "items": [
         {
-          "title": "X",
-          "icon": "RiTwitterXFill",
-          "url": "https://x.com/your-app-name",
-          "target": "_blank"
-        },
-        {
           "title": "Github",
           "icon": "Github",
-          "url": "https://github.com/your-app-name",
-          "target": "_blank"
-        },
-        {
-          "title": "Discord",
-          "icon": "RiDiscordFill",
-          "url": "https://discord.gg/your-app-name",
+          "url": "https://github.com/jdhu2025/rolePlay",
           "target": "_blank"
         },
         {
           "title": "邮箱",
           "icon": "Mail",
-          "url": "mailto:support.dpdns.org",
+          "url": "mailto:support@keepsay.dpdns.org",
           "target": "_self"
         }
       ]
@@ -224,6 +182,10 @@
         {
           "title": "服务条款",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "可接受使用政策",
+          "url": "/acceptable-use-policy"
         }
       ]
     },

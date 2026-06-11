@@ -29,8 +29,9 @@ assert.ok(en, 'English roleplay.home messages are required');
 assert.ok(zh, 'Chinese roleplay.home messages are required');
 
 assert.match(en.seo_title || '', /remember/i);
-assert.match(en.seo_subtitle || '', /crush|anime|story/i);
+assert.match(en.seo_subtitle || '', /fictional|anime|story/i);
 assert.match(en.seo_subtitle || '', /continue|keeps?/i);
+assert.match(en.seo_subtitle || '', /boundar/i);
 assert.match(en.primary_cta || '', /chat/i);
 assert.match(en.secondary_cta || '', /create/i);
 assert.ok(
@@ -39,8 +40,9 @@ assert.ok(
 );
 
 assert.match(zh.seo_title || '', /记住/);
-assert.match(zh.seo_subtitle || '', /心动|动漫|故事/);
+assert.match(zh.seo_subtitle || '', /虚构|动漫|故事/);
 assert.match(zh.seo_subtitle || '', /接上|继续|聊下去/);
+assert.match(zh.seo_subtitle || '', /边界/);
 assert.match(zh.primary_cta || '', /聊天/);
 assert.match(zh.secondary_cta || '', /创建/);
 assert.ok(

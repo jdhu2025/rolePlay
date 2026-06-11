@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "title": "AI Video Generator",
-    "description": "Generate videos with AI models, support text-to-video, image-to-video and video-to-video."
+    "title": "Video Tool",
+    "description": "Generic video generation is not part of the public Keepsay review surface."
   },
   "page": {
-    "title": "AI Video Generator",
-    "description": "Generate videos with AI models, support text-to-video, image-to-video and video-to-video."
+    "title": "Video Tool",
+    "description": "Generic video generation is not part of the public Keepsay review surface."
   },
   "generator": {
     "title": "Video Generator",
@@ -44,4 +44,3 @@
     "no_videos_generated": "No Videos Generated"
   }
 }
-

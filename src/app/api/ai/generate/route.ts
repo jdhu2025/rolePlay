@@ -1,8 +1,13 @@
 import { envConfigs } from '@/config';
 import { AIMediaType } from '@/extensions/ai';
+import {
+  moderatePromptForCreem,
+  shouldModerateAIGeneration,
+} from '@/shared/lib/creem-moderation';
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { createAITask, NewAITask } from '@/shared/models/ai_task';
+import { getAllConfigs } from '@/shared/models/config';
 import { getRemainingCredits } from '@/shared/models/credit';
 import { getUserInfo } from '@/shared/models/user';
 import { getAIService } from '@/shared/services/ai';
@@ -75,6 +80,23 @@ export async function POST(request: Request) {
       const remainingCredits = await getRemainingCredits(user.id);
       if (remainingCredits < costCredits) {
         throw new Error('insufficient credits');
+      }
+    }
+
+    if (shouldModerateAIGeneration({ mediaType, scene })) {
+      const configs = await getAllConfigs();
+      const moderation = await moderatePromptForCreem({
+        prompt,
+        configs,
+        externalId: `user_${user.id}:ai_${mediaType}_${scene}_${getUuid()}`,
+      });
+
+      if (!moderation.allowed) {
+        return respErr(moderation.message || 'prompt rejected', {
+          reason: moderation.reason,
+          decision: moderation.decision,
+          moderationId: moderation.moderationId,
+        });
       }
     }
 

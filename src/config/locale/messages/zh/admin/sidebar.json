@@ -1,10 +1,10 @@
 {
   "header": {
     "brand": {
-      "title": "ShipAny Two",
+      "title": "Keepsay",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny Two"
+        "alt": "Keepsay"
       },
       "url": "/admin"
     },
@@ -148,25 +148,25 @@
         },
         {
           "title": "GitHub",
-          "url": "https://github.com/your-app-name",
+          "url": "https://github.com/jdhu2025/rolePlay",
           "icon": "Github",
           "target": "_blank"
         },
         {
           "title": "推特",
-          "url": "https://twitter.com/your-app-name",
+          "url": "#",
           "icon": "RiTwitterXFill",
           "target": "_blank"
         },
         {
           "title": "Discord",
-          "url": "https://discord.gg/your-app-name",
+          "url": "#",
           "icon": "RiDiscordFill",
           "target": "_blank"
         },
         {
           "title": "邮箱",
-          "url": "mailto:support.dpdns.org",
+          "url": "mailto:support@keepsay.dpdns.org",
           "icon": "Mail",
           "target": "_blank"
         }

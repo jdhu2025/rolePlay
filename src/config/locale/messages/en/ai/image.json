@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "title": "AI Image Generator",
-    "description": "Generate images with AI models, support text-to-image and image-to-image."
+    "title": "Character Image Tool",
+    "description": "Character image generation is available inside Keepsay roleplay flows with prompt moderation."
   },
   "page": {
-    "title": "AI Image Generator",
-    "description": "Generate images with AI models, support text-to-image and image-to-image."
+    "title": "Character Image Tool",
+    "description": "Character image generation is available inside Keepsay roleplay flows with prompt moderation."
   },
   "generator": {
     "title": "Image Generator",

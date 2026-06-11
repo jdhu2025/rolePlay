@@ -45,13 +45,13 @@
     "view_all": "查看全部",
     "for_you": "为你推荐",
     "seo_title": "会记住你的 AI 角色。",
-    "seo_subtitle": "和心动对象、动漫人格、故事伙伴聊天；他们会记住你们的片段，接上上次没说完的话，把关系继续聊下去。",
+    "seo_subtitle": "和虚构角色、动漫风人设、故事伙伴聊天；他们会记住你们的片段，接上上次没说完的话，并保持清晰的安全边界。",
     "primary_cta": "开始聊天",
     "secondary_cta": "创建角色",
     "proof_points": [
       "会延续的长期记忆",
-      "心动、动漫、故事角色",
-      "语音和照片高峰时刻"
+      "虚构、动漫、故事角色",
+      "语音和角色图片瞬间"
     ],
     "explore_label": "探索更多",
     "tasks": "完成你的任务",
@@ -124,8 +124,8 @@
     "message": "给 {name} 发消息",
     "typing": "{name} 正在输入...",
     "voice": "4 秒语音",
-    "private_photo_beta": "私密照片在免费 Beta 中开放",
-    "private_image_preview": "私密图片预览 · 免费 Beta"
+    "private_photo_beta": "免费 Beta 期间开放角色图片生成",
+    "private_image_preview": "角色图片预览 · 免费 Beta"
   },
   "profile": {
     "author": "作者 @{author}",
@@ -486,7 +486,7 @@
   },
   "pricing": {
     "title": "Talkie+ 免费 Beta 开放中",
-    "subtitle": "结账、会员回调、账单和 credits 都已接入 ShipAny 支付链路。",
+    "subtitle": "结账、会员回调、账单和 credits 已接入 Keepsay 账单系统。",
     "start": "打开结账",
     "credits": "Credits 明细",
     "billing": "会员账单",
@@ -513,21 +513,19 @@
     "overview": "概览",
     "items": {
       "faq": "常见问题",
-      "get_app": "获取 App",
+      "pricing": "价格",
+      "chat": "聊天",
       "create_talkie": "创建 Talkie",
-      "privacy_choices": "隐私选择",
-      "delete_account": "删除账号",
-      "export_data": "导出数据",
+      "billing": "账单",
+      "payments": "付款记录",
       "activities": "活动",
-      "languages": "语言",
       "more_characters": "更多 AI 角色",
-      "curiosity": "好奇心",
-      "about": "关于我们",
       "blog": "RolePlay 博客",
+      "updates": "更新日志",
       "support": "支持",
       "terms": "条款",
       "privacy": "隐私",
-      "guidelines": "准则"
+      "guidelines": "可接受使用"
     }
   },
   "picker": {

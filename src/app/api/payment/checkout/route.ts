@@ -170,6 +170,12 @@ export async function POST(req: Request) {
       );
     }
 
+    if (paymentProviderName === 'creem' && !paymentProductId) {
+      return respErr(
+        `missing creem product id for ${pricingItem.product_id}; configure payment_product_id in pricing or creem_product_ids in payment settings`
+      );
+    }
+
     // get preset promotion code for product_id
     const promotionCode = await getPromotionCode(
       product_id,
@@ -260,6 +266,7 @@ export async function POST(req: Request) {
       paymentProvider: paymentProvider.name,
       checkoutInfo: JSON.stringify(checkoutOrder),
       createdAt: currentTime,
+      updatedAt: currentTime,
       productName: pricingItem.product_name,
       description: pricingItem.description,
       callbackUrl: callbackUrl,

@@ -498,32 +498,29 @@ function RoleplayHomeFooter() {
     {
       title: t('features'),
       items: [
-        ['FAQ', '#'],
-        [t('items.get_app'), '#'],
+        [t('items.pricing'), '/pricing'],
+        [t('items.chat'), '/chat'],
         [t('items.create_talkie'), '/create'],
-        [t('items.privacy_choices'), '#'],
-        [t('items.delete_account'), '#'],
-        [t('items.export_data'), '#'],
+        [t('items.billing'), '/settings/billing'],
+        [t('items.payments'), '/settings/payments'],
       ],
     },
     {
       title: t('explore'),
       items: [
         [t('items.activities'), '/activity'],
-        [t('items.languages'), '#'],
         [t('items.more_characters'), '/'],
-        [t('items.curiosity'), '#'],
+        [t('items.blog'), '/blog'],
+        [t('items.updates'), '/updates'],
       ],
     },
     {
       title: t('overview'),
       items: [
-        [t('items.about'), '#'],
-        [t('items.blog'), '/blog'],
-        [t('items.support'), '#'],
+        [t('items.support'), 'mailto:support@keepsay.dpdns.org'],
         [t('items.terms'), '/terms-of-service'],
         [t('items.privacy'), '/privacy-policy'],
-        [t('items.guidelines'), '#'],
+        [t('items.guidelines'), '/acceptable-use-policy'],
       ],
     },
   ];
@@ -533,17 +530,21 @@ function RoleplayHomeFooter() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.15fr_2fr] md:px-6 md:py-16">
         <div className="flex flex-col gap-8">
           <Link href="/" className="text-4xl font-black tracking-tight">
-            RolePlay
+            Keepsay
           </Link>
           <div className="flex flex-wrap gap-3">
-            {['Di', 'Re', 'Tk', 'X', 'Ig'].map((item) => (
+            {['GitHub', 'Email'].map((item) => (
               <a
                 key={item}
-                href="#"
+                href={
+                  item === 'Email'
+                    ? 'mailto:support@keepsay.dpdns.org'
+                    : 'https://github.com/jdhu2025/rolePlay'
+                }
                 className="grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-white/[0.03] text-sm font-bold text-zinc-200 transition-colors hover:border-white/35 hover:bg-white/10"
                 aria-label={item}
               >
-                {item}
+                {item === 'Email' ? 'Mail' : 'Git'}
               </a>
             ))}
           </div>

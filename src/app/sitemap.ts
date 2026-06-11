@@ -30,6 +30,30 @@ const STATIC_PUBLIC_PATHS: SitemapInput[] = [
     priority: 0.6,
   },
   {
+    path: '/pricing',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  },
+  {
+    path: '/privacy-policy',
+    locales,
+    changeFrequency: 'monthly',
+    priority: 0.5,
+  },
+  {
+    path: '/terms-of-service',
+    locales,
+    changeFrequency: 'monthly',
+    priority: 0.5,
+  },
+  {
+    path: '/acceptable-use-policy',
+    locales,
+    changeFrequency: 'monthly',
+    priority: 0.5,
+  },
+  {
     path: '/showcases',
     locales,
     changeFrequency: 'monthly',

@@ -17,7 +17,7 @@
         "id": "hero",
         "title": "Ship AI Startups in hours, not days",
         "highlight_text": "in hours",
-        "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups.<br/>Ship Fast with a variety of templates and components.",
+        "description": "Keepsay is a AI character chat app for building AI SaaS startups.<br/>Ship Fast with a variety of templates and components.",
         "announcement": {
           "badge": "New",
           "title": "🎉 RolePlay",
@@ -41,7 +41,7 @@
           }
         ],
         "show_avatars": true,
-        "avatars_tip": "999+ users are using ShipAny",
+        "avatars_tip": "Users are creating fictional characters on Keepsay",
         "show_award": false,
         "image": {
           "src": "/imgs/features/admin.png",
@@ -62,7 +62,7 @@
       },
       "logos": {
         "id": "logos",
-        "title": "ShipAny is built on the shoulders of giants",
+        "title": "Keepsay is built on the shoulders of giants",
         "items": [
           {
             "title": "Next.js",
@@ -104,9 +104,9 @@
       "introduce": {
         "block": "features-list",
         "id": "introduce",
-        "title": "What is ShipAny",
+        "title": "What is Keepsay",
         "label": "Introduce",
-        "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups, including templates, components, and documentation.",
+        "description": "Keepsay is a AI character chat app for building AI SaaS startups, including templates, components, and documentation.",
         "image": {
           "src": "/imgs/features/landing-page.png",
           "alt": "introduce"
@@ -154,7 +154,7 @@
       "benefits": {
         "block": "features-accordion",
         "id": "benefits",
-        "title": "Why Choose ShipAny",
+        "title": "Why Choose Keepsay",
         "label": "Benefits",
         "description": "Get everything you need to launch your AI startup - from ready-to-use templates to technical support.",
         "items": [
@@ -190,7 +190,7 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
-        "title": "How to Launch with ShipAny",
+        "title": "How to Launch with Keepsay",
         "description": "Get your AI SaaS startup running in three simple steps:",
         "image": {
           "src": "/imgs/features/1.png",
@@ -200,8 +200,8 @@
         "text_align": "center",
         "items": [
           {
-            "title": "Get ShipAny",
-            "description": "Buy ShipAny with a one-time payment. Check your email for the code and documentation.",
+            "title": "Get Keepsay",
+            "description": "Buy Keepsay with a one-time payment. Check your email for the code and documentation.",
             "image": {
               "src": "/imgs/features/5.png",
               "alt": "usage"
@@ -209,7 +209,7 @@
           },
           {
             "title": "Start Your Project",
-            "description": "Read the documentation and clone the code of ShipAny. Start building your AI SaaS startup.",
+            "description": "Read the documentation and clone the code of Keepsay. Start building your AI SaaS startup.",
             "image": {
               "src": "/imgs/features/6.png",
               "alt": "usage"
@@ -236,7 +236,7 @@
       },
       "features": {
         "id": "features",
-        "title": "Key Features of ShipAny",
+        "title": "Key Features of Keepsay",
         "description": "Everything you need to launch your AI SaaS startup quickly and efficiently.",
         "items": [
           {
@@ -273,7 +273,7 @@
       },
       "stats": {
         "id": "stats",
-        "title": "People Love ShipAny",
+        "title": "People Love Keepsay",
         "description": "for it's easy to use and fast to ship.",
         "items": [
           {
@@ -293,13 +293,13 @@
       },
       "testimonials": {
         "id": "testimonials",
-        "title": "What Users Say About ShipAny",
-        "description": "Hear from developers and founders who launched their AI startups with ShipAny.",
+        "title": "What Users Say About Keepsay",
+        "description": "Hear from developers and founders who launched their AI startups with Keepsay.",
         "items": [
           {
             "name": "David Chen",
             "role": "Founder of AIWallpaper.shop",
-            "quote": "ShipAny saved us months of development time. We launched our AI wallpaper business in just 2 days and got our first paying customer within a week!",
+            "quote": "Keepsay saved us months of development time. We launched our AI wallpaper business in just 2 days and got our first paying customer within a week!",
             "image": {
               "src": "/imgs/avatars/1.png",
               "alt": "david"
@@ -317,7 +317,7 @@
           {
             "name": "Marcus Thompson",
             "role": "Solo Developer",
-            "quote": "As a solo developer, ShipAny gave me everything I needed - auth, payments, AI integration, and beautiful UI. Launched my SaaS in a weekend!",
+            "quote": "As a solo developer, Keepsay gave me everything I needed - auth, payments, AI integration, and beautiful UI. Launched my SaaS in a weekend!",
             "image": {
               "src": "/imgs/avatars/3.png",
               "alt": "marcus"
@@ -335,7 +335,7 @@
           {
             "name": "James Wilson",
             "role": "Tech Lead at GPTs.works",
-            "quote": "ShipAny's infrastructure is rock-solid. We scaled from 0 to 10k users without touching the backend. Best investment for our AI startup.",
+            "quote": "Keepsay's infrastructure is rock-solid. We scaled from 0 to 10k users without touching the backend. Best investment for our AI startup.",
             "image": {
               "src": "/imgs/avatars/5.png",
               "alt": "james"
@@ -344,7 +344,7 @@
           {
             "name": "Anna Zhang",
             "role": "Startup Founder",
-            "quote": "From idea to launch in 3 days! ShipAny's templates and deployment tools made it possible to test our AI business concept incredibly fast.",
+            "quote": "From idea to launch in 3 days! Keepsay's templates and deployment tools made it possible to test our AI business concept incredibly fast.",
             "image": {
               "src": "/imgs/avatars/6.png",
               "alt": "anna"
@@ -354,43 +354,43 @@
       },
       "faq": {
         "id": "faq",
-        "title": "Frequently Asked Questions About ShipAny",
+        "title": "Frequently Asked Questions About Keepsay",
         "description": "Have another question? Contact us on Discord or by email.",
         "items": [
           {
-            "question": "What exactly is ShipAny and how does it work?",
-            "answer": "ShipAny is a comprehensive NextJS boilerplate designed specifically for building AI SaaS startups. It provides ready-to-use templates, infrastructure setup, and deployment tools that help you launch your AI business in hours instead of days."
+            "question": "What exactly is Keepsay and how does it work?",
+            "answer": "Keepsay is a comprehensive AI character chat app designed specifically for building AI SaaS startups. It provides ready-to-use templates, infrastructure setup, and deployment tools that help you launch your AI business in hours instead of days."
           },
           {
-            "question": "Do I need advanced technical skills to use ShipAny?",
-            "answer": "While basic programming knowledge is helpful, ShipAny is designed to be developer-friendly. Our templates and documentation make it easy to get started, even if you're not an expert in AI or cloud infrastructure."
+            "question": "Do I need advanced technical skills to use Keepsay?",
+            "answer": "While basic programming knowledge is helpful, Keepsay is designed to be developer-friendly. Our templates and documentation make it easy to get started, even if you're not an expert in AI or cloud infrastructure."
           },
           {
-            "question": "What types of AI SaaS can I build with ShipAny?",
-            "answer": "ShipAny supports a wide range of AI applications, from content generation to data analysis tools. Our templates cover popular use cases like AI chatbots, content generators, image processing apps, and more."
+            "question": "What types of AI SaaS can I build with Keepsay?",
+            "answer": "Keepsay supports a wide range of AI applications, from content generation to data analysis tools. Our templates cover popular use cases like AI chatbots, content generators, image processing apps, and more."
           },
           {
-            "question": "How long does it typically take to launch with ShipAny?",
-            "answer": "With ShipAny, you can have a working prototype in hours and a production-ready application in hours. Our one-click deployment and pre-configured infrastructure significantly reduce the traditional months-long development cycle."
+            "question": "How long does it typically take to launch with Keepsay?",
+            "answer": "With Keepsay, you can have a working prototype in hours and a production-ready application in hours. Our one-click deployment and pre-configured infrastructure significantly reduce the traditional months-long development cycle."
           },
           {
-            "question": "What's included in the ShipAny infrastructure?",
-            "answer": "ShipAny provides a complete infrastructure stack including authentication, database setup, API integration, payment processing, and scalable cloud deployment. Everything is pre-configured following industry best practices."
+            "question": "What's included in the Keepsay infrastructure?",
+            "answer": "Keepsay provides a complete infrastructure stack including authentication, database setup, API integration, payment processing, and scalable cloud deployment. Everything is pre-configured following industry best practices."
           },
           {
             "question": "Can I customize the templates to match my brand?",
-            "answer": "Absolutely! All ShipAny templates are fully customizable. You can modify the design, features, and functionality to match your brand identity and specific business requirements while maintaining the robust underlying infrastructure."
+            "answer": "Absolutely! All Keepsay templates are fully customizable. You can modify the design, features, and functionality to match your brand identity and specific business requirements while maintaining the robust underlying infrastructure."
           }
         ]
       },
       "cta": {
         "id": "cta",
         "title": "Ship your first AI SaaS Startup",
-        "description": "Start from here, ship with ShipAny.",
+        "description": "Start from here, ship with Keepsay.",
         "buttons": [
           {
-            "title": "Get ShipAny",
-            "url": "https://shipany.ai",
+            "title": "Get Keepsay",
+            "url": "https://keepsay.dpdns.org",
             "target": "_blank",
             "icon": "Zap"
           },
@@ -407,7 +407,7 @@
       "subscribe": {
         "id": "subscribe",
         "title": "Subscribe to our newsletter",
-        "description": "Get the latest news and updates from ShipAny.",
+        "description": "Get the latest news and updates from Keepsay.",
         "submit": {
           "input": {
             "placeholder": "Enter your email"

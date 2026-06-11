@@ -18,7 +18,7 @@ export type Configs = Record<string, string>;
 export const CACHE_TAG_CONFIGS = 'configs';
 
 const ENV_ALIASES: Record<string, string[]> = {
-  creem_api_key: ['CREEM_API_Key'],
+  creem_api_key: ['CREEM_API_KEY', 'CREEM_API_Key'],
 };
 
 export async function saveConfigs(configs: Record<string, string>) {
