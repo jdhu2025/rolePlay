@@ -1064,6 +1064,51 @@ type RawVoiceProfile = Partial<RoleplayTTSVoiceProfile> & {
   sortOrder?: unknown;
 };
 
+const SAFE_ROLEPLAY_VOICE_LABELS: Record<string, string> = {
+  'minimax female - soft warm': 'Female Warm Voice',
+  'minimax female - tender quiet': 'Female Quiet Voice',
+  'minimax female - playful bright': 'Female Bright Voice',
+  'minimax female - mature smooth': 'Female Smooth Voice',
+  'minimax female - clear sweet': 'Female Clear Voice',
+  'minimax male - warm gentle': 'Male Gentle Voice',
+  'minimax male - deep protective': 'Male Deep Voice',
+  'minimax male - modern casual': 'Male Modern Voice',
+  'minimax male - smooth refined': 'Male Refined Voice',
+  'minimax male - playful friendly': 'Male Friendly Voice',
+  'minimax neutral - soft balanced': 'Neutral Balanced Voice',
+  'minimax neutral - clear warm': 'Neutral Clear Voice',
+  'warm female (legacy)': 'Female Warm Voice',
+  'cool female (legacy)': 'Female Composed Voice',
+  'playful female (legacy)': 'Female Bright Voice',
+  'warm male (legacy)': 'Male Gentle Voice',
+  'cool male (legacy)': 'Male Steady Voice',
+  'playful male (legacy)': 'Male Friendly Voice',
+  'neutral (legacy)': 'Neutral Balanced Voice',
+};
+
+const UNSAFE_ROLEPLAY_VOICE_LABEL_WORDS =
+  /\b(MiniMax|Mature|Playful|legacy)\b/gi;
+
+export function getCreemSafeRoleplayVoiceLabel(label: string) {
+  const trimmed = String(label || '').trim();
+  if (!trimmed) return 'Balanced Voice';
+
+  const direct = SAFE_ROLEPLAY_VOICE_LABELS[trimmed.toLowerCase()];
+  if (direct) return direct;
+
+  const providerFree = trimmed
+    .replace(/^MiniMax\s+/i, '')
+    .replace(/\s*\(legacy\)\s*$/i, '')
+    .replace(/\s*-\s*/g, ' ');
+  const sanitized = providerFree
+    .replace(UNSAFE_ROLEPLAY_VOICE_LABEL_WORDS, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const base = sanitized || 'Balanced';
+
+  return /\bvoice\b/i.test(base) ? base : `${base} Voice`;
+}
+
 function normalizeVoiceProfile(
   raw: RawVoiceProfile,
   index: number
@@ -1087,7 +1132,7 @@ function normalizeVoiceProfile(
 
   return {
     id,
-    label,
+    label: getCreemSafeRoleplayVoiceLabel(label),
     provider: String(raw.provider || 'volcengine-v1').trim() || 'volcengine-v1',
     voiceType,
     voiceTypeByLocale:
@@ -1121,7 +1166,7 @@ function normalizeVoiceProfile(
 const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   {
     id: 'warm-female',
-    label: 'Warm Female (legacy)',
+    label: 'Female Warm Voice',
     provider: 'minimax',
     voiceType: 'Chinese (Mandarin)_Warm_HeartedGirl',
     voiceTypeByLocale: {
@@ -1139,7 +1184,7 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   },
   {
     id: 'cool-female',
-    label: 'Cool Female (legacy)',
+    label: 'Female Composed Voice',
     provider: 'minimax',
     voiceType: 'Chinese (Mandarin)_Mature_Woman',
     voiceTypeByLocale: {
@@ -1156,7 +1201,7 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   },
   {
     id: 'playful-female',
-    label: 'Playful Female (legacy)',
+    label: 'Female Bright Voice',
     provider: 'minimax',
     voiceType: 'Chinese (Mandarin)_Crisp_Girl',
     voiceTypeByLocale: {
@@ -1174,7 +1219,7 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   },
   {
     id: 'warm-male',
-    label: 'Warm Male (legacy)',
+    label: 'Male Gentle Voice',
     provider: 'minimax',
     voiceType: 'Chinese (Mandarin)_Gentleman',
     voiceTypeByLocale: {
@@ -1192,7 +1237,7 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   },
   {
     id: 'cool-male',
-    label: 'Cool Male (legacy)',
+    label: 'Male Steady Voice',
     provider: 'minimax',
     voiceType: 'Chinese (Mandarin)_Reliable_Executive',
     voiceTypeByLocale: {
@@ -1210,7 +1255,7 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   },
   {
     id: 'playful-male',
-    label: 'Playful Male (legacy)',
+    label: 'Male Friendly Voice',
     provider: 'minimax',
     voiceType: 'Chinese (Mandarin)_Unrestrained_Young_Man',
     voiceTypeByLocale: {
@@ -1228,7 +1273,7 @@ const LEGACY_ROLEPLAY_TTS_VOICE_PROFILES: RoleplayTTSVoiceProfile[] = [
   },
   {
     id: 'neutral',
-    label: 'Neutral (legacy)',
+    label: 'Neutral Balanced Voice',
     provider: 'minimax',
     voiceType: 'Chinese (Mandarin)_Sincere_Adult',
     voiceTypeByLocale: {

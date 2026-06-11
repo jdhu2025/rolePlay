@@ -1049,7 +1049,7 @@ export async function getSettings() {
       name: 'roleplay_tts_default_voice_profile_id',
       title: 'Default Voice Profile ID',
       type: 'text',
-      placeholder: 'gentle_female_1',
+      placeholder: 'warm_voice_1',
       tip: 'Default profile id from Roleplay TTS Voice Profiles.',
       group: 'roleplay_ai',
       tab: 'ai',
@@ -1059,7 +1059,7 @@ export async function getSettings() {
       title: 'TTS Voice Profiles JSON',
       type: 'textarea',
       placeholder:
-        '[{"id":"gentle_female_1","label":"Gentle Female","provider":"openrouter","voiceType":"coral","gender":"female","traits":["gentle","warm"],"instructions":"Soft, warm, emotionally present; avoid sounding like a narrator.","locale":"zh-CN","enabled":true,"sortOrder":10},{"id":"calm_male_1","label":"Calm Male","provider":"openrouter","voiceType":"echo","gender":"male","traits":["calm","steady"],"instructions":"Low, steady, intimate; keep the delivery conversational.","locale":"zh-CN","enabled":true,"sortOrder":20}]',
+        '[{"id":"warm_voice_1","label":"Female Warm Voice","provider":"openrouter","voiceType":"coral","gender":"female","traits":["gentle","warm"],"instructions":"Soft, warm, emotionally present; avoid sounding like a narrator.","locale":"zh-CN","enabled":true,"sortOrder":10},{"id":"steady_voice_1","label":"Male Steady Voice","provider":"openrouter","voiceType":"echo","gender":"male","traits":["calm","steady"],"instructions":"Low, steady, intimate; keep the delivery conversational.","locale":"zh-CN","enabled":true,"sortOrder":20}]',
       tip: 'Admin-editable global voice library. Each character voicePreset should reference one profile id. Set profile.provider to openrouter, minimax, or alibaba-cosyvoice for A/B tests.',
       group: 'roleplay_ai',
       tab: 'ai',

@@ -27,6 +27,7 @@
     "check:creem-moderation": "tsx scripts/check-creem-moderation.ts",
     "check:creem-webhook": "node scripts/check-creem-webhook.mjs",
     "check:support-email": "tsx scripts/check-support-email.ts",
+    "check:voice-labels": "tsx scripts/check-voice-labels.ts",
     "smoke:ai-writer": "node scripts/smoke-ai-writer.mjs",
     "smoke:relationship-state": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/smoke-relationship-state.ts",
     "format": "prettier --write .",
