@@ -8,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/shared/components/ui/accordion';
+import { SupportEmail } from '@/shared/components/support-email';
 import { cn } from '@/shared/lib/utils';
 
 // Custom link component with nofollow for external links
@@ -112,6 +113,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     AccordionItem,
     AccordionTrigger,
     AccordionContent,
+    SupportEmail,
     ...components,
   };
 

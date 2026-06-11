@@ -1,6 +1,7 @@
 'use client';
 
 import { Link } from '@/core/i18n/navigation';
+import { SupportAwareLink } from '@/shared/blocks/common/support-aware-link';
 import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { Separator } from '@/shared/components/ui/separator';
 import { useSidebar } from '@/shared/components/ui/sidebar';
@@ -18,7 +19,10 @@ export function SidebarFooter({ footer }: { footer: SidebarFooterType }) {
         <div className="mx-auto flex w-full items-center justify-start gap-x-4 border-t px-4 py-3">
           {footer.nav?.items?.map((item: NavItem, idx: number) => (
             <div className="hover:text-primary cursor-pointer" key={idx}>
-              <Link href={item.url || ''} target={item.target || '_self'}>
+              <SupportAwareLink
+                href={item.url || ''}
+                target={item.target || '_self'}
+              >
                 {item.icon && (
                   <SmartIcon
                     name={item.icon as string}
@@ -26,7 +30,7 @@ export function SidebarFooter({ footer }: { footer: SidebarFooterType }) {
                     size={20}
                   />
                 )}
-              </Link>
+              </SupportAwareLink>
             </div>
           ))}
 

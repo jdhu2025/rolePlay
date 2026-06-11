@@ -21,7 +21,7 @@
  */
 
 import { useLocale, useTranslations } from 'next-intl';
-import { MessageCircle, Sparkles } from 'lucide-react';
+import { BadgeDollarSign, MessageCircle, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Link } from '@/core/i18n/navigation';
@@ -38,6 +38,8 @@ import {
   type RoleplayCharacterClient,
 } from '@/shared/lib/roleplay-client';
 import { recordRoleplayMomentEvent } from '@/shared/lib/roleplay-moment-events';
+import { useAppContext } from '@/shared/contexts/app';
+import { getSupportMailto } from '@/shared/lib/support-email';
 
 import type { RoleplayHomeInitialData } from '@/shared/lib/server/roleplay-home-data';
 
@@ -433,21 +435,33 @@ function ForYouSection({
               ))}
             </div>
           </div>
-          <div className="flex flex-wrap gap-3 lg:justify-end">
-            <a
-              href="#for-you-characters"
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-            >
-              <MessageCircle size={17} aria-hidden="true" />
-              {t('primary_cta')}
-            </a>
-            <Link
-              href="/create"
-              className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-sm font-bold text-zinc-100 transition hover:border-white/30 hover:bg-white/[0.08] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-            >
-              <Sparkles size={17} aria-hidden="true" />
-              {t('secondary_cta')}
-            </Link>
+          <div className="flex flex-col gap-2 lg:items-end">
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <a
+                href="#for-you-characters"
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              >
+                <MessageCircle size={17} aria-hidden="true" />
+                {t('primary_cta')}
+              </a>
+              <Link
+                href="/create"
+                className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-sm font-bold text-zinc-100 transition hover:border-white/30 hover:bg-white/[0.08] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              >
+                <Sparkles size={17} aria-hidden="true" />
+                {t('secondary_cta')}
+              </Link>
+              <Link
+                href="/pricing"
+                className="inline-flex h-11 items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-5 text-sm font-bold text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
+              >
+                <BadgeDollarSign size={17} aria-hidden="true" />
+                {t('pricing_cta')}
+              </Link>
+            </div>
+            <p className="max-w-sm text-left text-xs leading-relaxed text-zinc-400 lg:text-right">
+              {t('pricing_note')}
+            </p>
           </div>
         </header>
 
@@ -494,6 +508,8 @@ function ForYouSection({
 
 function RoleplayHomeFooter() {
   const t = useTranslations('roleplay.footer');
+  const { configs } = useAppContext();
+  const supportMailto = getSupportMailto(configs);
   const groups = [
     {
       title: t('features'),
@@ -517,7 +533,7 @@ function RoleplayHomeFooter() {
     {
       title: t('overview'),
       items: [
-        [t('items.support'), 'mailto:support@keepsay.dpdns.org'],
+        [t('items.support'), supportMailto],
         [t('items.terms'), '/terms-of-service'],
         [t('items.privacy'), '/privacy-policy'],
         [t('items.guidelines'), '/acceptable-use-policy'],
@@ -538,7 +554,7 @@ function RoleplayHomeFooter() {
                 key={item}
                 href={
                   item === 'Email'
-                    ? 'mailto:support@keepsay.dpdns.org'
+                    ? supportMailto
                     : 'https://github.com/jdhu2025/rolePlay'
                 }
                 className="grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-white/[0.03] text-sm font-bold text-zinc-200 transition-colors hover:border-white/35 hover:bg-white/10"

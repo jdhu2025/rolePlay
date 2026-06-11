@@ -322,6 +322,15 @@ export async function getSettings() {
       tab: 'general',
     },
     {
+      name: 'support_email',
+      title: 'Support Email',
+      placeholder: 'support@keepsay.dpdns.org',
+      type: 'text',
+      group: 'appinfo',
+      tab: 'general',
+      tip: 'Public support email shown in the footer, policy pages, and review materials. Keep it the same as the support email in Creem.',
+    },
+    {
       name: 'initial_role_enabled',
       title: 'Initial Role Enabled',
       type: 'switch',
@@ -1223,6 +1232,7 @@ export const publicSettingNames = [
   'github_auth_enabled',
   'select_payment_enabled',
   'default_payment_provider',
+  'support_email',
   'stripe_enabled',
   'creem_enabled',
   'paypal_enabled',

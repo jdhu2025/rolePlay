@@ -6,6 +6,7 @@ import {
   LocaleSelector,
   ThemeToggler,
 } from '@/shared/blocks/common';
+import { SupportAwareLink } from '@/shared/blocks/common/support-aware-link';
 import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import { NavItem } from '@/shared/types/blocks/common';
 import { Footer as FooterType } from '@/shared/types/blocks/landing';
@@ -39,14 +40,14 @@ export function Footer({ footer }: { footer: FooterType }) {
 
                 <div className="flex min-w-0 flex-wrap gap-4 sm:flex-col">
                   {item.children?.map((subItem, iidx) => (
-                    <Link
+                    <SupportAwareLink
                       key={iidx}
                       href={subItem.url || ''}
                       target={subItem.target || ''}
                       className="text-muted-foreground hover:text-primary block break-words duration-150"
                     >
                       <span className="break-words">{subItem.title || ''}</span>
-                    </Link>
+                    </SupportAwareLink>
                   ))}
                 </div>
               </div>
@@ -82,14 +83,14 @@ export function Footer({ footer }: { footer: FooterType }) {
           {footer.agreement ? (
             <div className="flex min-w-0 flex-wrap items-center gap-4">
               {footer.agreement?.items.map((item: NavItem, index: number) => (
-                <Link
+                <SupportAwareLink
                   key={index}
                   href={item.url || ''}
                   target={item.target || ''}
                   className="text-muted-foreground hover:text-primary block text-xs break-words underline duration-150"
                 >
                   {item.title || ''}
-                </Link>
+                </SupportAwareLink>
               ))}
             </div>
           ) : null}
@@ -97,7 +98,7 @@ export function Footer({ footer }: { footer: FooterType }) {
           {footer.social ? (
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               {footer.social?.items.map((item: NavItem, index) => (
-                <Link
+                <SupportAwareLink
                   key={index}
                   href={item.url || ''}
                   target={item.target || ''}
@@ -107,7 +108,7 @@ export function Footer({ footer }: { footer: FooterType }) {
                   {item.icon && (
                     <SmartIcon name={item.icon as string} size={20} />
                   )}
-                </Link>
+                </SupportAwareLink>
               ))}
             </div>
           ) : null}

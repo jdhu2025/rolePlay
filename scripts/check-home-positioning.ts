@@ -8,6 +8,8 @@ type LocaleMessages = {
     seo_subtitle?: string;
     primary_cta?: string;
     secondary_cta?: string;
+    pricing_cta?: string;
+    pricing_note?: string;
     proof_points?: string[];
   };
 };
@@ -34,6 +36,8 @@ assert.match(en.seo_subtitle || '', /continue|keeps?/i);
 assert.match(en.seo_subtitle || '', /boundar/i);
 assert.match(en.primary_cta || '', /chat/i);
 assert.match(en.secondary_cta || '', /create/i);
+assert.match(en.pricing_cta || '', /pricing|plans/i);
+assert.match(en.pricing_note || '', /before.*(purchase|checkout)/i);
 assert.ok(
   en.proof_points?.some((point) => /memory|remember/i.test(point)),
   'English proof points should include memory/remembering'
@@ -45,6 +49,8 @@ assert.match(zh.seo_subtitle || '', /接上|继续|聊下去/);
 assert.match(zh.seo_subtitle || '', /边界/);
 assert.match(zh.primary_cta || '', /聊天/);
 assert.match(zh.secondary_cta || '', /创建/);
+assert.match(zh.pricing_cta || '', /价格|套餐/);
+assert.match(zh.pricing_note || '', /购买前|付款前|下单前/);
 assert.ok(
   zh.proof_points?.some((point) => /记忆|记住/.test(point)),
   'Chinese proof points should include memory/remembering'
