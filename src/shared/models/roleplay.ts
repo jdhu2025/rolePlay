@@ -16,8 +16,7 @@ import {
 } from '@/config/db/schema';
 import { withTransientDatabaseRetry } from '@/shared/lib/db-resilience';
 import { getUuid } from '@/shared/lib/hash';
-
-const ROLEPLAY_DB_TIMEOUT_MS = 6_000;
+import { getConfiguredDatabaseRetryOptions } from '@/shared/lib/server/db-retry-config';
 
 /**
  * Lifecycle for `roleplay_character.status`.
@@ -218,11 +217,16 @@ export async function getRoleplayCharacters({
 }
 
 export async function findRoleplayCharacterById(id: string) {
-  const [result] = await db()
-    .select()
-    .from(roleplayCharacter)
-    .where(eq(roleplayCharacter.id, id))
-    .limit(1);
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
+  const [result] = await withTransientDatabaseRetry<RoleplayCharacter[]>(
+    () =>
+      db()
+        .select()
+        .from(roleplayCharacter)
+        .where(eq(roleplayCharacter.id, id))
+        .limit(1),
+    retryOptions
+  );
 
   return result as RoleplayCharacter | undefined;
 }
@@ -264,13 +268,18 @@ export async function updateRoleplayCharacter(
 export async function createRoleplayConversation(
   conversation: Omit<NewRoleplayConversation, 'id'> & { id?: string }
 ) {
-  const [result] = await db()
-    .insert(roleplayConversation)
-    .values({
-      ...conversation,
-      id: conversation.id || getUuid(),
-    })
-    .returning();
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
+  const [result] = await withTransientDatabaseRetry<RoleplayConversation[]>(
+    () =>
+      db()
+        .insert(roleplayConversation)
+        .values({
+          ...conversation,
+          id: conversation.id || getUuid(),
+        })
+        .returning(),
+    retryOptions
+  );
 
   return result as RoleplayConversation;
 }
@@ -282,6 +291,7 @@ export async function getRoleplayConversations({
   userId: string;
   limit?: number;
 }) {
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   const rowLimit =
     typeof limit === 'number' && Number.isFinite(limit) && limit > 0
       ? Math.floor(limit)
@@ -299,7 +309,7 @@ export async function getRoleplayConversations({
         )
         .orderBy(desc(roleplayConversation.updatedAt))
         .limit(rowLimit ?? 1000),
-    { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+    retryOptions
   );
 
   return result as RoleplayConversation[];
@@ -314,6 +324,7 @@ export async function findLatestRoleplayConversationForCharacter({
   characterId: string;
   scanLimit?: number;
 }) {
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   const trimmedCharacterId = characterId.trim();
   if (!trimmedCharacterId) return undefined;
 
@@ -333,7 +344,7 @@ export async function findLatestRoleplayConversationForCharacter({
         )
         .orderBy(desc(roleplayConversation.updatedAt))
         .limit(1),
-    { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+    retryOptions
   );
   if (directMatch) return directMatch as RoleplayConversation;
 
@@ -352,7 +363,7 @@ export async function findLatestRoleplayConversationForCharacter({
         )
         .orderBy(desc(roleplayConversation.updatedAt))
         .limit(scanLimit),
-    { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+    retryOptions
   );
 
   return recentConversations.find((conversation) => {
@@ -365,6 +376,7 @@ export async function findLatestRoleplayConversationForCharacter({
 }
 
 export async function findRoleplayConversationById(id: string) {
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   const [result] = await withTransientDatabaseRetry<RoleplayConversation[]>(
     () =>
       db()
@@ -372,7 +384,7 @@ export async function findRoleplayConversationById(id: string) {
         .from(roleplayConversation)
         .where(eq(roleplayConversation.id, id))
         .limit(1),
-    { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+    retryOptions
   );
 
   return result as RoleplayConversation | undefined;
@@ -382,11 +394,16 @@ export async function updateRoleplayConversation(
   id: string,
   update: UpdateRoleplayConversation
 ) {
-  const [result] = await db()
-    .update(roleplayConversation)
-    .set({ ...update, updatedAt: new Date() })
-    .where(eq(roleplayConversation.id, id))
-    .returning();
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
+  const [result] = await withTransientDatabaseRetry<RoleplayConversation[]>(
+    () =>
+      db()
+        .update(roleplayConversation)
+        .set({ ...update, updatedAt: new Date() })
+        .where(eq(roleplayConversation.id, id))
+        .returning(),
+    retryOptions
+  );
 
   return result as RoleplayConversation;
 }
@@ -398,11 +415,16 @@ export async function upsertRoleplayConversationMemory({
   id: string;
   memorySummary: string;
 }) {
-  const [result] = await db()
-    .update(roleplayConversation)
-    .set({ memorySummary, updatedAt: new Date() })
-    .where(eq(roleplayConversation.id, id))
-    .returning();
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
+  const [result] = await withTransientDatabaseRetry<RoleplayConversation[]>(
+    () =>
+      db()
+        .update(roleplayConversation)
+        .set({ memorySummary, updatedAt: new Date() })
+        .where(eq(roleplayConversation.id, id))
+        .returning(),
+    retryOptions
+  );
 
   return result as RoleplayConversation;
 }
@@ -410,13 +432,18 @@ export async function upsertRoleplayConversationMemory({
 export async function createRoleplayMessage(
   message: Omit<NewRoleplayMessage, 'id'> & { id?: string }
 ) {
-  const [result] = await db()
-    .insert(roleplayMessage)
-    .values({
-      ...message,
-      id: message.id || getUuid(),
-    })
-    .returning();
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
+  const [result] = await withTransientDatabaseRetry<RoleplayMessage[]>(
+    () =>
+      db()
+        .insert(roleplayMessage)
+        .values({
+          ...message,
+          id: message.id || getUuid(),
+        })
+        .returning(),
+    retryOptions
+  );
 
   return result as RoleplayMessage;
 }
@@ -430,6 +457,7 @@ export async function getRoleplayMessages({
   limit?: number;
   latest?: boolean;
 }) {
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   const result = await withTransientDatabaseRetry<RoleplayMessage[]>(
     () =>
       db()
@@ -447,7 +475,7 @@ export async function getRoleplayMessages({
             : asc(roleplayMessage.createdAt)
         )
         .limit(limit),
-    { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+    retryOptions
   );
 
   return (latest ? result.reverse() : result) as RoleplayMessage[];
@@ -462,6 +490,7 @@ export async function getRoleplayMemories({
   characterId?: string | null;
   conversationId?: string | null;
 }) {
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   const result = await withTransientDatabaseRetry<RoleplayMemory[]>(
     () =>
       db()
@@ -481,7 +510,7 @@ export async function getRoleplayMemories({
         )
         .orderBy(desc(roleplayMemory.updatedAt))
         .limit(12),
-    { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+    retryOptions
   );
 
   return result;
@@ -800,27 +829,37 @@ export async function incrementCharacterCounter(
   field: 'chatCount' | 'likeCount',
   delta: number
 ) {
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   const column =
     field === 'chatCount'
       ? roleplayCharacter.chatCount
       : roleplayCharacter.likeCount;
-  await db()
-    .update(roleplayCharacter)
-    .set({ [field]: sql`${column} + ${delta}` })
-    .where(eq(roleplayCharacter.id, id));
+  await withTransientDatabaseRetry(
+    () =>
+      db()
+        .update(roleplayCharacter)
+        .set({ [field]: sql`${column} + ${delta}` })
+        .where(eq(roleplayCharacter.id, id)),
+    retryOptions
+  );
 }
 
 export async function createRoleplayQualityEvent(
   event: Omit<NewRoleplayQualityEvent, 'id'> & { id?: string }
 ) {
-  const [result] = await db()
-    .insert(roleplayQualityEvent)
-    .values({
-      ...event,
-      id: event.id || getUuid(),
-      status: event.status || RoleplayStatus.CREATED,
-    })
-    .returning();
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
+  const [result] = await withTransientDatabaseRetry<RoleplayQualityEvent[]>(
+    () =>
+      db()
+        .insert(roleplayQualityEvent)
+        .values({
+          ...event,
+          id: event.id || getUuid(),
+          status: event.status || RoleplayStatus.CREATED,
+        })
+        .returning(),
+    retryOptions
+  );
 
   return result as RoleplayQualityEvent;
 }

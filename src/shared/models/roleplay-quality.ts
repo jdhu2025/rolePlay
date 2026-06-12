@@ -8,6 +8,7 @@ import {
   roleplayQualityEvent,
 } from '@/config/db/schema';
 import { db } from '@/core/db';
+import { FIRST_EXPERIENCE_EVENT_TYPES } from '@/shared/lib/roleplay-first-experience';
 
 import {
   RoleplayStatus,
@@ -52,6 +53,7 @@ const HUMAN_MOMENT_EVENT_TYPES = [
   'wrap_up_clicked',
   'local_fallback_shown',
   'keepsake_voice_clicked',
+  ...FIRST_EXPERIENCE_EVENT_TYPES,
 ] as const;
 
 type HumanMomentEventType = (typeof HUMAN_MOMENT_EVENT_TYPES)[number];
@@ -62,6 +64,18 @@ const HUMAN_MOMENT_EVENT_LABELS: Record<HumanMomentEventType, string> = {
   wrap_up_clicked: '稍后告别',
   local_fallback_shown: '慢首响兜底',
   keepsake_voice_clicked: '纪念语音',
+  first_experience_exposed: '首次体验曝光',
+  first_experience_selected: '首次体验选择',
+  first_experience_reveal_shown: '识别反馈',
+  first_experience_recommendation_clicked: '推荐点击',
+  first_chat_started: '首聊开始',
+  first_chat_turn_1_completed: '首轮完成',
+  first_chat_turn_3_completed: '三轮完成',
+  seed_revealed: '悬念曝光',
+  goodbye_stamp_shown: '告别盖章',
+  save_relationship_prompt_shown: '保存提示',
+  save_relationship_clicked: '保存点击',
+  returning_seed_resumed: '回访续接',
 };
 
 function countHumanMomentEvents(events: RoleplayQualityEvent[]) {

@@ -32,6 +32,9 @@ export interface StorageUploadResult {
   key?: string;
   filename?: string;
   url?: string;
+  phase?: 'download' | 'upload';
+  endpointHost?: string;
+  status?: number;
   error?: string;
   provider: string;
 }

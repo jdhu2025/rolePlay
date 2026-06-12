@@ -7,7 +7,7 @@ import {
   resolveTextProviderConfig,
   type TextProviderConfig,
 } from '@/shared/lib/ai-provider';
-import { isTransientDatabaseError } from '@/shared/lib/db-resilience';
+import { isMarkedTransientDatabaseError } from '@/shared/lib/db-resilience';
 import { respData, respErr } from '@/shared/lib/resp';
 import {
   RoleplayCharacterPrompt,
@@ -1401,14 +1401,40 @@ function isProviderConfigError(error: any) {
   );
 }
 
+function isTransientNetworkError(error: any) {
+  const status = getAIErrorStatus(error);
+  const text = getAIErrorText(error);
+
+  return (
+    status === 408 ||
+    status === 502 ||
+    status === 503 ||
+    status === 504 ||
+    /\b(econnreset|etimedout|econnrefused|socket hang up|network|fetch failed)\b/.test(
+      text
+    ) ||
+    /\b(quic|tunnel|edge|failed to dial|no recent network activity)\b/.test(
+      text
+    ) ||
+    /\b(timeout|timed out)\b/.test(text)
+  );
+}
+
 function normalizeChatError(error: any) {
   const status = getAIErrorStatus(error);
   const text = getAIErrorText(error);
 
-  if (isTransientDatabaseError(error)) {
+  if (isMarkedTransientDatabaseError(error)) {
     return {
       status: 503,
       message: 'Database connection was interrupted. Please retry in a moment.',
+    };
+  }
+
+  if (isTransientNetworkError(error)) {
+    return {
+      status: 503,
+      message: 'Network connection was interrupted. Please retry in a moment.',
     };
   }
 

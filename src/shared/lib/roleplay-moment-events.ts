@@ -1,11 +1,14 @@
 'use client';
 
+import { FIRST_EXPERIENCE_EVENT_TYPES } from '@/shared/lib/roleplay-first-experience';
+
 export type RoleplayMomentEventType =
   | 'first_impression_selected'
   | 'continuation_hint_shown'
   | 'wrap_up_clicked'
   | 'local_fallback_shown'
-  | 'keepsake_voice_clicked';
+  | 'keepsake_voice_clicked'
+  | (typeof FIRST_EXPERIENCE_EVENT_TYPES)[number];
 
 type RoleplayMomentEventPayload = {
   eventType: RoleplayMomentEventType;

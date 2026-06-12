@@ -72,6 +72,7 @@ export class S3Provider implements StorageProvider {
       if (!uploadBucket) {
         return {
           success: false,
+          phase: 'upload',
           error: 'Bucket is required',
           provider: this.name,
         };
@@ -109,6 +110,7 @@ export class S3Provider implements StorageProvider {
       if (!response.ok) {
         return {
           success: false,
+          phase: 'upload',
           error: `Upload failed: ${response.statusText}`,
           provider: this.name,
         };
@@ -129,6 +131,7 @@ export class S3Provider implements StorageProvider {
     } catch (error) {
       return {
         success: false,
+        phase: 'upload',
         error: error instanceof Error ? error.message : 'Unknown error',
         provider: this.name,
       };
@@ -143,6 +146,7 @@ export class S3Provider implements StorageProvider {
       if (!response.ok) {
         return {
           success: false,
+          phase: 'download',
           error: `HTTP error! status: ${response.status}`,
           provider: this.name,
         };
@@ -151,6 +155,7 @@ export class S3Provider implements StorageProvider {
       if (!response.body) {
         return {
           success: false,
+          phase: 'download',
           error: 'No body in response',
           provider: this.name,
         };
@@ -169,6 +174,7 @@ export class S3Provider implements StorageProvider {
     } catch (error) {
       return {
         success: false,
+        phase: 'download',
         error: error instanceof Error ? error.message : 'Unknown error',
         provider: this.name,
       };

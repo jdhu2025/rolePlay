@@ -12,6 +12,39 @@ import { getRemainingCredits } from '@/shared/models/credit';
 import { getUserInfo } from '@/shared/models/user';
 import { getAIService } from '@/shared/services/ai';
 
+function isPublicWebhookBaseUrl(value: string) {
+  try {
+    const url = new URL(value);
+    const hostname = url.hostname.toLowerCase();
+
+    return (
+      ['http:', 'https:'].includes(url.protocol) &&
+      hostname !== 'localhost' &&
+      hostname !== '127.0.0.1' &&
+      hostname !== '0.0.0.0' &&
+      hostname !== '::1' &&
+      !hostname.endsWith('.localhost')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function getAIWebhookCallbackUrl(provider: string) {
+  const webhookBaseUrl =
+    process.env.AI_WEBHOOK_URL || process.env.WEBHOOK_URL || envConfigs.app_url;
+
+  if (process.env.NODE_ENV !== 'production') {
+    return undefined;
+  }
+
+  if (!isPublicWebhookBaseUrl(webhookBaseUrl)) {
+    return undefined;
+  }
+
+  return `${webhookBaseUrl.replace(/\/$/, '')}/api/ai/notify/${provider}`;
+}
+
 export async function POST(request: Request) {
   try {
     let { provider, mediaType, model, prompt, options, scene } =
@@ -100,15 +133,17 @@ export async function POST(request: Request) {
       }
     }
 
-    const callbackUrl = `${envConfigs.app_url}/api/ai/notify/${provider}`;
+    const callbackUrl = getAIWebhookCallbackUrl(provider);
 
     const params: any = {
       mediaType,
       model,
       prompt,
-      callbackUrl,
       options,
     };
+    if (callbackUrl) {
+      params.callbackUrl = callbackUrl;
+    }
 
     // generate content
     const result = await aiProvider.generate({ params });

@@ -1,4 +1,5 @@
 import { respData, respErr } from '@/shared/lib/resp';
+import { FIRST_EXPERIENCE_EVENT_TYPES } from '@/shared/lib/roleplay-first-experience';
 import {
   createRoleplayQualityEvent,
   findRoleplayCharacterById,
@@ -14,6 +15,7 @@ const ALLOWED_EVENT_TYPES = new Set([
   'wrap_up_clicked',
   'local_fallback_shown',
   'keepsake_voice_clicked',
+  ...FIRST_EXPERIENCE_EVENT_TYPES,
 ]);
 
 function compactString(value: unknown, maxLength = 240) {

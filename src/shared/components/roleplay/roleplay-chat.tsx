@@ -82,6 +82,11 @@ import {
   readCharacterSettings,
   type RoleplayCharacterClient,
 } from '@/shared/lib/roleplay-client';
+import {
+  FIRST_EXPERIENCE_STORAGE_KEY,
+  markFirstExperienceConversationFlag,
+  parseFirstExperienceState,
+} from '@/shared/lib/roleplay-first-experience';
 import { parseMessage } from '@/shared/lib/roleplay-message-format';
 import { recordRoleplayMomentEvent } from '@/shared/lib/roleplay-moment-events';
 import { cn } from '@/shared/lib/utils';
@@ -359,6 +364,10 @@ export function RoleplayChat({ characterId }: Props) {
   const [insufficientCredits, setInsufficientCredits] =
     useState<RoleplayInsufficientCreditsPayload | null>(null);
   const [restoreDebug, setRestoreDebug] = useState<RestoreDebug | null>(null);
+  const [sceneNote, setSceneNote] = useState<{
+    type: 'seed' | 'goodbye';
+    text: string;
+  } | null>(null);
 
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -878,6 +887,118 @@ export function RoleplayChat({ characterId }: Props) {
     }
   }, [setRoleplayError, t, updateMessages]);
 
+  const showFirstExperienceSceneNote = useCallback(
+    ({
+      character,
+      conversationId,
+      message,
+    }: {
+      character: RoleplayCharacterClient;
+      conversationId?: string;
+      message: ChatMessage;
+    }) => {
+      const hooks = Array.isArray(message.metadata?.humanMomentHooks)
+        ? message.metadata.humanMomentHooks
+        : [];
+      const seedHook = hooks.find(
+        (hook) =>
+          hook &&
+          typeof hook === 'object' &&
+          (hook as Record<string, unknown>).type === 'conversation_seed'
+      ) as Record<string, unknown> | undefined;
+      const goodbyeHook = hooks.find(
+        (hook) =>
+          hook &&
+          typeof hook === 'object' &&
+          (hook as Record<string, unknown>).type === 'goodbye_ritual'
+      ) as Record<string, unknown> | undefined;
+      const storageId = conversationId || character.id;
+      const rawState = window.localStorage.getItem(FIRST_EXPERIENCE_STORAGE_KEY);
+      const state = parseFirstExperienceState(rawState);
+      const userTurnCount = removeLocalFallbackMessages(messagesRef.current).filter(
+        (item) => item.role === 'user'
+      ).length;
+
+      if (hooks.some((hook) => hook && typeof hook === 'object' && (hook as Record<string, unknown>).type === 'first_chat_arc')) {
+        if (userTurnCount === 1) {
+          recordRoleplayMomentEvent({
+            eventType: 'first_chat_turn_1_completed',
+            characterId: character.id,
+            conversationId,
+            metadata: { storageId },
+          });
+        }
+        if (userTurnCount === 3) {
+          recordRoleplayMomentEvent({
+            eventType: 'first_chat_turn_3_completed',
+            characterId: character.id,
+            conversationId,
+            metadata: { storageId },
+          });
+        }
+      }
+
+      if (seedHook) {
+        const alreadyShown =
+          state?.seedShownByConversation?.[storageId] === true;
+        if (!alreadyShown) {
+          const detail =
+            typeof seedHook.detail === 'string' && seedHook.detail.trim()
+              ? seedHook.detail.trim()
+              : character.personalityCard?.continuationSeed?.trim();
+          if (detail) {
+            setSceneNote({ type: 'seed', text: detail });
+            recordRoleplayMomentEvent({
+              eventType: 'seed_revealed',
+              characterId: character.id,
+              conversationId,
+              metadata: { seed: detail },
+            });
+          }
+          if (state) {
+            window.localStorage.setItem(
+              FIRST_EXPERIENCE_STORAGE_KEY,
+              JSON.stringify(
+                markFirstExperienceConversationFlag(
+                  state,
+                  'seedShownByConversation',
+                  storageId
+                )
+              )
+            );
+          }
+        }
+      }
+
+      if (goodbyeHook) {
+        const alreadyShown =
+          state?.goodbyeStampedByConversation?.[storageId] === true;
+        if (!alreadyShown) {
+          setSceneNote({ type: 'goodbye', text: t('goodbye_stamp') });
+          recordRoleplayMomentEvent({
+            eventType: 'goodbye_stamp_shown',
+            characterId: character.id,
+            conversationId,
+            metadata: { messages: removeLocalFallbackMessages(messagesRef.current).length },
+          });
+          if (state) {
+            window.localStorage.setItem(
+              FIRST_EXPERIENCE_STORAGE_KEY,
+              JSON.stringify(
+                markFirstExperienceConversationFlag(
+                  state,
+                  'goodbyeStampedByConversation',
+                  storageId
+                )
+              )
+            );
+          }
+        }
+      }
+    },
+    [t]
+  );
+
   const processSendQueue = async () => {
     if (processingQueueRef.current) return;
     processingQueueRef.current = true;
@@ -991,6 +1112,12 @@ export function RoleplayChat({ characterId }: Props) {
               reply.conversationId || conversationIdRef.current || undefined,
             messages: removeLocalFallbackMessages(nextMessages),
           });
+          showFirstExperienceSceneNote({
+            character: currentCharacter,
+            conversationId:
+              reply.conversationId || conversationIdRef.current || undefined,
+            message: characterMessage,
+          });
           if (reply.imageRequest?.shouldGenerate) {
             await requestChatImage({
               reply,
@@ -1030,6 +1157,10 @@ export function RoleplayChat({ characterId }: Props) {
     userInteractedRef.current = true;
     clearRoleplayError();
     const messageId = `u-${Date.now()}`;
+    const isFirstUserMessage =
+      removeLocalFallbackMessages(messagesRef.current).filter(
+        (message) => message.role === 'user'
+      ).length === 0;
     const userMessage: ChatMessage = {
       id: messageId,
       role: 'user',
@@ -1043,6 +1174,13 @@ export function RoleplayChat({ characterId }: Props) {
       requestId: createRoleplayRequestId('rp-chat'),
       text,
     });
+    if (isFirstUserMessage) {
+      recordRoleplayMomentEvent({
+        eventType: 'first_chat_started',
+        characterId: character.id,
+        conversationId: conversationIdRef.current || undefined,
+      });
+    }
     void processSendQueue();
   };
 
@@ -1363,6 +1501,16 @@ export function RoleplayChat({ characterId }: Props) {
         </div>
       )}
 
+      {sceneNote && (
+        <FirstExperienceSceneNote
+          label={
+            sceneNote.type === 'seed' ? t('scene_note_seed') : t('goodbye_stamp')
+          }
+          text={sceneNote.text}
+          onDismiss={() => setSceneNote(null)}
+        />
+      )}
+
       <div
         ref={scrollerRef}
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 md:px-6"
@@ -1503,6 +1651,41 @@ export function RoleplayChat({ characterId }: Props) {
         </div>
       </form>
     </main>
+  );
+}
+
+function FirstExperienceSceneNote({
+  label,
+  text,
+  onDismiss,
+}: {
+  label: string;
+  text: string;
+  onDismiss: () => void;
+}) {
+  return (
+    <div className="border-b border-white/5 bg-[#121316]/94 px-4 py-2 backdrop-blur md:px-6">
+      <div className="mx-auto flex w-full max-w-2xl items-start justify-between gap-3 text-xs text-zinc-400">
+        <div className="flex min-w-0 items-start gap-2">
+          <Sparkles
+            size={14}
+            className="mt-0.5 shrink-0 text-zinc-500"
+            aria-hidden="true"
+          />
+          <p className="min-w-0 leading-relaxed">
+            <span className="font-medium text-zinc-300">{label}</span>{' '}
+            <span>{text}</span>
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold text-zinc-500 transition hover:bg-white/8 hover:text-zinc-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+        >
+          OK
+        </button>
+      </div>
+    </div>
   );
 }
 

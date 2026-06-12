@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 import {
   moderatePromptForCreem,
+  shouldFailOpenCreemModeration,
   shouldModerateAIGeneration,
 } from '../src/shared/lib/creem-moderation';
 
@@ -81,7 +82,14 @@ async function run() {
     },
   });
 
-  assert.equal(missingKey.allowed, false);
+  assert.equal(missingKey.allowed, true);
+  assert.equal(
+    shouldFailOpenCreemModeration({
+      configs: {},
+      reason: missingKey.reason,
+    }),
+    true
+  );
   assert.equal(missingKey.reason, 'moderation_unavailable');
 
   const networkFailure = await moderatePromptForCreem({
@@ -93,8 +101,23 @@ async function run() {
     },
   });
 
-  assert.equal(networkFailure.allowed, false);
+  assert.equal(networkFailure.allowed, true);
   assert.equal(networkFailure.reason, 'moderation_unavailable');
+
+  const failClosedNetworkFailure = await moderatePromptForCreem({
+    prompt: 'safe prompt',
+    configs: {
+      creem_api_key: 'creem_test_key',
+      creem_moderation_fail_closed: 'true',
+    },
+    externalId: 'test_network_failure_closed',
+    fetcher: async () => {
+      throw new Error('network down');
+    },
+  });
+
+  assert.equal(failClosedNetworkFailure.allowed, false);
+  assert.equal(failClosedNetworkFailure.reason, 'moderation_unavailable');
 
   console.log('Creem moderation rules OK');
 }

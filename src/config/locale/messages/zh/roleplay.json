@@ -572,6 +572,8 @@
     "wrap_up_title": "自然收个尾",
     "wrap_up_message": "我先走一会儿。留一句让我下次回来能接上的话吧。",
     "continuation_hint": "还没结束：",
+    "scene_note_seed": "还没结束：",
+    "goodbye_stamp": "这段关系已替你留住。",
     "send": "发送",
     "sending": "发送中…",
     "empty_title": "和 {name} 打个招呼",

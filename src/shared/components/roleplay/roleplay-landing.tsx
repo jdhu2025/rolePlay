@@ -37,6 +37,17 @@ import {
   fetchRoleplayRecommendations,
   type RoleplayCharacterClient,
 } from '@/shared/lib/roleplay-client';
+import {
+  FIRST_EXPERIENCE_ACTIVE_KEY,
+  FIRST_EXPERIENCE_SELECTED_AT_KEY,
+  FIRST_EXPERIENCE_STORAGE_KEY,
+  FIRST_EXPERIENCE_CHOICES,
+  buildFirstExperiencePersona,
+  createFirstExperienceState,
+  getFirstExperienceChoice,
+  parseFirstExperienceState,
+  type FirstExperienceChoiceId,
+} from '@/shared/lib/roleplay-first-experience';
 import { recordRoleplayMomentEvent } from '@/shared/lib/roleplay-moment-events';
 import { useAppContext } from '@/shared/contexts/app';
 import { getSupportMailto } from '@/shared/lib/support-email';
@@ -91,6 +102,27 @@ export function RoleplayLanding({ initialData }: Props) {
   // sentinel below grows it as the user scrolls.
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  const refreshRecommendationsForExperience = (
+    firstImpression: FirstExperienceChoiceId
+  ) => {
+    const controller = new AbortController();
+    setRecommendationsLoading(true);
+    fetchRoleplayRecommendations({
+      signal: controller.signal,
+      limit: RECOMMENDATION_LIMIT,
+      firstImpression,
+    })
+      .then((data) => {
+        if (data.characters.length > 0) {
+          setRecommendedCharacters(data.characters);
+        }
+      })
+      .finally(() => {
+        setRecommendationsLoading(false);
+      });
+    return () => controller.abort();
+  };
 
   useEffect(() => {
     if (initialData?.recommendedCharacters.length) return;
@@ -223,6 +255,9 @@ export function RoleplayLanding({ initialData }: Props) {
 
   return (
     <main className="min-h-dvh overflow-hidden bg-[#0d0d10] text-white">
+      <FirstExperienceDirector
+        onSelected={refreshRecommendationsForExperience}
+      />
       <ForYouSection
         characters={recommendedCharacters}
         loading={recommendationsLoading}
@@ -297,6 +332,109 @@ export function RoleplayLanding({ initialData }: Props) {
   );
 }
 
+function FirstExperienceDirector({
+  onSelected,
+}: {
+  onSelected: (choice: FirstExperienceChoiceId) => void;
+}) {
+  const locale = useLocale();
+  const [hidden, setHidden] = useState(true);
+  const [selectedChoice, setSelectedChoice] =
+    useState<FirstExperienceChoiceId | null>(null);
+  const isZh = locale.startsWith('zh');
+  const activeChoice = getFirstExperienceChoice(selectedChoice);
+
+  useEffect(() => {
+    const existingState = parseFirstExperienceState(
+      window.localStorage.getItem(FIRST_EXPERIENCE_STORAGE_KEY)
+    );
+    if (existingState) return;
+
+    const existingChoice = window.localStorage
+      .getItem('roleplay:first-impression')
+      ?.trim();
+    if (getFirstExperienceChoice(existingChoice)) return;
+
+    setHidden(false);
+    window.sessionStorage.setItem(FIRST_EXPERIENCE_ACTIVE_KEY, 'true');
+    recordRoleplayMomentEvent({
+      eventType: 'first_experience_exposed',
+      metadata: { variant: 'director_v1' },
+    });
+  }, []);
+
+  const handleSelect = (choiceId: FirstExperienceChoiceId) => {
+    const state = createFirstExperienceState(choiceId);
+    const choice = getFirstExperienceChoice(choiceId);
+    setSelectedChoice(choiceId);
+    window.localStorage.setItem(
+      FIRST_EXPERIENCE_STORAGE_KEY,
+      JSON.stringify({ ...state, revealShown: true })
+    );
+    window.localStorage.setItem(
+      FIRST_EXPERIENCE_SELECTED_AT_KEY,
+      state.selectedAt
+    );
+    window.localStorage.setItem('roleplay:first-impression', choiceId);
+    recordRoleplayMomentEvent({
+      eventType: 'first_experience_selected',
+      metadata: { choice: choiceId, variant: 'director_v1' },
+    });
+    recordRoleplayMomentEvent({
+      eventType: 'first_experience_reveal_shown',
+      metadata: { choice: choiceId, variant: 'director_v1' },
+    });
+    if (choice) {
+      fetch('/api/roleplay/user-persona', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstImpression: buildFirstExperiencePersona(choiceId),
+        }),
+      }).catch(() => {});
+    }
+    onSelected(choiceId);
+    window.setTimeout(() => setHidden(true), 2400);
+  };
+
+  if (hidden) return null;
+
+  return (
+    <section className="border-b border-white/6 bg-[#101114]">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:px-6">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          {isZh
+            ? FIRST_EXPERIENCE_CHOICES[0].promptZh
+            : FIRST_EXPERIENCE_CHOICES[0].promptEn}
+        </p>
+        <div className="grid gap-2 md:grid-cols-3">
+          {FIRST_EXPERIENCE_CHOICES.map((choice) => (
+            <button
+              key={choice.id}
+              type="button"
+              onClick={() => handleSelect(choice.id)}
+              disabled={Boolean(selectedChoice)}
+              className="group min-h-20 rounded-[14px] border border-white/10 bg-white/[0.035] px-3 py-3 text-left transition hover:border-white/25 hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-default disabled:opacity-70"
+            >
+              <span className="block text-sm font-semibold text-zinc-100">
+                {isZh ? choice.labelZh : choice.labelEn}
+              </span>
+              <span className="mt-1 block text-xs leading-snug text-zinc-500 group-hover:text-zinc-400">
+                {isZh ? choice.descriptionZh : choice.descriptionEn}
+              </span>
+            </button>
+          ))}
+        </div>
+        {activeChoice && (
+          <p className="text-sm leading-relaxed text-zinc-300">
+            {isZh ? activeChoice.revealZh : activeChoice.revealEn}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function FirstMomentPreference() {
   const t = useTranslations('roleplay.home.preference');
   const [hidden, setHidden] = useState(true);
@@ -325,6 +463,9 @@ function FirstMomentPreference() {
       'roleplay:first-impression'
     );
     if (localChoice) return;
+    if (window.sessionStorage.getItem(FIRST_EXPERIENCE_ACTIVE_KEY) === 'true') {
+      return;
+    }
 
     const controller = new AbortController();
     fetch('/api/roleplay/user-persona', {

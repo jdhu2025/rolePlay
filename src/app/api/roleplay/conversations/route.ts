@@ -4,14 +4,14 @@ import {
   isMissingRoleplayTable,
   safeJsonParse,
 } from '@/shared/models/roleplay';
-import { getUserInfo } from '@/shared/models/user';
+import { getOptionalUserInfo } from '@/shared/models/user';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET() {
   try {
-    const user = await getUserInfo();
+    const user = await getOptionalUserInfo();
     if (!user) {
       return respData({ authenticated: false, conversations: [] });
     }

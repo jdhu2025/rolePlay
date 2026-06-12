@@ -5,7 +5,7 @@ import {
   isMissingRoleplayTable,
   safeJsonParse,
 } from '@/shared/models/roleplay';
-import { getUserInfo } from '@/shared/models/user';
+import { getOptionalUserInfo } from '@/shared/models/user';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -18,7 +18,7 @@ function readPositiveInt(value: string | null, fallback: number, max: number) {
 
 export async function GET(request: Request) {
   try {
-    const user = await getUserInfo();
+    const user = await getOptionalUserInfo();
     if (!user) {
       return respData({
         authenticated: false,

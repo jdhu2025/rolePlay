@@ -572,6 +572,8 @@
     "wrap_up_title": "Let the moment close softly",
     "wrap_up_message": "I should go for now. Leave me with one line to come back to.",
     "continuation_hint": "Still open:",
+    "scene_note_seed": "Still open:",
+    "goodbye_stamp": "This thread is saved for next time.",
     "send": "Send",
     "sending": "Sending…",
     "empty_title": "Say hi to {name}",

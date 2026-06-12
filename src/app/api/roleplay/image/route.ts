@@ -46,6 +46,30 @@ const REFERENCE_IDENTITY_LOCK =
 const NO_REFERENCE_IDENTITY_LOCK =
   'No reliable reference image is available. Keep the same adult character identity by strictly following the provided visual identity, signature items, face, hair, palette, and style anchor.';
 
+function readBooleanSetting(
+  configs: Record<string, string>,
+  key: string,
+  fallback: boolean
+) {
+  const envKey = key.toUpperCase();
+  const raw = String(configs[key] || process.env[envKey] || '').trim();
+  if (!raw) return fallback;
+  return ['1', 'true', 'yes', 'on'].includes(raw.toLowerCase());
+}
+
+function isRoleplayImageModerationEnabled(configs: Record<string, string>) {
+  return readBooleanSetting(configs, 'roleplay_image_moderation_enabled', true);
+}
+
+function getRoleplayImageStorageMode(configs: Record<string, string>) {
+  const mode = String(
+    configs.roleplay_image_storage_mode ||
+      process.env.ROLEPLAY_IMAGE_STORAGE_MODE ||
+      'upload'
+  ).trim();
+  return mode === 'provider_url' ? 'provider_url' : 'upload';
+}
+
 type ChatSnapshotMessage = {
   role: 'user' | 'character';
   text: string;
@@ -238,6 +262,14 @@ function buildFinalProviderPrompt(basePrompt: string, identityLock: string) {
     [cappedBase, lock].filter(Boolean).join('\n'),
     MAX_IMAGE_PROMPT_BYTES
   );
+}
+
+function getUrlHost(value: string) {
+  try {
+    return new URL(value).host;
+  } catch {
+    return '';
+  }
 }
 
 function getImageErrorText(error: unknown) {
@@ -672,19 +704,23 @@ export async function POST(request: Request) {
       ? REFERENCE_IDENTITY_LOCK
       : NO_REFERENCE_IDENTITY_LOCK;
     const providerPrompt = buildFinalProviderPrompt(imagePrompt, identityLock);
-    const moderation = await moderatePromptForCreem({
-      prompt: imagePrompt,
-      configs,
-      externalId: `user_${user.id}:roleplay_image_${requestId || idempotencyKey}`,
-    });
-    timing.mark('creem_moderation');
-
-    if (!moderation.allowed) {
-      return respErr(moderation.message || 'prompt rejected', {
-        reason: moderation.reason,
-        decision: moderation.decision,
-        moderationId: moderation.moderationId,
+    if (isRoleplayImageModerationEnabled(configs)) {
+      const moderation = await moderatePromptForCreem({
+        prompt: imagePrompt,
+        configs,
+        externalId: `user_${user.id}:roleplay_image_${requestId || idempotencyKey}`,
       });
+      timing.mark('creem_moderation');
+
+      if (!moderation.allowed) {
+        return respErr(moderation.message || 'prompt rejected', {
+          reason: moderation.reason,
+          decision: moderation.decision,
+          moderationId: moderation.moderationId,
+        });
+      }
+    } else {
+      timing.mark('creem_moderation_skipped');
     }
 
     let generated;
@@ -717,17 +753,52 @@ export async function POST(request: Request) {
         '|'
       )}:${imagePrompt}`
     )}.png`;
-    const storageService = await getStorageService(configs);
-    const upload = await storageService.downloadAndUpload({
-      url: sourceUrl,
-      key,
-      contentType: 'image/png',
-      disposition: 'inline',
-    });
-    timing.mark('download_and_upload');
+    const storageMode = getRoleplayImageStorageMode(configs);
+    const upload =
+      storageMode === 'provider_url'
+        ? {
+            success: true,
+            url: sourceUrl,
+            key: '',
+            provider: 'provider_url',
+          }
+        : await (async () => {
+            const storageService = await getStorageService(configs);
+            return storageService.downloadAndUpload({
+              url: sourceUrl,
+              key,
+              contentType: 'image/png',
+              disposition: 'inline',
+            });
+          })();
+    timing.mark(
+      storageMode === 'provider_url'
+        ? 'download_and_upload_skipped'
+        : 'download_and_upload'
+    );
 
     if (!upload.success || !upload.url) {
-      return respErr(upload.error || 'upload generated image failed');
+      const storagePhase = upload.phase || 'upload';
+      console.log('[roleplay:image] storage failed', {
+        phase: storagePhase,
+        error: upload.error || 'upload generated image failed',
+        storageProvider: upload.provider,
+        endpointHost: upload.endpointHost,
+        status: upload.status,
+        sourceHost: getUrlHost(sourceUrl),
+        key,
+        mode: mode || 'portrait',
+        imageProvider: imageConfig.provider,
+        model: imageConfig.model,
+      });
+
+      return respErr(upload.error || 'upload generated image failed', {
+        reason:
+          storagePhase === 'download'
+            ? 'generated_image_download_failed'
+            : 'generated_image_upload_failed',
+        provider: upload.provider,
+      });
     }
 
     const consumedCredit = await consumeRoleplayCredits({

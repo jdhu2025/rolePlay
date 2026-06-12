@@ -1,4 +1,5 @@
 import { withTransientDatabaseRetry } from '@/shared/lib/db-resilience';
+import { getConfiguredDatabaseRetryOptions } from '@/shared/lib/server/db-retry-config';
 import {
   consumeCredits,
   CreditStatus,
@@ -12,7 +13,6 @@ import { findUserById } from '@/shared/models/user';
 import { hasPermission } from '@/shared/services/rbac';
 
 const ADMIN_ACCESS_PERMISSION = 'admin.access';
-const ROLEPLAY_DB_TIMEOUT_MS = 6_000;
 
 export type RoleplayBillingAction =
   | 'roleplay_text'
@@ -90,6 +90,7 @@ async function findExistingRoleplayConsumption({
 }) {
   if (!idempotencyKey) return null;
 
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   const recentConsumedCredits = await withTransientDatabaseRetry(
     () =>
       getCredits({
@@ -98,7 +99,7 @@ async function findExistingRoleplayConsumption({
         transactionType: CreditTransactionType.CONSUME,
         limit: 100,
       }),
-    { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+    retryOptions
   );
 
   return (
@@ -116,14 +117,16 @@ async function findExistingRoleplayConsumption({
 
 async function ensureStarterCreditsBeforePaidRoleplayCheck(userId: string) {
   try {
-    const user = await withTransientDatabaseRetry(() => findUserById(userId), {
-      timeoutMs: ROLEPLAY_DB_TIMEOUT_MS,
-    });
+    const retryOptions = await getConfiguredDatabaseRetryOptions();
+    const user = await withTransientDatabaseRetry(
+      () => findUserById(userId),
+      retryOptions
+    );
     if (!user) return;
 
     const grant = await withTransientDatabaseRetry(
       () => grantCreditsForNewUser(user, { logSkipped: false }),
-      { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+      retryOptions
     );
     if (!grant) return;
 
@@ -149,14 +152,16 @@ export async function getRoleplayBillingEntitlement(userId?: string | null) {
     };
   }
 
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   const [adminAccess, grantedFreePlay] = await Promise.all([
     withTransientDatabaseRetry(
       () => hasPermission(userId, ADMIN_ACCESS_PERMISSION),
-      { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+      retryOptions
     ).catch(() => false),
-    withTransientDatabaseRetry(() => hasActiveRoleplayFreePlay(userId), {
-      timeoutMs: ROLEPLAY_DB_TIMEOUT_MS,
-    }),
+    withTransientDatabaseRetry(
+      () => hasActiveRoleplayFreePlay(userId),
+      retryOptions
+    ),
   ]);
 
   return {
@@ -209,9 +214,10 @@ export async function assertRoleplayCreditsAvailable({
 
   await ensureStarterCreditsBeforePaidRoleplayCheck(userId);
 
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   const remainingCredits = await withTransientDatabaseRetry(
     () => getRemainingCredits(userId),
-    { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+    retryOptions
   );
   if (remainingCredits < costCredits) {
     throw new RoleplayInsufficientCreditsError({
@@ -259,6 +265,7 @@ export async function consumeRoleplayCredits({
     return null;
   }
 
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
   return withTransientDatabaseRetry(
     () =>
       consumeCredits({
@@ -274,6 +281,6 @@ export async function consumeRoleplayCredits({
               })
             : undefined,
       }),
-    { timeoutMs: ROLEPLAY_DB_TIMEOUT_MS }
+    retryOptions
   );
 }

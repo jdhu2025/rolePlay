@@ -1,6 +1,10 @@
 import { ROLEPLAY_OFFICIAL_CHARACTERS } from '@/data/roleplay-characters';
 
 import type { RoleplayFormatStyle } from '@/shared/lib/roleplay-format-style';
+import {
+  buildFirstExperienceRecommendationQuery,
+  type FirstExperienceChoiceId,
+} from '@/shared/lib/roleplay-first-experience';
 import type { PersonalityCard } from '@/shared/lib/roleplay-personality';
 import type { RoleplayStyleExample } from '@/shared/lib/roleplay-style-examples';
 
@@ -299,8 +303,9 @@ export async function fetchRoleplayRecommendations(options?: {
   signal?: AbortSignal;
   throwOnError?: boolean;
   limit?: number;
+  firstImpression?: FirstExperienceChoiceId | string | null;
 }): Promise<RecommendationsResponse> {
-  const cacheKey = `recommendations:${options?.limit || 'default'}`;
+  const cacheKey = `recommendations:${options?.limit || 'default'}:${options?.firstImpression || 'default'}`;
   if (!options?.throwOnError) {
     return readClientCache(cacheKey, () =>
       fetchRoleplayRecommendations({ ...options, throwOnError: true })
@@ -317,10 +322,17 @@ export async function fetchRoleplayRecommendations(options?: {
 
   let response: Response;
   try {
-    const qs =
-      typeof options?.limit === 'number'
-        ? `?limit=${encodeURIComponent(String(options.limit))}`
-        : '';
+    const params = new URLSearchParams();
+    if (typeof options?.limit === 'number') {
+      params.set('limit', String(options.limit));
+    }
+    const recommendationQuery = buildFirstExperienceRecommendationQuery(
+      options?.firstImpression
+    );
+    if (recommendationQuery.firstImpression) {
+      params.set('firstImpression', recommendationQuery.firstImpression);
+    }
+    const qs = params.toString() ? `?${params.toString()}` : '';
     response = await fetch(`/api/roleplay/recommendations${qs}`, {
       signal: options?.signal,
       credentials: 'include',

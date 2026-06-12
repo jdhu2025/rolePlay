@@ -51,6 +51,14 @@ export class R2Provider implements StorageProvider {
     );
   }
 
+  private getEndpointHost() {
+    try {
+      return new URL(this.getEndpoint()).host;
+    } catch {
+      return '';
+    }
+  }
+
   getPublicUrl = (options: { key: string; bucket?: string }) => {
     const uploadBucket = options.bucket || this.configs.bucket;
     const uploadPath = this.getUploadPath();
@@ -94,6 +102,8 @@ export class R2Provider implements StorageProvider {
       if (!uploadBucket) {
         return {
           success: false,
+          phase: 'upload',
+          endpointHost: this.getEndpointHost(),
           error: 'Bucket is required',
           provider: this.name,
         };
@@ -136,7 +146,10 @@ export class R2Provider implements StorageProvider {
       if (!response.ok) {
         return {
           success: false,
-          error: `Upload failed: ${response.statusText}`,
+          phase: 'upload',
+          endpointHost: this.getEndpointHost(),
+          status: response.status,
+          error: `Upload failed: ${response.status} ${response.statusText}`,
           provider: this.name,
         };
       }
@@ -157,6 +170,8 @@ export class R2Provider implements StorageProvider {
     } catch (error) {
       return {
         success: false,
+        phase: 'upload',
+        endpointHost: this.getEndpointHost(),
         error: error instanceof Error ? error.message : 'Unknown error',
         provider: this.name,
       };
@@ -171,6 +186,7 @@ export class R2Provider implements StorageProvider {
       if (!response.ok) {
         return {
           success: false,
+          phase: 'download',
           error: `HTTP error! status: ${response.status}`,
           provider: this.name,
         };
@@ -179,6 +195,7 @@ export class R2Provider implements StorageProvider {
       if (!response.body) {
         return {
           success: false,
+          phase: 'download',
           error: 'No body in response',
           provider: this.name,
         };
@@ -197,6 +214,7 @@ export class R2Provider implements StorageProvider {
     } catch (error) {
       return {
         success: false,
+        phase: 'download',
         error: error instanceof Error ? error.message : 'Unknown error',
         provider: this.name,
       };

@@ -63,8 +63,10 @@ export class KieProvider implements AIProvider {
     let payload: any = {
       prompt: params.prompt,
       model: params.model,
-      callBackUrl: params.callbackUrl,
     };
+    if (params.callbackUrl) {
+      payload.callBackUrl = params.callbackUrl;
+    }
 
     if (params.options && params.options.customMode) {
       // custom mode
@@ -147,11 +149,13 @@ export class KieProvider implements AIProvider {
     // build request params
     let payload: any = {
       model: params.model,
-      callBackUrl: params.callbackUrl,
       input: {
         prompt: params.prompt,
       },
     };
+    if (params.callbackUrl) {
+      payload.callBackUrl = params.callbackUrl;
+    }
 
     if (params.options) {
       const options = params.options;
@@ -214,13 +218,15 @@ export class KieProvider implements AIProvider {
     // build request params
     let payload: any = {
       model: params.model,
-      callBackUrl: params.callbackUrl,
       input: {
         aspect_ratio: 'landscape',
         n_frames: '10',
         size: 'standard',
       },
     };
+    if (params.callbackUrl) {
+      payload.callBackUrl = params.callbackUrl;
+    }
 
     if (params.prompt) {
       payload.input.prompt = params.prompt;

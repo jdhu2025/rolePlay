@@ -1,5 +1,9 @@
 import { respData, respErr } from '@/shared/lib/resp';
 import {
+  normalizeFirstExperienceChoice,
+  rankFirstExperienceCharacters,
+} from '@/shared/lib/roleplay-first-experience';
+import {
   buildCharacterImageUrl,
   buildCharacterImageUrls,
 } from '@/shared/lib/roleplay-assets';
@@ -34,6 +38,7 @@ type BucketKey =
   | 'popular'
   | 'female'
   | 'male'
+  | 'firstImpression'
   | 'other';
 
 function clampLimit(value: string | null) {
@@ -168,6 +173,7 @@ export async function GET(request: Request) {
       popular: [],
       female: [],
       male: [],
+      firstImpression: [],
       other: [],
     };
 
@@ -293,11 +299,23 @@ export async function GET(request: Request) {
       });
     }
 
+    const firstImpression = normalizeFirstExperienceChoice(
+      url.searchParams.get('firstImpression')
+    );
+    const rankedResult = firstImpression
+      ? rankFirstExperienceCharacters(firstImpression, result)
+      : result;
+    if (firstImpression) {
+      bucketIds.firstImpression = rankedResult
+        .slice(0, Math.min(3, limit))
+        .map((character) => character.id);
+    }
+
     const tagSlugsByCharacter = await getCharacterTagSlugsMap(
       result.map((character) => character.id)
     ).catch(() => new Map<string, string[]>());
     const characters = await Promise.all(
-      result.map((character) =>
+      rankedResult.map((character) =>
         toClientCharacter(
           character,
           tagSlugsByCharacter.get(character.id) ?? []

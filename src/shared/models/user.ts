@@ -5,6 +5,7 @@ import { getAuth } from '@/core/auth';
 import { db } from '@/core/db';
 import { user } from '@/config/db/schema';
 import { withTransientDatabaseRetry } from '@/shared/lib/db-resilience';
+import { getConfiguredDatabaseRetryOptions } from '@/shared/lib/server/db-retry-config';
 
 import { Permission, Role } from '../services/rbac';
 import { getRemainingCredits } from './credit';
@@ -34,7 +35,11 @@ export async function updateUser(userId: string, updatedUser: UpdateUser) {
 }
 
 export async function findUserById(userId: string) {
-  const [result] = await db().select().from(user).where(eq(user.id, userId));
+  const retryOptions = await getConfiguredDatabaseRetryOptions();
+  const [result] = await withTransientDatabaseRetry<User[]>(
+    () => db().select().from(user).where(eq(user.id, userId)),
+    retryOptions
+  );
 
   return result;
 }
@@ -80,6 +85,32 @@ export async function getUserInfo() {
   const signUser = await getSignUser();
 
   return signUser;
+}
+
+function isFailedToGetSessionError(error: unknown) {
+  const anyError = error as any;
+  const message = String(anyError?.message || '');
+  const status = String(anyError?.status || anyError?.statusCode || '');
+  const bodyMessage = String(anyError?.body?.message || '');
+
+  return (
+    message === 'Failed to get session' ||
+    bodyMessage === 'Failed to get session' ||
+    (status === 'INTERNAL_SERVER_ERROR' &&
+      (message.includes('Failed to get session') ||
+        bodyMessage.includes('Failed to get session')))
+  );
+}
+
+export async function getOptionalUserInfo() {
+  try {
+    return await getUserInfo();
+  } catch (error) {
+    if (isFailedToGetSessionError(error)) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function getUserCredits(userId: string) {

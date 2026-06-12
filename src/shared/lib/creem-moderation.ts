@@ -18,6 +18,34 @@ type CreemModerationOptions = {
   fetcher?: typeof fetch;
 };
 
+function readBooleanConfig(
+  configs: Partial<Configs>,
+  key: keyof Configs | string,
+  fallback = false
+) {
+  const envKey = String(key).toUpperCase();
+  const raw =
+    String((configs as Record<string, unknown>)[key] || '').trim() ||
+    String(process.env[envKey] || '').trim();
+  if (!raw) return fallback;
+
+  return ['1', 'true', 'yes', 'on'].includes(raw.toLowerCase());
+}
+
+export function shouldFailOpenCreemModeration({
+  configs,
+  reason,
+}: {
+  configs: Partial<Configs>;
+  reason?: CreemModerationResult['reason'];
+}) {
+  if (reason !== 'moderation_unavailable') return false;
+
+  return readBooleanConfig(configs, 'creem_moderation_fail_closed', false)
+    ? false
+    : readBooleanConfig(configs, 'creem_moderation_fail_open', true);
+}
+
 export function shouldModerateAIGeneration({
   mediaType,
   scene,
@@ -61,9 +89,10 @@ export async function moderatePromptForCreem({
       : 'https://api.creem.io');
 
   if (!safePrompt || !apiKey) {
+    const reason = 'moderation_unavailable';
     return {
-      allowed: false,
-      reason: 'moderation_unavailable',
+      allowed: shouldFailOpenCreemModeration({ configs, reason }),
+      reason,
       message: 'Content moderation is not configured. Please try again later.',
     };
   }
@@ -110,10 +139,11 @@ export async function moderatePromptForCreem({
 
     throw new Error('creem_moderation_unknown_decision');
   } catch (error) {
-    console.log('[creem:moderation] failed closed', error);
+    console.log('[creem:moderation] unavailable', error);
+    const reason = 'moderation_unavailable';
     return {
-      allowed: false,
-      reason: 'moderation_unavailable',
+      allowed: shouldFailOpenCreemModeration({ configs, reason }),
+      reason,
       message:
         'Content moderation is temporarily unavailable. Please try again later.',
     };
