@@ -72,16 +72,35 @@ export type RoleplayInsufficientCreditsPayload = {
   remainingCredits: number;
 };
 
+export type RoleplayAuthRequiredPayload = {
+  reason: 'auth_required';
+  signInUrl?: string;
+};
+
+export function createRoleplayAuthRequiredPayload(
+  signInUrl = '/sign-up'
+): RoleplayAuthRequiredPayload {
+  return {
+    reason: 'auth_required',
+    signInUrl,
+  };
+}
+
 export class RoleplayApiError extends Error {
   insufficientCredits?: RoleplayInsufficientCreditsPayload;
+  authRequired?: RoleplayAuthRequiredPayload;
 
   constructor(
     message: string,
-    options?: { insufficientCredits?: RoleplayInsufficientCreditsPayload }
+    options?: {
+      insufficientCredits?: RoleplayInsufficientCreditsPayload;
+      authRequired?: RoleplayAuthRequiredPayload;
+    }
   ) {
     super(message);
     this.name = 'RoleplayApiError';
     this.insufficientCredits = options?.insufficientCredits;
+    this.authRequired = options?.authRequired;
   }
 }
 
@@ -119,6 +138,19 @@ export function parseRoleplayInsufficientCreditsPayload(
   };
 }
 
+export function parseRoleplayAuthRequiredPayload(
+  payload: unknown
+): RoleplayAuthRequiredPayload | null {
+  if (!payload || typeof payload !== 'object') return null;
+  const value = payload as Record<string, unknown>;
+  if (value.reason !== 'auth_required') return null;
+
+  return {
+    reason: 'auth_required',
+    signInUrl: typeof value.signInUrl === 'string' ? value.signInUrl : undefined,
+  };
+}
+
 export function formatRoleplayInsufficientCreditsMessage(
   payload: RoleplayInsufficientCreditsPayload
 ) {
@@ -148,6 +180,11 @@ export function getRoleplayApiErrorMessage(
   if (insufficientCredits) {
     return formatRoleplayInsufficientCreditsMessage(insufficientCredits);
   }
+  if (parseRoleplayAuthRequiredPayload(value.data)) {
+    return typeof value.message === 'string' && value.message
+      ? value.message
+      : 'Please sign in to continue this story.';
+  }
 
   return typeof value.message === 'string' && value.message
     ? value.message
@@ -164,9 +201,14 @@ export function createRoleplayApiError(
           (payload as Record<string, unknown>).data
         )
       : null;
+  const authRequired =
+    payload && typeof payload === 'object'
+      ? parseRoleplayAuthRequiredPayload((payload as Record<string, unknown>).data)
+      : null;
 
   return new RoleplayApiError(getRoleplayApiErrorMessage(payload, fallback), {
     insufficientCredits: insufficientCredits || undefined,
+    authRequired: authRequired || undefined,
   });
 }
 
@@ -269,6 +311,20 @@ export async function generateRoleplayReplyStream(
       stream: true,
     }),
   });
+
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('text/event-stream')) {
+    let payload: any = null;
+    try {
+      payload = await response.json();
+    } catch {
+      // Keep the status-based error below when the server returns non-JSON.
+    }
+    throw createRoleplayApiError(
+      payload,
+      `roleplay stream request failed: ${response.status}`
+    );
+  }
 
   if (!response.ok || !response.body) {
     let payload: any = null;

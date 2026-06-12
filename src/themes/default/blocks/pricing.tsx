@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Check, Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -26,6 +27,10 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { useAppContext } from '@/shared/contexts/app';
 import { getCookie } from '@/shared/lib/cookie';
+import {
+  readRememberedRoleplayReturnPath,
+  rememberRoleplayReturnPath,
+} from '@/shared/lib/roleplay-return';
 import { cn } from '@/shared/lib/utils';
 import { Subscription } from '@/shared/models/subscription';
 import {
@@ -86,6 +91,7 @@ export function Pricing({
   currentSubscription?: Subscription;
 }) {
   const locale = useLocale();
+  const searchParams = useSearchParams();
   const t = useTranslations('pages.pricing.messages');
 
   const {
@@ -115,6 +121,8 @@ export function Pricing({
 
   const [isLoading, setIsLoading] = useState(false);
   const [productId, setProductId] = useState<string | null>(null);
+  const returnPath =
+    searchParams.get('callbackUrl') || readRememberedRoleplayReturnPath('/');
 
   // Currency state management for each item
   // Store selected currency and displayed item for each product_id
@@ -204,6 +212,7 @@ export function Pricing({
 
   const handlePayment = async (item: PricingItem) => {
     if (!user) {
+      rememberRoleplayReturnPath(returnPath);
       setIsShowSignModal(true);
       return;
     }
@@ -257,6 +266,7 @@ export function Pricing({
   ) => {
     try {
       if (!user) {
+        rememberRoleplayReturnPath(returnPath);
         setIsShowSignModal(true);
         return;
       }
@@ -271,6 +281,7 @@ export function Pricing({
         locale: locale || 'en',
         payment_provider: paymentProvider || '',
         metadata: affiliateMetadata,
+        callbackUrl: returnPath,
       };
 
       setIsLoading(true);
@@ -288,6 +299,7 @@ export function Pricing({
         setIsLoading(false);
         setProductId(null);
         setPricingItem(null);
+        rememberRoleplayReturnPath(returnPath);
         setIsShowSignModal(true);
         return;
       }

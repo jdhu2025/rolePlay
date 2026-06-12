@@ -64,6 +64,9 @@ export function SignIn({
       return path.slice(locale.length + 1) || '/';
     return path;
   };
+  const signUpHref = `/sign-up?callbackUrl=${encodeURIComponent(
+    stripLocalePrefix(callbackUrl || '/')
+  )}`;
 
   const handleSignIn = async () => {
     if (loading) {
@@ -218,17 +221,23 @@ export function SignIn({
         </div>
       </CardContent>
       {isEmailAuthEnabled && (
-        <CardFooter>
-          <div className="flex w-full justify-center border-t py-4">
+        <CardFooter className="flex-col gap-3">
+          <div className="flex w-full justify-center border-t pt-4">
             <p className="text-center text-xs text-neutral-500">
               {t('no_account')}
-              <Link href="/sign-up" className="underline">
+              <Link href={signUpHref} className="underline">
                 <span className="cursor-pointer dark:text-white/70">
                   {t('sign_up_title')}
                 </span>
               </Link>
             </p>
           </div>
+          <Link
+            href={stripLocalePrefix(callbackUrl || '/')}
+            className="text-muted-foreground text-xs underline-offset-4 hover:underline"
+          >
+            Continue without signing in
+          </Link>
         </CardFooter>
       )}
     </Card>

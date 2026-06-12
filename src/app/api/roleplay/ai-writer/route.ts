@@ -12,6 +12,7 @@ import {
 } from '@/shared/lib/ai-provider';
 import { md5 } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
+import { createRoleplayAuthRequiredPayload } from '@/shared/lib/roleplay-ai';
 import {
   assertRoleplayCreditsAvailable,
   consumeRoleplayCredits,
@@ -32,7 +33,7 @@ import {
   normalizeStyleExamples,
   type RoleplayStyleExample,
 } from '@/shared/lib/roleplay-style-examples';
-import { getUserInfo } from '@/shared/models/user';
+import { getOptionalUserInfo } from '@/shared/models/user';
 import {
   getRoleplayAIConfigs,
   getRoleplayImageConfigs,
@@ -1274,8 +1275,13 @@ async function tryGenerateImage(
 
 export async function POST(request: Request) {
   try {
-    const user = await getUserInfo();
-    if (!user) return respErr('no auth, please sign in');
+    const user = await getOptionalUserInfo();
+    if (!user) {
+      return respErr(
+        'no auth, please sign in',
+        createRoleplayAuthRequiredPayload()
+      );
+    }
 
     const payload = (await request.json().catch(() => ({}))) as AiWriterPayload;
     const idempotencyKey = getRoleplayRequestIdempotencyKey(

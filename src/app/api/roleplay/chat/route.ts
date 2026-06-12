@@ -10,6 +10,7 @@ import {
 import { isMarkedTransientDatabaseError } from '@/shared/lib/db-resilience';
 import { respData, respErr } from '@/shared/lib/resp';
 import {
+  createRoleplayAuthRequiredPayload,
   RoleplayCharacterPrompt,
   RoleplayReply,
 } from '@/shared/lib/roleplay-ai';
@@ -66,7 +67,7 @@ import {
   updateRoleplayConversation,
   upsertRoleplayConversationMemory,
 } from '@/shared/models/roleplay';
-import { findUserById, getUserInfo } from '@/shared/models/user';
+import { findUserById, getOptionalUserInfo } from '@/shared/models/user';
 
 type RoleplayChatMessage = {
   role: 'user' | 'character';
@@ -1632,7 +1633,7 @@ export async function POST(request: Request) {
       : [];
     const [configs, user] = await Promise.all([
       getRoleplayConfigs(),
-      getUserInfo(),
+      getOptionalUserInfo(),
     ]);
     timer.mark('config_and_auth');
     const idempotencyKey = getRoleplayRequestIdempotencyKey(request, requestId);
@@ -1640,7 +1641,10 @@ export async function POST(request: Request) {
       ? 0
       : readCookieNumber(request.headers.get('cookie'), GUEST_REPLY_COOKIE);
     if (!user && guestReplyCount >= GUEST_REPLY_LIMIT) {
-      return respErr('sign in to continue this story');
+      return respErr(
+        'sign in to continue this story',
+        createRoleplayAuthRequiredPayload()
+      );
     }
     const baseTextProviderCandidates = resolveTextProviderCandidates(
       configs as any,

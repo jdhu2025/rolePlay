@@ -11,6 +11,7 @@ import { moderatePromptForCreem } from '@/shared/lib/creem-moderation';
 import { md5 } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { buildCharacterImageUrl } from '@/shared/lib/roleplay-assets';
+import { createRoleplayAuthRequiredPayload } from '@/shared/lib/roleplay-ai';
 import {
   assertRoleplayCreditsAvailable,
   consumeRoleplayCredits,
@@ -27,7 +28,7 @@ import {
   RoleplayStatus,
   serializeJson,
 } from '@/shared/models/roleplay';
-import { getUserInfo } from '@/shared/models/user';
+import { getOptionalUserInfo } from '@/shared/models/user';
 import { getStorageService } from '@/shared/services/storage';
 
 export const maxDuration = 120;
@@ -504,8 +505,13 @@ export async function POST(request: Request) {
     } = await request.json();
     timing.mark('parse_request');
 
-    const user = await getUserInfo();
-    if (!user) return respErr('no auth, please sign in');
+    const user = await getOptionalUserInfo();
+    if (!user) {
+      return respErr(
+        'no auth, please sign in',
+        createRoleplayAuthRequiredPayload()
+      );
+    }
     const idempotencyKey = getRoleplayRequestIdempotencyKey(request, requestId);
 
     const billingPreview = await assertRoleplayCreditsAvailable({

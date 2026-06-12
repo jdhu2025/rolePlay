@@ -21,12 +21,20 @@ import {
 } from '@/shared/components/ui/drawer';
 import { useAppContext } from '@/shared/contexts/app';
 import { useMediaQuery } from '@/shared/hooks/use-media-query';
+import {
+  getCurrentRoleplayReturnPath,
+  readRememberedRoleplayReturnPath,
+} from '@/shared/lib/roleplay-return';
 
 import { SignInForm } from './sign-in-form';
 
 export function SignModal({ callbackUrl = '/' }: { callbackUrl?: string }) {
   const t = useTranslations('common.sign');
   const { isShowSignModal, setIsShowSignModal } = useAppContext();
+  const resolvedCallbackUrl =
+    callbackUrl === '/'
+      ? readRememberedRoleplayReturnPath(getCurrentRoleplayReturnPath())
+      : callbackUrl;
 
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
@@ -38,7 +46,7 @@ export function SignModal({ callbackUrl = '/' }: { callbackUrl?: string }) {
             <DialogTitle>{t('sign_in_title')}</DialogTitle>
             <DialogDescription>{t('sign_in_description')}</DialogDescription>
           </DialogHeader>
-          <SignInForm callbackUrl={callbackUrl} />
+          <SignInForm callbackUrl={resolvedCallbackUrl} />
         </DialogContent>
       </Dialog>
     );
@@ -51,7 +59,7 @@ export function SignModal({ callbackUrl = '/' }: { callbackUrl?: string }) {
           <DrawerTitle>{t('sign_in_title')}</DrawerTitle>
           <DrawerDescription>{t('sign_in_description')}</DrawerDescription>
         </DrawerHeader>
-        <SignInForm callbackUrl={callbackUrl} className="mt-8 px-4" />
+        <SignInForm callbackUrl={resolvedCallbackUrl} className="mt-8 px-4" />
         <DrawerFooter className="pt-4">
           <DrawerClose asChild>
             <Button variant="outline">{t('cancel_title')}</Button>

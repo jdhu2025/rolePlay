@@ -65,6 +65,10 @@ export function SignUp({
       return path.slice(locale.length + 1) || '/';
     return path;
   };
+  const normalizedReturnPath = stripLocalePrefix(callbackUrl || '/');
+  const signInHref = `/sign-in?callbackUrl=${encodeURIComponent(
+    normalizedReturnPath
+  )}`;
 
   const reportAffiliate = ({
     userEmail,
@@ -123,7 +127,7 @@ export function SignUp({
               configs.email_verification_enabled === 'true';
 
             if (emailVerificationEnabled) {
-              const normalizedCallbackUrl = stripLocalePrefix(callbackUrl);
+              const normalizedCallbackUrl = normalizedReturnPath;
               const verifyPath = `/verify-email?sent=1&email=${encodeURIComponent(
                 email
               )}&callbackUrl=${encodeURIComponent(normalizedCallbackUrl)}`;
@@ -238,17 +242,23 @@ export function SignUp({
         </div>
       </CardContent>
       {isEmailAuthEnabled && (
-        <CardFooter>
-          <div className="flex w-full justify-center border-t py-4">
+        <CardFooter className="flex-col gap-3">
+          <div className="flex w-full justify-center border-t pt-4">
             <p className="text-center text-xs text-neutral-500">
               {t('already_have_account')}
-              <Link href="/sign-in" className="underline">
+              <Link href={signInHref} className="underline">
                 <span className="cursor-pointer dark:text-white/70">
                   {t('sign_in_title')}
                 </span>
               </Link>
             </p>
           </div>
+          <Link
+            href={normalizedReturnPath}
+            className="text-muted-foreground text-xs underline-offset-4 hover:underline"
+          >
+            Continue without signing up
+          </Link>
         </CardFooter>
       )}
     </Card>

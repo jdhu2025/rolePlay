@@ -56,6 +56,9 @@ export function SignInForm({
       return path.slice(locale.length + 1) || '/';
     return path;
   };
+  const signUpHref = `/sign-up?callbackUrl=${encodeURIComponent(
+    stripLocalePrefix(callbackUrl || '/')
+  )}`;
 
   const handleSignIn = async () => {
     if (loading) {
@@ -197,7 +200,7 @@ export function SignInForm({
         <div className="flex w-full justify-center border-t py-4">
           <p className="text-center text-xs text-neutral-500">
             {t('no_account')}
-            <Link href="/sign-up" className="underline">
+            <Link href={signUpHref} className="underline">
               <span className="cursor-pointer dark:text-white/70">
                 {t('sign_up_title')}
               </span>

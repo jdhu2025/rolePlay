@@ -87,6 +87,10 @@ import {
   markFirstExperienceConversationFlag,
   parseFirstExperienceState,
 } from '@/shared/lib/roleplay-first-experience';
+import {
+  rememberRoleplayReturnPath,
+  withRoleplayCallbackUrl,
+} from '@/shared/lib/roleplay-return';
 import { parseMessage } from '@/shared/lib/roleplay-message-format';
 import { recordRoleplayMomentEvent } from '@/shared/lib/roleplay-moment-events';
 import { cn } from '@/shared/lib/utils';
@@ -395,6 +399,27 @@ export function RoleplayChat({ characterId }: Props) {
     setErrorMessage('');
     setInsufficientCredits(null);
   }, []);
+
+  const redirectToBillingGate = useCallback(
+    (error: unknown) => {
+      if (!(error instanceof RoleplayApiError)) return false;
+
+      rememberRoleplayReturnPath();
+      if (error.authRequired) {
+        const signInUrl = error.authRequired.signInUrl || '/sign-in';
+        router.push(withRoleplayCallbackUrl(signInUrl));
+        return true;
+      }
+
+      if (error.insufficientCredits) {
+        router.push(withRoleplayCallbackUrl('/pricing'));
+        return true;
+      }
+
+      return false;
+    },
+    [router]
+  );
 
   const setRoleplayError = useCallback((error: unknown, fallback: string) => {
     setInsufficientCredits(
@@ -865,6 +890,7 @@ export function RoleplayChat({ characterId }: Props) {
         return nextMessages;
       });
     } catch (error) {
+      if (redirectToBillingGate(error)) return;
       updateMessages((currentMessages) => {
         const failedMessages = currentMessages.map((message) =>
           message.id === pendingImageMessage.id
@@ -885,7 +911,7 @@ export function RoleplayChat({ characterId }: Props) {
       });
       setRoleplayError(error, t('error'));
     }
-  }, [setRoleplayError, t, updateMessages]);
+  }, [redirectToBillingGate, setRoleplayError, t, updateMessages]);
 
   const showFirstExperienceSceneNote = useCallback(
     ({
@@ -1134,6 +1160,7 @@ export function RoleplayChat({ characterId }: Props) {
                 : message
             )
           );
+          if (redirectToBillingGate(error)) continue;
           setRoleplayError(error, t('error'));
         } finally {
           if (fallbackTimer) window.clearTimeout(fallbackTimer);
@@ -1259,6 +1286,7 @@ export function RoleplayChat({ characterId }: Props) {
       });
     } catch (error) {
       console.warn('roleplay OOC regenerate failed', error);
+      if (redirectToBillingGate(error)) return;
       setRoleplayError(error, t('error'));
     } finally {
       setRegeneratingMessageId('');
@@ -1386,12 +1414,21 @@ export function RoleplayChat({ characterId }: Props) {
         await audio.play();
       } catch (error) {
         console.warn('roleplay voice playback failed', error);
+        if (redirectToBillingGate(error)) return;
         setRoleplayError(error, t('voice_error'));
       } finally {
         setVoiceLoadingMessageId('');
       }
     },
-    [character, clearRoleplayError, setRoleplayError, t, updateMessages, voicePlayingMessageId]
+    [
+      character,
+      clearRoleplayError,
+      redirectToBillingGate,
+      setRoleplayError,
+      t,
+      updateMessages,
+      voicePlayingMessageId,
+    ]
   );
 
   const handleBack = () => {

@@ -17,6 +17,7 @@ import { Loader2, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useRouter } from '@/core/i18n/navigation';
 import type { RoleplayTTSVoiceProfile } from '@/shared/lib/ai-provider';
 
 import {
@@ -28,9 +29,15 @@ import {
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
 import {
+  createRoleplayApiError,
   createRoleplayRequestId,
   getRoleplayApiErrorMessage,
+  RoleplayApiError,
 } from '@/shared/lib/roleplay-ai';
+import {
+  rememberRoleplayReturnPath,
+  withRoleplayCallbackUrl,
+} from '@/shared/lib/roleplay-return';
 import type { RoleplayFormatStyle } from '@/shared/lib/roleplay-format-style';
 import type { PersonalityCard } from '@/shared/lib/roleplay-personality';
 import type { RoleplayStyleExample } from '@/shared/lib/roleplay-style-examples';
@@ -84,6 +91,7 @@ export function AiWriterDialog({
   onSave,
 }: Props) {
   const t = useTranslations('roleplay.create.ai_writer_dialog');
+  const router = useRouter();
 
   const [hint, setHint] = useState('');
   const [language, setLanguage] = useState<'en' | 'zh'>(defaultLanguage);
@@ -134,6 +142,19 @@ export function AiWriterDialog({
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok || (payload?.code && payload.code !== 0)) {
+        const error = createRoleplayApiError(payload, t('error'));
+        if (error.authRequired) {
+          rememberRoleplayReturnPath();
+          router.push(
+            withRoleplayCallbackUrl(error.authRequired.signInUrl || '/sign-up')
+          );
+          return;
+        }
+        if (error.insufficientCredits) {
+          rememberRoleplayReturnPath();
+          router.push(withRoleplayCallbackUrl('/pricing'));
+          return;
+        }
         setError(getRoleplayApiErrorMessage(payload, t('error')));
         return;
       }
@@ -145,11 +166,23 @@ export function AiWriterDialog({
       setDraft(next);
       setImageMeta((payload?.data?.image as ImageMeta) || null);
     } catch (e: any) {
+      if (e instanceof RoleplayApiError && e.authRequired) {
+        rememberRoleplayReturnPath();
+        router.push(
+          withRoleplayCallbackUrl(e.authRequired.signInUrl || '/sign-up')
+        );
+        return;
+      }
+      if (e instanceof RoleplayApiError && e.insufficientCredits) {
+        rememberRoleplayReturnPath();
+        router.push(withRoleplayCallbackUrl('/pricing'));
+        return;
+      }
       setError(e?.message || t('error'));
     } finally {
       setLoading(false);
     }
-  }, [hint, language, t]);
+  }, [hint, language, router, t]);
   const handleClose = useCallback(() => {
     if (loading) return;
     setDraft(null);

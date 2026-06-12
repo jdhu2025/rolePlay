@@ -7,6 +7,7 @@ import {
 } from '@/shared/lib/ai-provider';
 import { md5 } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
+import { createRoleplayAuthRequiredPayload } from '@/shared/lib/roleplay-ai';
 import {
   assertRoleplayCreditsAvailable,
   consumeRoleplayCredits,
@@ -20,7 +21,7 @@ import {
   resolveVoicePresetVoiceType,
 } from '@/shared/lib/roleplay-personality';
 import { getAllConfigs } from '@/shared/models/config';
-import { getUserInfo } from '@/shared/models/user';
+import { getOptionalUserInfo } from '@/shared/models/user';
 import { getStorageService } from '@/shared/services/storage';
 
 const MAX_TTS_TEXT_LENGTH = 500;
@@ -281,8 +282,13 @@ export async function POST(request: Request) {
       return respErr('No speakable TTS text found');
     }
 
-    const user = await getUserInfo();
-    if (!user) return respErr('no auth, please sign in');
+    const user = await getOptionalUserInfo();
+    if (!user) {
+      return respErr(
+        'no auth, please sign in',
+        createRoleplayAuthRequiredPayload()
+      );
+    }
     const idempotencyKey = getRoleplayRequestIdempotencyKey(request, requestId);
 
     const billingEntitlement = await getRoleplayBillingEntitlement(user.id);

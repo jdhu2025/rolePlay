@@ -1,4 +1,5 @@
 import { respData, respErr } from '@/shared/lib/resp';
+import { createRoleplayAuthRequiredPayload } from '@/shared/lib/roleplay-ai';
 import {
   assertRoleplayCreditsAvailable,
   consumeRoleplayCredits,
@@ -13,7 +14,7 @@ import {
   RoleplayVisibility,
   updateRoleplayCharacter,
 } from '@/shared/models/roleplay';
-import { getUserInfo } from '@/shared/models/user';
+import { getOptionalUserInfo } from '@/shared/models/user';
 
 /**
  * Publish a character from DRAFT (or REJECTED).
@@ -33,8 +34,13 @@ export async function POST(
 ) {
   try {
     const { id } = await context.params;
-    const user = await getUserInfo();
-    if (!user) return respErr('no auth, please sign in');
+    const user = await getOptionalUserInfo();
+    if (!user) {
+      return respErr(
+        'no auth, please sign in',
+        createRoleplayAuthRequiredPayload()
+      );
+    }
 
     const character = await findRoleplayCharacterById(id);
     if (!character || character.userId !== user.id) {

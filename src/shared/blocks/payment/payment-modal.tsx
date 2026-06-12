@@ -21,6 +21,10 @@ import {
 } from '@/shared/components/ui/drawer';
 import { useAppContext } from '@/shared/contexts/app';
 import { useMediaQuery } from '@/shared/hooks/use-media-query';
+import {
+  getCurrentRoleplayReturnPath,
+  readRememberedRoleplayReturnPath,
+} from '@/shared/lib/roleplay-return';
 import { PricingItem } from '@/shared/types/blocks/pricing';
 
 import { PaymentProviders } from './payment-providers';
@@ -38,8 +42,9 @@ export function PaymentModal({
   const { isShowPaymentModal, setIsShowPaymentModal } = useAppContext();
   const { configs } = useAppContext();
 
-  // todo: dynamic set callbackURL
-  const callbackURL = '/';
+  const callbackURL = readRememberedRoleplayReturnPath(
+    getCurrentRoleplayReturnPath()
+  );
 
   const isDesktop = useMediaQuery('(min-width: 768px)');
 

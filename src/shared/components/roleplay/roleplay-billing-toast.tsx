@@ -4,9 +4,14 @@ import { toast } from 'sonner';
 
 import {
   getRoleplayApiErrorMessage,
+  parseRoleplayAuthRequiredPayload,
   parseRoleplayInsufficientCreditsPayload,
   RoleplayApiError,
 } from '@/shared/lib/roleplay-ai';
+import {
+  rememberRoleplayReturnPath,
+  withRoleplayCallbackUrl,
+} from '@/shared/lib/roleplay-return';
 
 function getInsufficientCreditsPayload(source: unknown) {
   if (source instanceof RoleplayApiError && source.insufficientCredits) {
@@ -19,13 +24,13 @@ function getInsufficientCreditsPayload(source: unknown) {
   );
 }
 
-function getPricingActionLabel() {
-  if (typeof navigator !== 'undefined') {
-    const language = navigator.language.toLowerCase();
-    if (language.startsWith('zh')) return '查看套餐';
+function getAuthRequiredPayload(source: unknown) {
+  if (source instanceof RoleplayApiError && source.authRequired) {
+    return source.authRequired;
   }
 
-  return 'View plans';
+  if (!source || typeof source !== 'object') return null;
+  return parseRoleplayAuthRequiredPayload((source as Record<string, unknown>).data);
 }
 
 export function showRoleplayApiErrorToast(
@@ -33,22 +38,27 @@ export function showRoleplayApiErrorToast(
   fallback = 'RolePlay request failed'
 ) {
   const insufficientCredits = getInsufficientCreditsPayload(source);
+  const authRequired = getAuthRequiredPayload(source);
   const message =
     source instanceof Error
       ? source.message
       : getRoleplayApiErrorMessage(source, fallback);
 
-  toast.error(
-    message,
-    insufficientCredits
-      ? {
-          action: {
-            label: getPricingActionLabel(),
-            onClick: () => {
-              window.location.href = '/pricing';
-            },
-          },
-        }
-      : undefined
-  );
+  if (authRequired) {
+    toast.error(message);
+    rememberRoleplayReturnPath();
+    window.location.href = withRoleplayCallbackUrl(
+      authRequired.signInUrl || '/sign-up'
+    );
+    return;
+  }
+
+  if (insufficientCredits) {
+    toast.error(message);
+    rememberRoleplayReturnPath();
+    window.location.href = withRoleplayCallbackUrl('/pricing');
+    return;
+  }
+
+  toast.error(message);
 }

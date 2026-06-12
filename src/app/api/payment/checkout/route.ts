@@ -19,10 +19,30 @@ import { getUserInfo } from '@/shared/models/user';
 import { getPaymentService } from '@/shared/services/payment';
 import { PricingCurrency } from '@/shared/types/blocks/pricing';
 
+function safeInternalCallbackUrl(raw: unknown) {
+  if (typeof raw !== 'string') return '';
+  if (!raw.startsWith('/') || raw.startsWith('//')) return '';
+  if (
+    raw.startsWith('/sign-in') ||
+    raw.startsWith('/sign-up') ||
+    raw.startsWith('/pricing') ||
+    raw.startsWith('/api/')
+  ) {
+    return '';
+  }
+  return raw;
+}
+
 export async function POST(req: Request) {
   try {
-    const { product_id, currency, locale, payment_provider, metadata } =
-      await req.json();
+    const {
+      product_id,
+      currency,
+      locale,
+      payment_provider,
+      metadata,
+      callbackUrl,
+    } = await req.json();
     if (!product_id) {
       return respErr('product_id is required');
     }
@@ -203,8 +223,10 @@ export async function POST(req: Request) {
       callbackBaseUrl += `/${locale}`;
     }
 
-    const callbackUrl =
-      paymentType === PaymentType.SUBSCRIPTION
+    const returnPath = safeInternalCallbackUrl(callbackUrl);
+    const orderCallbackUrl = returnPath
+      ? `${callbackBaseUrl}${returnPath === '/' ? '' : returnPath}`
+      : paymentType === PaymentType.SUBSCRIPTION
         ? `${callbackBaseUrl}/settings/billing`
         : `${callbackBaseUrl}/settings/payments`;
 
@@ -223,7 +245,9 @@ export async function POST(req: Request) {
         ...(metadata || {}),
       },
       successUrl: `${configs.app_url}/api/payment/callback?order_no=${orderNo}`,
-      cancelUrl: `${callbackBaseUrl}/pricing`,
+      cancelUrl: returnPath
+        ? orderCallbackUrl
+        : `${callbackBaseUrl}/pricing`,
     };
 
     // checkout with predefined product
@@ -269,7 +293,7 @@ export async function POST(req: Request) {
       updatedAt: currentTime,
       productName: pricingItem.product_name,
       description: pricingItem.description,
-      callbackUrl: callbackUrl,
+      callbackUrl: orderCallbackUrl,
       creditsAmount: pricingItem.credits,
       creditsValidDays: pricingItem.valid_days,
       planName: pricingItem.plan_name || '',

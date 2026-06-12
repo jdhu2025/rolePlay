@@ -23,6 +23,7 @@
 | 2026-06-12 | fixed | 复测“你在干嘛”时定位到聊天主链路的部分 DB 写操作缺少 transient retry；已给创建会话、写消息、更新会话状态/记忆、角色计数、质量事件写入补 `withTransientDatabaseRetry`，并新增 `scripts/check-roleplay-db-retry.ts` 防回退。 |
 | 2026-06-12 | verified | 修复后浏览器再次发送“你在干嘛”，页面未出现 `Database connection was interrupted` 或 `Could not get a reply`，Chloe 正常回复并接上未完成草图种子。bb-browser CLI 仍因 daemon 初始化超时无法读取，但 in-app browser 已确认页面结果。 |
 | 2026-06-12 | fixed | 用户提供后台事实日志：`failed to dial to edge with quic: timeout: no recent network activity`，更像 tunnel/edge 网络链路超时；同时发现聊天错误归类层把任意 `timeout` 都显示成 `Database connection was interrupted`。已新增 DB 重试内部标记，聊天 API 仅对标记过的 DB 错误显示数据库中断，其它 QUIC/tunnel/edge/timeout 显示 `Network connection was interrupted. Please retry in a moment.`，避免误导排障。 |
+| 2026-06-12 | done | 新增关系回流链路：聊天页、RolePlay toast、AI Writer 在触发登录/注册/付费 gate 前保存当前关系地址并附带 `callbackUrl`；登录页/注册页切换和放弃入口保留原关系地址；pricing/checkout 将 `callbackUrl` 写入订单，支付成功 `payment/callback` 沿用订单 callback 回到原聊天页，支付取消也回原处。新增 `scripts/check-roleplay-return-flow.mjs`，并通过 `node scripts/check-roleplay-return-flow.mjs`、`pnpm exec tsc --noEmit`、定向 eslint。 |
 
 ## 1. 当前基础
 
