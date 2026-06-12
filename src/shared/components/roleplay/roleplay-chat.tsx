@@ -27,6 +27,7 @@ import {
   Clock3,
   Coins,
   Heart,
+  Home,
   ImageOff,
   Loader2,
   MapPin,
@@ -34,6 +35,7 @@ import {
   RefreshCw,
   Send,
   Sparkles,
+  User,
   Volume2,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -58,7 +60,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/shared/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@/shared/components/ui/avatar';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import { useAppContext } from '@/shared/contexts/app';
 import {
   createRoleplayApiError,
   createRoleplayRequestId,
@@ -351,6 +367,7 @@ export function RoleplayChat({ characterId }: Props) {
   const tDetail = useTranslations('roleplay.detail');
   const tProfile = useTranslations('roleplay.profile');
   const router = useRouter();
+  const { user, isCheckSign, setIsShowSignModal } = useAppContext();
   const localCharacter = getLocalRoleplayCharacter(characterId);
   const [character, setCharacter] = useState<RoleplayCharacterClient | null>(
     localCharacter
@@ -1511,6 +1528,14 @@ export function RoleplayChat({ characterId }: Props) {
           </div>
         </div>
         <Link
+          href="/"
+          aria-label={t('home')}
+          title={t('home')}
+          className="hidden h-9 w-9 place-items-center rounded-full text-zinc-300 transition-colors hover:bg-white/8 hover:text-white sm:grid"
+        >
+          <Home size={18} aria-hidden="true" />
+        </Link>
+        <Link
           href={`/chat/profile/${character.id}/history`}
           aria-label={t('history')}
           title={t('history')}
@@ -1518,6 +1543,21 @@ export function RoleplayChat({ characterId }: Props) {
         >
           <Clock3 size={18} aria-hidden="true" />
         </Link>
+        <ChatUserMenu
+          user={user}
+          checking={isCheckSign}
+          onSignIn={() => setIsShowSignModal(true)}
+          labels={{
+            user: t('user_menu'),
+            guest: t('guest_user'),
+            guestHint: t('guest_hint'),
+            profile: t('account_profile'),
+            credits: t('account_credits'),
+            signIn: t('sign_in'),
+            home: t('home'),
+            loading: t('loading_user'),
+          }}
+        />
       </header>
 
       {showContinuationHint && continuationSeed && (
@@ -1723,6 +1763,105 @@ function FirstExperienceSceneNote({
         </button>
       </div>
     </div>
+  );
+}
+
+function ChatUserMenu({
+  user,
+  checking,
+  onSignIn,
+  labels,
+}: {
+  user: ReturnType<typeof useAppContext>['user'];
+  checking: boolean;
+  onSignIn: () => void;
+  labels: {
+    user: string;
+    guest: string;
+    guestHint: string;
+    profile: string;
+    credits: string;
+    signIn: string;
+    home: string;
+    loading: string;
+  };
+}) {
+  const displayName = user?.name?.trim() || user?.email?.trim() || labels.guest;
+  const email = user?.email?.trim();
+  const avatarFallback = displayName.slice(0, 1).toUpperCase() || 'U';
+  const remainingCredits = user?.credits?.remainingCredits ?? 0;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label={labels.user}
+          title={labels.user}
+          className="grid h-9 w-9 place-items-center rounded-full text-zinc-300 transition-colors hover:bg-white/8 hover:text-white"
+        >
+          {checking ? (
+            <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+          ) : user ? (
+            <Avatar className="h-8 w-8 border border-white/10 bg-white/8">
+              <AvatarImage src={user.image || ''} alt={displayName} />
+              <AvatarFallback className="bg-zinc-800 text-xs text-white">
+                {avatarFallback}
+              </AvatarFallback>
+            </Avatar>
+          ) : (
+            <User size={18} aria-hidden="true" />
+          )}
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-64 border-white/10 bg-[#16171b] text-zinc-100 shadow-2xl"
+      >
+        <DropdownMenuLabel className="px-3 py-2">
+          <span className="block truncate text-sm font-semibold">
+            {checking ? labels.loading : displayName}
+          </span>
+          <span className="mt-0.5 block truncate text-xs font-normal text-zinc-400">
+            {user ? email || labels.user : labels.guestHint}
+          </span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-white/10" />
+        <DropdownMenuItem asChild>
+          <Link className="cursor-pointer" href="/">
+            <Home />
+            {labels.home}
+          </Link>
+        </DropdownMenuItem>
+        {user ? (
+          <>
+            <DropdownMenuItem asChild>
+              <Link className="cursor-pointer" href="/settings/profile">
+                <User />
+                {labels.profile}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link className="cursor-pointer" href="/settings/credits">
+                <Coins />
+                {labels.credits}: {remainingCredits}
+              </Link>
+            </DropdownMenuItem>
+          </>
+        ) : (
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={(event) => {
+              event.preventDefault();
+              onSignIn();
+            }}
+          >
+            <User />
+            {labels.signIn}
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

@@ -10,6 +10,27 @@ import { getLocalPage } from '@/shared/models/post';
 
 export const revalidate = 3600;
 
+const RESERVED_APP_ROUTE_SEGMENTS = new Set([
+  'admin',
+  'api',
+  'activity',
+  'chat',
+  'create',
+  'docs',
+  'settings',
+  'sign-in',
+  'sign-up',
+]);
+
+function readSlugSegments(slug: string | string[]) {
+  return Array.isArray(slug) ? slug : [slug];
+}
+
+function isReservedAppRoute(slug: string | string[]) {
+  const [firstSegment] = readSlugSegments(slug);
+  return RESERVED_APP_ROUTE_SEGMENTS.has(firstSegment);
+}
+
 function buildDynamicPageMetadata({
   title,
   description,
@@ -41,9 +62,13 @@ function buildDynamicPageMetadata({
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; slug: string | string[] }>;
 }) {
   const { locale, slug } = await params;
+
+  if (isReservedAppRoute(slug)) {
+    return;
+  }
 
   // metadata values
   let title = '';
@@ -122,10 +147,14 @@ export async function generateMetadata({
 export default async function DynamicPage({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; slug: string | string[] }>;
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+
+  if (isReservedAppRoute(slug)) {
+    return notFound();
+  }
 
   // 1. try to get static page from
   // content/pages/**/*.mdx
