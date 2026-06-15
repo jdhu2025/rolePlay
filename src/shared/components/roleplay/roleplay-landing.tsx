@@ -622,77 +622,59 @@ function ForYouSection({
 }) {
   const t = useTranslations('roleplay.home');
   const proofPoints = t.raw('proof_points') as string[];
-  const seoLinks = t.raw('seo_links') as { label: string; href: string }[];
 
   return (
-    <section className="relative border-b border-white/5 bg-[radial-gradient(circle_at_20%_0%,rgba(244,114,182,0.14),transparent_34%),linear-gradient(115deg,#111113_0%,#101113_58%,#0b1415_100%)]">
-      <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 pb-6 pt-8 md:gap-6 md:px-6 md:pb-10 md:pt-14">
-        <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <div className="flex min-w-0 flex-col gap-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
+    <section className="relative border-b border-white/5 bg-[radial-gradient(circle_at_18%_8%,rgba(236,72,153,0.15),transparent_28%),linear-gradient(112deg,#111113_0%,#0e1012_58%,#0b1513_100%)]">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 pb-5 pt-6 md:px-6 md:pb-8 md:pt-8">
+        <header className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] lg:items-end">
+          <div className="flex min-w-0 flex-col gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
               {t('for_you')}
             </p>
-            <h1 className="max-w-3xl text-4xl font-black leading-[0.95] tracking-tight md:text-6xl">
+            <h1 className="max-w-3xl text-4xl font-black leading-none tracking-tight md:text-5xl lg:text-6xl">
               {t('seo_title')}
             </h1>
-            <p className="max-w-2xl text-base leading-relaxed text-zinc-300 md:text-lg">
+            <p className="max-w-2xl text-base leading-7 text-zinc-300 md:text-lg">
               {t('seo_subtitle')}
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-zinc-200">
               {proofPoints.map((point) => (
                 <span
                   key={point}
-                  className="rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-xs font-semibold text-zinc-200"
+                  className="inline-flex items-center gap-2 before:size-1.5 before:rounded-full before:bg-fuchsia-300/80"
                 >
                   {point}
                 </span>
               ))}
             </div>
-            <nav
-              aria-label={t('seo_links_label')}
-              className="flex flex-wrap items-center gap-2 text-xs font-semibold text-zinc-400"
-            >
-              <span className="uppercase tracking-[0.16em] text-zinc-500">
-                {t('seo_links_label')}
-              </span>
-              {seoLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 text-zinc-200 transition hover:border-white/25 hover:bg-white/[0.07] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
           </div>
-          <div className="flex flex-col gap-2 lg:items-end">
-            <div className="flex flex-wrap gap-3 lg:justify-end">
+          <div className="flex flex-col gap-3 lg:items-stretch">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
               <a
                 href="#for-you-characters"
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 <MessageCircle size={17} aria-hidden="true" />
                 {t('primary_cta')}
               </a>
               <Link
                 href="/create"
-                className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-sm font-bold text-zinc-100 transition hover:border-white/30 hover:bg-white/[0.08] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-sm font-bold text-zinc-100 transition hover:border-white/30 hover:bg-white/[0.08] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
               >
                 <Sparkles size={17} aria-hidden="true" />
                 {t('secondary_cta')}
               </Link>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs leading-relaxed text-zinc-500 lg:justify-end lg:text-right">
               <Link
                 href="/pricing"
-                className="inline-flex h-11 items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-5 text-sm font-bold text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-300/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
+                className="inline-flex items-center gap-1.5 font-semibold text-emerald-100 underline decoration-emerald-200/25 underline-offset-4 transition hover:text-emerald-50 hover:decoration-emerald-100/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
               >
-                <BadgeDollarSign size={17} aria-hidden="true" />
+                <BadgeDollarSign size={15} aria-hidden="true" />
                 {t('pricing_cta')}
               </Link>
+              <span className="max-w-[24rem]">{t('pricing_note')}</span>
             </div>
-            <p className="max-w-sm text-left text-xs leading-relaxed text-zinc-400 lg:text-right">
-              {t('pricing_note')}
-            </p>
           </div>
         </header>
 
