@@ -101,6 +101,8 @@ async function main() {
     '/ai-roleplay-shared-memory',
     '/create-ai-character-with-memory',
     '/character-ai-alternative-with-memory',
+    '/anime-character-ai-chat',
+    '/talkie-ai-alternative',
   ]) {
     assert.ok(urls.includes(`${appUrl}/en${path}`), `${path} missing for en`);
     assert.ok(urls.includes(`${appUrl}/zh${path}`), `${path} missing for zh`);

@@ -81,6 +81,7 @@ type CharacterPayload = {
   formatStyle?: Record<string, unknown>;
   model?: string;
   visibility?: string;
+  metadata?: Record<string, unknown>;
   /**
    * v2 create flow: 'draft' lands the row as a draft (private), 'under_review'
    * pushes it into the moderation queue. Legacy seed callers omit this and
@@ -118,6 +119,10 @@ async function toClientCharacter(
     (await getCharacterTagSlugs(character.id).catch(() => [] as string[]));
   const personalityCard = parsePersonalityCard(
     (character as any).personalityCard ?? '{}'
+  );
+  const metadata = safeJsonParse<Record<string, unknown>>(
+    (character as any).metadata ?? '{}',
+    {}
   );
   return {
     id: character.id,
@@ -157,6 +162,8 @@ async function toClientCharacter(
     model: character.model,
     status: character.status,
     rejectionReason: (character as any).rejectionReason ?? '',
+    metadata,
+    seoScenes: Array.isArray(metadata.seoScenes) ? metadata.seoScenes : [],
     premium: false,
     live: false,
     source: 'database',
@@ -284,6 +291,7 @@ export async function POST(request: Request) {
       metadata: serializeJson({
         source: payload.status ? 'v2-create' : 'talkie-mvp',
         humanMomentVersion: 'auto-create-v1',
+        ...(payload.metadata || {}),
       }),
     });
 

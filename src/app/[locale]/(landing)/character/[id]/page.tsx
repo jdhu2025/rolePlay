@@ -4,6 +4,11 @@ import { setRequestLocale } from 'next-intl/server';
 import { envConfigs } from '@/config';
 import { defaultLocale, localePrefix, locales } from '@/config/locale';
 import { RoleplayCharacterDetail } from '@/shared/components/roleplay/roleplay-character-detail';
+import {
+  ROLEPLAY_CHARACTER_SEO_SCENES,
+  ROLEPLAY_SEO_SCENES,
+} from '@/data/roleplay-seo-scenes';
+import { JsonLd } from '@/shared/components/seo/json-ld';
 import { buildCharacterImageUrl } from '@/shared/lib/roleplay-assets';
 import {
   getLocalRoleplayCharacter,
@@ -70,6 +75,99 @@ async function getMetadataCharacter(id: string) {
     style: settings.occupation || localCharacter.style,
     image: localCharacter.cover || localCharacter.avatar,
   };
+}
+
+function buildCharacterJsonLd({
+  id,
+  canonical,
+  character,
+}: {
+  id: string;
+  canonical: string;
+  character: NonNullable<Awaited<ReturnType<typeof getMetadataCharacter>>>;
+}) {
+  const image = absoluteImageUrl(character.image);
+  const description = compactText(
+    character.intro || character.tagline || character.opening,
+    `${character.name} AI roleplay character`
+  );
+
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ProfilePage',
+      name: `${character.name} AI Character Chat`,
+      description,
+      url: canonical,
+      image,
+      mainEntity: {
+        '@type': 'Person',
+        name: character.name,
+        image,
+        description,
+        additionalType: 'AI roleplay character',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: envConfigs.app_url,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Characters',
+          item: `${envConfigs.app_url}/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: character.name,
+          item: canonical,
+        },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: `Can I chat with ${character.name}?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: `Yes. ${character.name} is available as an AI character chat and roleplay profile on ${envConfigs.app_name}.`,
+          },
+        },
+        {
+          '@type': 'Question',
+          name: `What kind of roleplay is ${character.name} best for?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: compactText(
+              [character.style, character.scene, character.tagline]
+                .filter(Boolean)
+                .join('. '),
+              `${character.name} is designed for AI roleplay and character chat.`
+            ),
+          },
+        },
+      ],
+    },
+  ];
+}
+
+function getCharacterSeoSceneLabels(id: string, locale: string) {
+  return (ROLEPLAY_CHARACTER_SEO_SCENES[id] ?? []).map((slug) =>
+    locale.startsWith('zh')
+      ? ROLEPLAY_SEO_SCENES[slug].labelZh
+      : ROLEPLAY_SEO_SCENES[slug].labelEn
+  );
 }
 
 export async function generateMetadata({
@@ -154,6 +252,19 @@ export default async function CharacterProfilePage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
+  const canonical = buildLocalizedUrl(`/character/${id}`, locale, {
+    appUrl: envConfigs.app_url,
+    defaultLocale,
+    localePrefix,
+  });
+  const character = await getMetadataCharacter(id);
 
-  return <RoleplayCharacterDetail characterId={id} />;
+  return (
+    <>
+      {character ? (
+        <JsonLd data={buildCharacterJsonLd({ id, canonical, character })} />
+      ) : null}
+      <RoleplayCharacterDetail characterId={id} />
+    </>
+  );
 }

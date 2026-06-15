@@ -15,11 +15,20 @@ const ALLOWED_EVENT_TYPES = new Set([
   'wrap_up_clicked',
   'local_fallback_shown',
   'keepsake_voice_clicked',
+  'seo_scene_link_clicked',
+  'seo_landing_cta_clicked',
+  'quick_create_intent_selected',
+  'quick_create_inspiration_selected',
+  'quick_create_template_selected',
+  'quick_create_generated',
+  'quick_create_published',
   ...FIRST_EXPERIENCE_EVENT_TYPES,
 ]);
 
 function compactString(value: unknown, maxLength = 240) {
-  return String(value || '').trim().slice(0, maxLength);
+  return String(value || '')
+    .trim()
+    .slice(0, maxLength);
 }
 
 function normalizeMetadata(raw: unknown) {
@@ -61,8 +70,9 @@ export async function POST(req: Request) {
     let conversationId: string | undefined;
 
     if (requestedCharacterId) {
-      const character = await findRoleplayCharacterById(requestedCharacterId)
-        .catch(() => null);
+      const character = await findRoleplayCharacterById(
+        requestedCharacterId
+      ).catch(() => null);
       if (character) characterId = character.id;
     }
 

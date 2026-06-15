@@ -55,6 +55,25 @@
       "Fictional, anime, and story roles",
       "Voice and character image moments"
     ],
+    "seo_links_label": "Guides",
+    "seo_links": [
+      {
+        "label": "AI companion memory",
+        "href": "/ai-companion-that-remembers-you"
+      },
+      {
+        "label": "Anime character chat",
+        "href": "/anime-character-ai-chat"
+      },
+      {
+        "label": "Create a character",
+        "href": "/create-ai-character-with-memory"
+      },
+      {
+        "label": "Talkie alternative",
+        "href": "/talkie-ai-alternative"
+      }
+    ],
     "explore_label": "Explore",
     "tasks": "Complete your tasks",
     "tasks_subtitle": "Helper bots that complete practical jobs inside a roleplay shell.",

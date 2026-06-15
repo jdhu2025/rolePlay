@@ -36,6 +36,42 @@ const STATIC_PUBLIC_PATHS: SitemapInput[] = [
     priority: 0.8,
   },
   {
+    path: '/free-ai-character-chat',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.9,
+  },
+  {
+    path: '/ai-character-chat-with-memory',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.9,
+  },
+  {
+    path: '/anime-ai-roleplay-characters',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.88,
+  },
+  {
+    path: '/crush-ai-chat',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.86,
+  },
+  {
+    path: '/comfort-ai-companion',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.86,
+  },
+  {
+    path: '/custom-ai-character-creator',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.88,
+  },
+  {
     path: '/privacy-policy',
     locales,
     changeFrequency: 'monthly',
@@ -85,6 +121,18 @@ const STATIC_PUBLIC_PATHS: SitemapInput[] = [
   },
   {
     path: '/character-ai-alternative-with-memory',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  },
+  {
+    path: '/anime-character-ai-chat',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  },
+  {
+    path: '/talkie-ai-alternative',
     locales,
     changeFrequency: 'weekly',
     priority: 0.8,

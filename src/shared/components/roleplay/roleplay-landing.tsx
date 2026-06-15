@@ -258,6 +258,7 @@ export function RoleplayLanding({ initialData }: Props) {
       <FirstExperienceDirector
         onSelected={refreshRecommendationsForExperience}
       />
+      <SeoSceneRail />
       <ForYouSection
         characters={recommendedCharacters}
         loading={recommendationsLoading}
@@ -329,6 +330,77 @@ export function RoleplayLanding({ initialData }: Props) {
       <div ref={sentinelRef} aria-hidden="true" className="h-1 w-full" />
       <RoleplayHomeFooter />
     </main>
+  );
+}
+
+function SeoSceneRail() {
+  const locale = useLocale();
+  const isZh = locale.startsWith('zh');
+  const scenes = [
+    {
+      href: '/free-ai-character-chat',
+      labelEn: 'Free AI character chat',
+      labelZh: '免费 AI 角色聊天',
+      descriptionEn: 'Start with public characters before creating your own.',
+      descriptionZh: '先体验公共角色，再创建自己的私有角色。',
+    },
+    {
+      href: '/ai-character-chat-with-memory',
+      labelEn: 'AI chat with memory',
+      labelZh: '带记忆的 AI 聊天',
+      descriptionEn: 'For companions that can return to your story.',
+      descriptionZh: '适合想要故事能接上的陪伴体验。',
+    },
+    {
+      href: '/anime-ai-roleplay-characters',
+      labelEn: 'Anime roleplay',
+      labelZh: '动漫角色扮演',
+      descriptionEn: 'Original anime companions and fantasy scenes.',
+      descriptionZh: '原创动漫角色和幻想场景。',
+    },
+    {
+      href: '/custom-ai-character-creator',
+      labelEn: 'Custom creator',
+      labelZh: '自定义角色创建',
+      descriptionEn: 'Use cozy, anime, crush, or private memory templates.',
+      descriptionZh: '使用治愈、动漫、心动或私有记忆模板。',
+    },
+  ];
+
+  return (
+    <section className="border-b border-white/6 bg-[#101114]">
+      <div className="mx-auto max-w-6xl px-4 py-5 md:px-6">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          {isZh ? '按场景开始' : 'Start by scene'}
+        </p>
+        <div className="mt-3 grid gap-2 md:grid-cols-4">
+          {scenes.map((scene) => (
+            <Link
+              key={scene.href}
+              href={scene.href}
+              onClick={() =>
+                recordRoleplayMomentEvent({
+                  eventType: 'seo_scene_link_clicked',
+                  metadata: {
+                    surface: 'home_scene_rail',
+                    href: scene.href,
+                    label: isZh ? scene.labelZh : scene.labelEn,
+                  },
+                })
+              }
+              className="min-h-24 rounded-[18px] border border-white/10 bg-white/[0.035] p-3 transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07]"
+            >
+              <span className="block text-sm font-semibold text-white">
+                {isZh ? scene.labelZh : scene.labelEn}
+              </span>
+              <span className="mt-1 block text-xs leading-snug text-zinc-500">
+                {isZh ? scene.descriptionZh : scene.descriptionEn}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -550,6 +622,7 @@ function ForYouSection({
 }) {
   const t = useTranslations('roleplay.home');
   const proofPoints = t.raw('proof_points') as string[];
+  const seoLinks = t.raw('seo_links') as { label: string; href: string }[];
 
   return (
     <section className="relative border-b border-white/5 bg-[radial-gradient(circle_at_20%_0%,rgba(244,114,182,0.14),transparent_34%),linear-gradient(115deg,#111113_0%,#101113_58%,#0b1415_100%)]">
@@ -575,6 +648,23 @@ function ForYouSection({
                 </span>
               ))}
             </div>
+            <nav
+              aria-label={t('seo_links_label')}
+              className="flex flex-wrap items-center gap-2 text-xs font-semibold text-zinc-400"
+            >
+              <span className="uppercase tracking-[0.16em] text-zinc-500">
+                {t('seo_links_label')}
+              </span>
+              {seoLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 text-zinc-200 transition hover:border-white/25 hover:bg-white/[0.07] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           </div>
           <div className="flex flex-col gap-2 lg:items-end">
             <div className="flex flex-wrap gap-3 lg:justify-end">

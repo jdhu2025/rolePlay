@@ -1,4 +1,8 @@
 import { ROLEPLAY_OFFICIAL_CHARACTERS } from '@/data/roleplay-characters';
+import {
+  getRoleplayCharacterSeoScenes,
+  type RoleplaySeoSceneSlug,
+} from '@/data/roleplay-seo-scenes';
 
 import type { RoleplayFormatStyle } from '@/shared/lib/roleplay-format-style';
 import {
@@ -33,6 +37,8 @@ export type RoleplayCharacterClient = {
   gallery: string[];
   tags: string[];
   tagSlugs: string[];
+  seoScenes?: RoleplaySeoSceneSlug[];
+  metadata?: Record<string, unknown>;
   stats: string;
   chatCount?: number;
   likeCount?: number;
@@ -157,6 +163,7 @@ export const OFFICIAL_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
       gallery,
       tags: character.tags,
       tagSlugs: character.tagSlugs,
+      seoScenes: getRoleplayCharacterSeoScenes(character.id),
       stats: '0',
       follows: 'Public',
       style: character.occupation,

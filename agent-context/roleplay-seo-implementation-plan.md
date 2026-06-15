@@ -1,6 +1,24 @@
 # RolePlay SEO Implementation Plan
 
-Last updated: 2026-06-09 17:32 Asia/Shanghai
+Last updated: 2026-06-15 Asia/Shanghai
+
+## Remaining Todo
+
+- [ ] Run real browser screenshot QA for homepage, Quick Create, and the new
+  SEO landing pages after the local dev-server lock is cleared or Playwright is
+  installed. Current coverage includes build, route status, and HTML checks.
+- [ ] Review SEO conversion events after production traffic starts:
+  `seo_scene_link_clicked`, `seo_landing_cta_clicked`, and `quick_create_*`.
+- [ ] Decide whether to promote `seoScenes`, `sourceTemplateId`,
+  `customizationMode`, and `landingSlug` from JSON metadata into database
+  columns after conversion data is available.
+- [ ] Expand high-fit character assets based on search and conversion data,
+  especially for memory companion, comfort companion, and private character
+  intents.
+- [ ] Use Google Search Console after deployment to review impressions, clicks,
+  and query clusters for the new scene landing pages.
+- [ ] Consider adding Playwright screenshot regression tests if UI iteration on
+  these pages becomes frequent.
 
 ## Goal
 
@@ -398,6 +416,23 @@ required competitor-alternative pages.
 - [x] Add `keepsay.dpdns.org` to Vercel and set production `NEXT_PUBLIC_APP_URL=https://keepsay.dpdns.org`.
 - [x] Submit `https://keepsay.dpdns.org/sitemap.xml` in Google Search Console after DNS and Vercel are live.
 
+## SEO Growth Backlog
+
+Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
+
+| ID | Task | Status | Priority | Notes |
+| --- | --- | --- | --- | --- |
+| SEO-G1 | Build `/anime-character-ai-chat` localized landing pages and add them to sitemap/tests | ✅ done | P0 | Added English and Chinese MDX pages, sitemap entries, and URL rule coverage. Targets `anime character ai chat`, `anime AI roleplay`, and `what app lets you chat with anime characters`. |
+| SEO-G2 | Build `/talkie-ai-alternative` localized landing pages and add them to sitemap/tests | ✅ done | P0 | Added English and Chinese MDX pages, sitemap entries, and URL rule coverage for users searching `talkie ai alternative` and apps like Talkie. |
+| SEO-G3 | Build `/create-ai-character-free` localized landing pages and add them to sitemap/tests | ⏳ pending | P1 | Creation-intent page from the earlier recommended order; can cross-link to `/create-ai-character-with-memory`. |
+| SEO-G4 | Build `/character-ai-alternative` localized landing pages and add them to sitemap/tests | ⏳ pending | P1 | Broader competitor-alternative page; keep safety/no-filter wording careful and boundary-aware. |
+| SEO-G5 | Build `/polybuzz-alternative` localized landing pages and add them to sitemap/tests | ⏳ pending | P2 | Optional competitor page after Talkie and Character.AI alternatives are live. |
+| SEO-G6 | Add homepage and SEO-page internal links to the primary and growth landing pages | ✅ done | P0 | Added homepage guide links plus related-guide sections across the primary and growth SEO landing pages to concentrate authority around memory, anime roleplay, creation, and alternatives. |
+| SEO-G7 | Add character detail page cross-links to relevant SEO pages | ⏳ pending | P1 | Link anime characters toward anime chat intent and memory-oriented profiles toward memory pages. |
+| SEO-G8 | Run final-domain PageSpeed Insights for core SEO pages and record results | ⏳ pending | P1 | Re-run against `https://keepsay.dpdns.org` after new pages ship. |
+| SEO-G9 | Run Google Search Console URL Inspection for homepage, primary SEO pages, and new growth pages | ⏳ pending | P1 | Track indexing status, canonical selected by Google, and crawl issues. |
+| SEO-G10 | SERP-validate each new page target before or immediately after publishing | ⏳ pending | P1 | Follow the SERP validation workflow above; prioritize terms where forums, Reddit, Quora, or thin pages rank. |
+
 ## Verification Log
 
 - `node --import tsx scripts/check-seo-url-rules.ts`: passed. Confirms `/en`, `/zh`, localized character URLs, the `keepsay.dpdns.org` canonical host, and primary SEO landing sitemap URLs follow `localePrefix = always`.
@@ -413,6 +448,8 @@ alternative`, and `PolyBuzz alternative`.
 - Production `curl` checks after deployment: `/en`, `/en/ai-companion-that-remembers-you`, `/robots.txt`, and `/sitemap.xml` returned 200. Robots points to `https://keepsay.dpdns.org/sitemap.xml`; sitemap includes the primary SEO landing URLs.
 - Follow-up local checks after Open Graph/contact cleanup: `pnpm exec fumadocs-mdx`, `node --import tsx scripts/check-seo-url-rules.ts`, `node --import tsx scripts/check-seo-copy.ts`, `pnpm exec tsc --noEmit`, `pnpm lint`, and `pnpm build` passed.
 - Google Search Console sitemap submission: completed externally for `https://keepsay.dpdns.org/sitemap.xml`.
+- SEO-G1/G2 local verification: `pnpm exec fumadocs-mdx`, `node --import tsx scripts/check-seo-url-rules.ts`, `node --import tsx scripts/check-seo-copy.ts`, `pnpm exec tsc --noEmit`, `pnpm lint`, and `pnpm build` passed. Local sitemap checks and build still log `DATABASE_URL is not set`, then use the intended local fallback for roleplay character sitemap entries.
+- SEO-G6 local verification: `pnpm exec fumadocs-mdx`, `node --import tsx scripts/check-seo-url-rules.ts`, `node --import tsx scripts/check-seo-copy.ts`, `pnpm exec tsc --noEmit`, `pnpm lint`, and `pnpm build` passed. Browser automation was not available in the current tool context, so verification relied on build, lint, generated MDX source, and content/link inspection.
 
 ## Status Log
 
@@ -442,3 +479,6 @@ alternative`, and `PolyBuzz alternative`.
 - 2026-06-09 17:20: Pushed `main` through `f409f80`, deploying the Keepsay SEO code to production.
 - 2026-06-09 17:32: Production verification found the new SEO page live and sitemap/robots on the Keepsay host. Added a follow-up cleanup for dynamic-page `og:url` and user-visible `your-domain.com` placeholders.
 - 2026-06-09 17:40: Google Search Console sitemap submission completed for `https://keepsay.dpdns.org/sitemap.xml`; SEO implementation plan is fully checked off.
+- 2026-06-13 00:00: Re-opened SEO planning for the next growth phase. Added `SEO Growth Backlog` with pending landing pages, internal-linking work, PageSpeed/Search Console checks, and SERP validation follow-ups.
+- 2026-06-13 11:09: Completed SEO-G1 and SEO-G2. Added first-pass localized MDX pages for `/anime-character-ai-chat` and `/talkie-ai-alternative`, added both paths to the dynamic sitemap and SEO URL rule checks, regenerated MDX source, and verified with SEO scripts, typecheck, lint, and production build.
+- 2026-06-13 11:17: Completed SEO-G6. Added homepage guide links and related-guide link sections across the primary and growth SEO landing pages, then verified MDX generation, SEO scripts, typecheck, lint, and production build.

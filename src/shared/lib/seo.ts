@@ -10,6 +10,14 @@ export function getMetadata(
     title?: string;
     description?: string;
     keywords?: string;
+    localized?: Record<
+      string,
+      {
+        title?: string;
+        description?: string;
+        keywords?: string;
+      }
+    >;
     metadataKey?: string;
     canonicalUrl?: string; // relative path or full url
     imageUrl?: string;
@@ -24,12 +32,13 @@ export function getMetadata(
   }) {
     const { locale } = await params;
     setRequestLocale(locale);
+    const localizedOptions = options.localized?.[locale];
 
     // passed metadata
     const passedMetadata = {
-      title: options.title,
-      description: options.description,
-      keywords: options.keywords,
+      title: localizedOptions?.title || options.title,
+      description: localizedOptions?.description || options.description,
+      keywords: localizedOptions?.keywords || options.keywords,
     };
 
     // default metadata

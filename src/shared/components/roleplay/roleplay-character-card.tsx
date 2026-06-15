@@ -15,10 +15,14 @@
  */
 
 import { MessageCircle } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Link, useRouter } from '@/core/i18n/navigation';
+import {
+  ROLEPLAY_SEO_SCENES,
+  type RoleplaySeoSceneSlug,
+} from '@/data/roleplay-seo-scenes';
 import { PhotoCarousel } from '@/shared/components/roleplay/photo-carousel';
 import {
   type RoleplayCharacterClient,
@@ -47,8 +51,10 @@ export function RoleplayCharacterCard({
   const settings = readCharacterSettings(character);
   const location = settings.location || character.scene || '';
   const tagSlice = character.tags.slice(0, 3);
+  const sceneSlice = (character.seoScenes || []).slice(0, 2);
   const router = useRouter();
   const tHome = useTranslations('roleplay.home');
+  const locale = useLocale();
   const [previewing, setPreviewing] = useState(false);
   const [typedGreeting, setTypedGreeting] = useState('');
   const prefetchedRef = useRef(false);
@@ -200,6 +206,24 @@ export function RoleplayCharacterCard({
                 {tag}
               </li>
             ))}
+          </ul>
+        )}
+
+        {sceneSlice.length > 0 && (
+          <ul className="flex min-w-0 flex-wrap gap-1.5 overflow-hidden">
+            {sceneSlice.map((slug) => {
+              const scene = ROLEPLAY_SEO_SCENES[slug as RoleplaySeoSceneSlug];
+              if (!scene) return null;
+              const label = locale.startsWith('zh') ? scene.labelZh : scene.labelEn;
+              return (
+                <li
+                  key={slug}
+                  className="inline-flex max-w-full items-center truncate rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-zinc-300"
+                >
+                  {label}
+                </li>
+              );
+            })}
           </ul>
         )}
       </Link>

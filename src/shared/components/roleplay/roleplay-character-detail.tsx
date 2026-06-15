@@ -13,13 +13,18 @@
  */
 
 import { ArrowLeft, MessageCircle } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { Link } from '@/core/i18n/navigation';
 import { CommentBoard } from '@/shared/components/roleplay/comment-board';
 import { PhotoCarousel } from '@/shared/components/roleplay/photo-carousel';
+import { TrackedRoleplayLink } from '@/shared/components/roleplay/tracked-roleplay-link';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import {
+  ROLEPLAY_CHARACTER_SEO_SCENES,
+  ROLEPLAY_SEO_SCENES,
+} from '@/data/roleplay-seo-scenes';
 import {
   fetchRoleplayCharacter,
   getLocalRoleplayCharacter,
@@ -34,6 +39,8 @@ type Props = {
 export function RoleplayCharacterDetail({ characterId }: Props) {
   const t = useTranslations('roleplay.detail');
   const tPicker = useTranslations('roleplay.picker');
+  const locale = useLocale();
+  const isZh = locale.startsWith('zh');
   const localCharacter = getLocalRoleplayCharacter(characterId);
   const [character, setCharacter] = useState<RoleplayCharacterClient | null>(
     localCharacter
@@ -77,6 +84,17 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
   const occupation = settings.occupation || character.style;
   const location = settings.location || character.scene;
   const chatHref = `/chat/profile/${character.id}`;
+  const sceneLinks = (ROLEPLAY_CHARACTER_SEO_SCENES[character.id] ?? [])
+    .map((slug) => {
+      const scene = ROLEPLAY_SEO_SCENES[slug];
+      if (!scene) return null;
+      return {
+        slug,
+        label: isZh ? scene.labelZh : scene.labelEn,
+        href: `/${scene.landingSlug}`,
+      };
+    })
+    .filter(Boolean) as Array<{ slug: string; label: string; href: string }>;
 
   return (
     <main className="min-h-dvh bg-[#0d0d10] text-white">
@@ -136,6 +154,29 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
             {character.personality.length > 0 && (
               <Section title={t('personality')}>
                 <ChipRow items={character.personality} tone="muted" />
+              </Section>
+            )}
+
+            {sceneLinks.length > 0 && (
+              <Section title={isZh ? '适合场景' : 'Best for'}>
+                <ul className="flex flex-wrap gap-1.5">
+                  {sceneLinks.map((scene) => (
+                    <li key={scene.slug}>
+                      <TrackedRoleplayLink
+                        href={scene.href}
+                        eventType="seo_scene_link_clicked"
+                        eventMetadata={{
+                          surface: 'character_detail_best_for',
+                          characterId: character.id,
+                          scene: scene.slug,
+                        }}
+                        className="inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300 transition hover:bg-white/10 hover:text-white"
+                      >
+                        {scene.label}
+                      </TrackedRoleplayLink>
+                    </li>
+                  ))}
+                </ul>
               </Section>
             )}
 

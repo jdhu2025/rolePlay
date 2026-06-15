@@ -8,6 +8,13 @@ export type RoleplayMomentEventType =
   | 'wrap_up_clicked'
   | 'local_fallback_shown'
   | 'keepsake_voice_clicked'
+  | 'seo_scene_link_clicked'
+  | 'seo_landing_cta_clicked'
+  | 'quick_create_intent_selected'
+  | 'quick_create_inspiration_selected'
+  | 'quick_create_template_selected'
+  | 'quick_create_generated'
+  | 'quick_create_published'
   | (typeof FIRST_EXPERIENCE_EVENT_TYPES)[number];
 
 type RoleplayMomentEventPayload = {

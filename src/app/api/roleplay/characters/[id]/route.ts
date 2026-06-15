@@ -72,6 +72,7 @@ type UpdatePayload = {
   formatStyle?: Record<string, unknown>;
   model?: string;
   visibility?: string;
+  metadata?: Record<string, unknown>;
 };
 
 function normalizeVoiceProfileId(raw: unknown) {
@@ -88,6 +89,10 @@ async function toClientCharacter(character: RoleplayCharacter) {
   );
   const personalityCard = parsePersonalityCard(
     (character as any).personalityCard ?? '{}'
+  );
+  const metadata = safeJsonParse<Record<string, unknown>>(
+    (character as any).metadata ?? '{}',
+    {}
   );
   return {
     id: character.id,
@@ -128,6 +133,8 @@ async function toClientCharacter(character: RoleplayCharacter) {
     status: character.status,
     visibility: character.visibility,
     rejectionReason: (character as any).rejectionReason ?? '',
+    metadata,
+    seoScenes: Array.isArray(metadata.seoScenes) ? metadata.seoScenes : [],
     premium: false,
     live: false,
     source: 'database',
@@ -260,6 +267,15 @@ export async function PATCH(
         payload.visibility === RoleplayVisibility.PUBLIC
           ? RoleplayVisibility.PUBLIC
           : RoleplayVisibility.PRIVATE;
+    }
+    if (payload.metadata !== undefined) {
+      update.metadata = serializeJson({
+        ...safeJsonParse<Record<string, unknown>>(
+          (character as any).metadata ?? '{}',
+          {}
+        ),
+        ...payload.metadata,
+      });
     }
 
     // Save flips REJECTED back to DRAFT so the user can iterate. Other states

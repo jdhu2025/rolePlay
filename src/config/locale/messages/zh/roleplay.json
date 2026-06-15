@@ -55,6 +55,25 @@
       "虚构、动漫、故事角色",
       "语音和角色图片瞬间"
     ],
+    "seo_links_label": "指南",
+    "seo_links": [
+      {
+        "label": "AI 伴侣记忆",
+        "href": "/ai-companion-that-remembers-you"
+      },
+      {
+        "label": "动漫角色聊天",
+        "href": "/anime-character-ai-chat"
+      },
+      {
+        "label": "创建 AI 角色",
+        "href": "/create-ai-character-with-memory"
+      },
+      {
+        "label": "Talkie 替代品",
+        "href": "/talkie-ai-alternative"
+      }
+    ],
     "explore_label": "探索更多",
     "tasks": "完成你的任务",
     "tasks_subtitle": "用角色扮演外壳完成真实任务的助手。",

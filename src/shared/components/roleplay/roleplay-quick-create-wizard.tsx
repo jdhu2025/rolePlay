@@ -23,6 +23,13 @@ import {
   ROLEPLAY_QUICK_CREATE_TEMPLATES,
   type QuickCreateTemplate,
 } from '@/data/roleplay-quick-create-templates';
+import {
+  getQuickCreateGrowthMetadata,
+  QUICK_CREATE_INTENT_GROUPS,
+  QUICK_CREATE_INSPIRATIONS,
+  type QuickCreateIntentCategory,
+  type QuickCreateInspirationType,
+} from '@/data/roleplay-seo-scenes';
 import { useRouter } from '@/core/i18n/navigation';
 import type { AiWriterDraft } from '@/shared/components/roleplay/ai-writer-dialog';
 import { showRoleplayApiErrorToast } from '@/shared/components/roleplay/roleplay-billing-toast';
@@ -32,6 +39,7 @@ import {
   createRoleplayApiError,
   createRoleplayRequestId,
 } from '@/shared/lib/roleplay-ai';
+import { recordRoleplayMomentEvent } from '@/shared/lib/roleplay-moment-events';
 import { cn } from '@/shared/lib/utils';
 
 type QuickStep = 'template' | 'traits' | 'relationship' | 'memory' | 'preview';
@@ -73,24 +81,12 @@ const QUICK_STEPS: QuickStep[] = [
   'preview',
 ];
 
-const TEMPLATE_GROUPS = [
-  {
-    id: 'romance',
-    categories: ['romance'],
-  },
-  {
-    id: 'workplace',
-    categories: ['workplace'],
-  },
-  {
-    id: 'daily',
-    categories: ['daily'],
-  },
-  {
-    id: 'fantasy',
-    categories: ['fantasy', 'adventure'],
-  },
-] as const;
+const QUICK_CREATE_INSPIRATION_ORDER: QuickCreateInspirationType[] = [
+  'cozy_companion',
+  'anime_mage',
+  'crush_chat_template',
+  'private_memory_companion',
+];
 
 const MEMORY_CHIPS = [
   {
@@ -573,7 +569,8 @@ export function RoleplayQuickCreateWizard() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [state, setState] = useState<QuickCreateState>(buildInitialState);
-  const [activeGroup, setActiveGroup] = useState<string>('romance');
+  const [activeGroup, setActiveGroup] =
+    useState<QuickCreateIntentCategory>('crush_chat');
 
   const isZh = locale.startsWith('zh');
   const template = useMemo(
@@ -591,6 +588,89 @@ export function RoleplayQuickCreateWizard() {
   );
 
   const selectTemplate = useCallback((next: QuickCreateTemplate) => {
+    const growthMetadata = getQuickCreateGrowthMetadata(next);
+    recordRoleplayMomentEvent({
+      eventType: 'quick_create_template_selected',
+      metadata: {
+        templateId: next.id,
+        intentCategory: growthMetadata.intentCategory,
+        inspirationType: growthMetadata.inspirationType,
+        source: 'quick_create_template_card',
+      },
+    });
+    setState((prev) => ({
+      ...prev,
+      templateId: next.id,
+      customScene: '',
+      gender: next.defaultGender,
+      userRole: next.userRoleOptions[0] || '',
+      customUserRole: '',
+      traits: next.suggestedTraits.slice(0, 3),
+      customTrait: '',
+      relationship: next.defaultRelationship,
+      customRelationship: '',
+      openingHook: next.openingHooks[0] || '',
+      customOpeningHook: '',
+      avatarUrl: '',
+      gallery: [],
+      imagePrompt: '',
+      draft: undefined,
+      savedCharacterId: undefined,
+    }));
+  }, []);
+
+  const selectGroup = useCallback((group: QuickCreateIntentCategory) => {
+    setActiveGroup(group);
+    const next = ROLEPLAY_QUICK_CREATE_TEMPLATES.find(
+      (item) => getQuickCreateGrowthMetadata(item).intentCategory === group
+    );
+    recordRoleplayMomentEvent({
+      eventType: 'quick_create_intent_selected',
+      metadata: {
+        intentCategory: group,
+        templateId: next?.id,
+        source: 'quick_create_intent_card',
+      },
+    });
+    if (next) {
+      setState((prev) => ({
+        ...prev,
+        templateId: next.id,
+        customScene: '',
+        gender: next.defaultGender,
+        userRole: next.userRoleOptions[0] || '',
+        customUserRole: '',
+        traits: next.suggestedTraits.slice(0, 3),
+        customTrait: '',
+        relationship: next.defaultRelationship,
+        customRelationship: '',
+        openingHook: next.openingHooks[0] || '',
+        customOpeningHook: '',
+        avatarUrl: '',
+        gallery: [],
+        imagePrompt: '',
+        draft: undefined,
+        savedCharacterId: undefined,
+      }));
+    }
+  }, []);
+
+  const selectInspiration = useCallback((type: QuickCreateInspirationType) => {
+    const next = ROLEPLAY_QUICK_CREATE_TEMPLATES.find(
+      (item) => getQuickCreateGrowthMetadata(item).inspirationType === type
+    );
+    if (!next) return;
+    const growthMetadata = getQuickCreateGrowthMetadata(next);
+    setActiveGroup(growthMetadata.intentCategory);
+    recordRoleplayMomentEvent({
+      eventType: 'quick_create_inspiration_selected',
+      metadata: {
+        inspirationType: type,
+        intentCategory: growthMetadata.intentCategory,
+        templateId: next.id,
+        source: 'quick_create_inspiration_card',
+      },
+    });
     setState((prev) => ({
       ...prev,
       templateId: next.id,
@@ -732,6 +812,7 @@ export function RoleplayQuickCreateWizard() {
         draft.avatar || '',
       ]);
       const avatar = gallery[0] || '';
+      const growthMetadata = getQuickCreateGrowthMetadata(template);
       const body = {
         name: draft.name,
         gender: draft.gender,
@@ -750,6 +831,17 @@ export function RoleplayQuickCreateWizard() {
         formatStyle: draft.formatStyle || {},
         status: 'draft',
         visibility: 'private',
+        metadata: {
+          ...growthMetadata,
+          sourceTemplateId: template.id,
+          customizationMode: 'quick_create',
+          seoScenes: [
+            growthMetadata.intentCategory,
+            growthMetadata.starterMemoryMode === 'relationship'
+              ? 'memory_companion'
+              : '',
+          ].filter(Boolean),
+        },
       };
       const res = await fetch(
         id ? `/api/roleplay/characters/${id}` : '/api/roleplay/characters',
@@ -766,7 +858,7 @@ export function RoleplayQuickCreateWizard() {
       }
       return payload?.data?.character?.id as string;
     },
-    [state.gallery, template.tagSlugs]
+    [state.gallery, template]
   );
 
   const generateDraft = useCallback(
@@ -878,6 +970,16 @@ export function RoleplayQuickCreateWizard() {
           generating: false,
           saving: false,
         }));
+        recordRoleplayMomentEvent({
+          eventType: 'quick_create_generated',
+          characterId: id,
+          metadata: {
+            templateId: template.id,
+            intentCategory: getQuickCreateGrowthMetadata(template).intentCategory,
+            inspirationType:
+              getQuickCreateGrowthMetadata(template).inspirationType,
+          },
+        });
         toast.success(t('draft_saved'));
       } catch (error: any) {
         showRoleplayApiErrorToast(error, t('generate_error'));
@@ -911,8 +1013,24 @@ export function RoleplayQuickCreateWizard() {
           return;
         }
         if (visibility === 'private') {
+          recordRoleplayMomentEvent({
+            eventType: 'quick_create_published',
+            characterId: id,
+            metadata: {
+              visibility,
+              source: 'quick_create_preview',
+            },
+          });
           router.push(`/chat/profile/${id}`);
         } else {
+          recordRoleplayMomentEvent({
+            eventType: 'quick_create_published',
+            characterId: id,
+            metadata: {
+              visibility,
+              source: 'quick_create_preview',
+            },
+          });
           router.push('/create?tab=under_review');
         }
       } catch (error: any) {
@@ -1013,7 +1131,8 @@ export function RoleplayQuickCreateWizard() {
                 customScene={state.customScene}
                 isZh={isZh}
                 selectedId={template.id}
-                onGroupChange={setActiveGroup}
+                onGroupChange={selectGroup}
+                onInspirationSelect={selectInspiration}
                 onSelect={selectTemplate}
                 onCustomSceneChange={(customScene) =>
                   updateState({ customScene })
@@ -1158,6 +1277,7 @@ function TemplateStep({
   selectedId,
   isZh,
   onGroupChange,
+  onInspirationSelect,
   onCustomSceneChange,
   onSelect,
 }: {
@@ -1165,73 +1285,136 @@ function TemplateStep({
   customScene: string;
   selectedId: string;
   isZh: boolean;
-  onGroupChange: (group: string) => void;
+  onGroupChange: (group: QuickCreateIntentCategory) => void;
+  onInspirationSelect: (type: QuickCreateInspirationType) => void;
   onCustomSceneChange: (value: string) => void;
   onSelect: (template: QuickCreateTemplate) => void;
 }) {
   const t = useTranslations('roleplay.create.quick_create');
-  const group = TEMPLATE_GROUPS.find((item) => item.id === activeGroup) ?? TEMPLATE_GROUPS[0];
+  const group =
+    QUICK_CREATE_INTENT_GROUPS.find((item) => item.id === activeGroup) ??
+    QUICK_CREATE_INTENT_GROUPS[0];
   const templates = ROLEPLAY_QUICK_CREATE_TEMPLATES.filter((item) =>
-    (group.categories as readonly string[]).includes(item.category)
+    getQuickCreateGrowthMetadata(item).intentCategory === group.id
   );
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {TEMPLATE_GROUPS.map((item) => (
+      <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          {isZh ? '先选灵感' : 'Start from inspiration'}
+        </p>
+        <div className="mt-3 grid gap-2 md:grid-cols-4">
+          {QUICK_CREATE_INSPIRATION_ORDER.map((type) => {
+            const inspiration = QUICK_CREATE_INSPIRATIONS[type];
+            const matchingTemplate = ROLEPLAY_QUICK_CREATE_TEMPLATES.find(
+              (item) => getQuickCreateGrowthMetadata(item).inspirationType === type
+            );
+            const isActive = matchingTemplate?.id === selectedId;
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => onInspirationSelect(type)}
+                data-active={isActive}
+                className={cn(
+                  'min-h-28 rounded-2xl border border-white/10 bg-black/25 p-3 text-left text-zinc-300 transition-colors hover:bg-white/[0.06]',
+                  'data-[active=true]:border-white/60 data-[active=true]:bg-white data-[active=true]:text-black'
+                )}
+              >
+                <Sparkles className="size-4 opacity-70" />
+                <span className="mt-3 block text-sm font-semibold leading-snug">
+                  {isZh ? inspiration.titleZh : inspiration.titleEn}
+                </span>
+                <span className="mt-1 block text-xs leading-snug opacity-70">
+                  {isZh ? inspiration.summaryZh : inspiration.summaryEn}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div className="grid gap-2 md:grid-cols-4">
+        {QUICK_CREATE_INTENT_GROUPS.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => onGroupChange(item.id)}
             data-active={activeGroup === item.id}
-            className="shrink-0 rounded-full border border-white/10 px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors data-[active=true]:border-white data-[active=true]:bg-white data-[active=true]:text-black"
+            className="min-h-20 rounded-2xl border border-white/10 bg-black/20 p-3 text-left text-zinc-400 transition-colors hover:bg-white/[0.06] data-[active=true]:border-white data-[active=true]:bg-white data-[active=true]:text-black"
           >
-            {t(`groups.${item.id}`)}
+            <span className="block text-sm font-semibold">
+              {isZh ? item.labelZh : item.labelEn}
+            </span>
+            <span className="mt-1 block text-xs leading-snug opacity-75">
+              {isZh ? item.descriptionZh : item.descriptionEn}
+            </span>
           </button>
         ))}
       </div>
+      <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          {isZh ? '灵感模板' : 'Inspiration templates'}
+        </p>
+        <h2 className="mt-1 text-lg font-semibold text-white">
+          {isZh ? group.labelZh : group.labelEn}
+        </h2>
+        <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+          {isZh ? group.descriptionZh : group.descriptionEn}
+        </p>
+      </div>
       <div className="grid gap-3 md:grid-cols-2">
-        {templates.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onSelect(item)}
-            data-active={selectedId === item.id}
-            className={cn(
-              'min-h-48 rounded-2xl border border-white/10 bg-black/20 p-4 text-left transition-colors hover:bg-white/[0.07]',
-              'data-[active=true]:border-white/60 data-[active=true]:bg-white/10'
-            )}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-base font-semibold text-white">
-                  {isZh ? item.titleZh : item.titleEn}
-                </h3>
-                <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-zinc-400">
-                  {isZh ? item.summaryZh : item.summaryEn}
-                </p>
+        {templates.map((item) => {
+          const growth = getQuickCreateGrowthMetadata(item);
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSelect(item)}
+              data-active={selectedId === item.id}
+              className={cn(
+                'min-h-52 rounded-2xl border border-white/10 bg-black/20 p-4 text-left transition-colors hover:bg-white/[0.07]',
+                'data-[active=true]:border-white/60 data-[active=true]:bg-white/10'
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                    {isZh
+                      ? growth.inspirationTitleZh
+                      : growth.inspirationTitleEn}
+                  </p>
+                  <h3 className="text-base font-semibold text-white">
+                    {isZh ? item.titleZh : item.titleEn}
+                  </h3>
+                  <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-zinc-400">
+                    {isZh
+                      ? growth.inspirationSummaryZh
+                      : growth.inspirationSummaryEn}
+                  </p>
+                </div>
+                {selectedId === item.id ? (
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white text-black">
+                    <Check className="size-4" />
+                  </span>
+                ) : null}
               </div>
-              {selectedId === item.id ? (
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white text-black">
-                  <Check className="size-4" />
-                </span>
-              ) : null}
-            </div>
-            <p className="mt-4 line-clamp-2 text-sm text-zinc-300">
-              {l10n(item.sceneConflict, isZh, item.summaryEn)}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {item.suggestedTraits.slice(0, 3).map((trait) => (
-                <span
-                  key={trait}
-                  className="rounded-full bg-white/5 px-2 py-1 text-[11px] text-zinc-300"
-                >
-                  {l10n(trait, isZh)}
-                </span>
-              ))}
-            </div>
-          </button>
-        ))}
+              <p className="mt-4 line-clamp-2 text-sm text-zinc-300">
+                {l10n(item.sceneConflict, isZh, item.summaryEn)}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {item.suggestedTraits.slice(0, 3).map((trait) => (
+                  <span
+                    key={trait}
+                    className="rounded-full bg-white/5 px-2 py-1 text-[11px] text-zinc-300"
+                  >
+                    {l10n(trait, isZh)}
+                  </span>
+                ))}
+              </div>
+            </button>
+          );
+        })}
       </div>
       <label className="flex flex-col gap-2 rounded-2xl bg-black/20 p-3">
         <span className="text-sm font-medium text-zinc-200">
