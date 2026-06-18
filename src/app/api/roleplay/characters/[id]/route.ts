@@ -3,7 +3,14 @@ import {
   buildCharacterImageUrl,
   buildCharacterImageUrls,
 } from '@/shared/lib/roleplay-assets';
-import { getVisiblePublicGallery } from '@/shared/lib/compliance';
+import {
+  getVisiblePublicGallery,
+  isComplianceMode,
+} from '@/shared/lib/compliance';
+import {
+  getReviewSafeCharacterById,
+  isReviewSafeCharacterLike,
+} from '@/shared/lib/roleplay-review-safe-characters';
 import {
   normalizeFormatStyle,
   parseFormatStyle,
@@ -148,6 +155,11 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
+    const reviewSafeFallback = getReviewSafeCharacterById(id);
+    if (isComplianceMode() && reviewSafeFallback) {
+      return respData({ character: reviewSafeFallback });
+    }
+
     const character = await findRoleplayCharacterById(id);
     if (!character) return respErr('character not found');
 
@@ -156,6 +168,9 @@ export async function GET(
     const isPublic =
       character.status === RoleplayStatus.PUBLISHED &&
       character.visibility === RoleplayVisibility.PUBLIC;
+    if (isComplianceMode() && isPublic && !isReviewSafeCharacterLike(character)) {
+      return respErr('character not found');
+    }
     if (isPublic) {
       return respData({ character: await toClientCharacter(character) });
     }

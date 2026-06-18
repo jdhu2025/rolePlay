@@ -8,6 +8,11 @@ import {
   isComplianceMode,
 } from '@/shared/lib/compliance';
 import {
+  fillWithReviewSafeCharacters,
+  filterReviewSafeCharacters,
+} from '@/shared/lib/roleplay-review-safe-characters';
+import type { RoleplayCharacterClient } from '@/shared/lib/roleplay-client';
+import {
   normalizeFormatStyle,
   parseFormatStyle,
   serializeFormatStyle,
@@ -110,7 +115,7 @@ function normalizeVoiceProfileId(raw: unknown) {
 async function toClientCharacter(
   character: RoleplayCharacter,
   preloadedTagSlugs?: string[]
-) {
+): Promise<RoleplayCharacterClient> {
   const galleryFilenames = safeJsonParse<string[]>(
     (character as any).gallery ?? '[]',
     []
@@ -164,14 +169,15 @@ async function toClientCharacter(
     styleExamples: parseStyleExamples((character as any).styleExamples ?? '[]'),
     formatStyle: parseFormatStyle((character as any).formatStyle),
     model: character.model,
-    status: character.status,
+    status: character.status as RoleplayCharacterClient['status'],
     rejectionReason: (character as any).rejectionReason ?? '',
     metadata,
     seoScenes: Array.isArray(metadata.seoScenes) ? metadata.seoScenes : [],
     premium: false,
     live: false,
     source: 'database',
-    visibility: character.visibility,
+    visibility:
+      character.visibility === RoleplayVisibility.PUBLIC ? 'public' : 'private',
   };
 }
 
@@ -189,20 +195,26 @@ export async function GET(request: Request) {
       limit,
     });
 
+    const visibleCharacters = publicOnly
+      ? filterReviewSafeCharacters(characters)
+      : characters;
     const tagSlugsByCharacter = await getCharacterTagSlugsMap(
-      characters.map((character) => character.id)
+      visibleCharacters.map((character) => character.id)
     ).catch(() => new Map<string, string[]>());
     const items = await Promise.all(
-      characters.map((character) =>
+      visibleCharacters.map((character) =>
         toClientCharacter(
           character,
           tagSlugsByCharacter.get(character.id) ?? []
         )
       )
     );
+    const safeItems = publicOnly
+      ? fillWithReviewSafeCharacters(items, limit, tagSlug)
+      : items;
     return respData({
       authenticated: Boolean(user),
-      characters: items,
+      characters: safeItems,
     });
   } catch (e: any) {
     if (isMissingRoleplayTable(e)) {

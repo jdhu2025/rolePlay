@@ -8,6 +8,10 @@ import {
   isComplianceMode,
 } from '@/shared/lib/compliance';
 import type { RoleplayCharacterClient } from '@/shared/lib/roleplay-client';
+import {
+  fillWithReviewSafeCharacters,
+  filterReviewSafeCharacters,
+} from '@/shared/lib/roleplay-review-safe-characters';
 import { parseFormatStyle } from '@/shared/lib/roleplay-format-style';
 import { parsePersonalityCard } from '@/shared/lib/roleplay-personality';
 import { parseStyleExamples } from '@/shared/lib/roleplay-style-examples';
@@ -188,13 +192,18 @@ async function buildRecommendations({
   user,
   allVisible,
   limit,
+  reviewSafeMode,
 }: {
   user: Awaited<ReturnType<typeof getUserInfo>>;
   allVisible: RoleplayCharacter[];
   limit: number;
+  reviewSafeMode?: boolean;
 }) {
   const bucketIds = emptyBuckets();
-  const publicCharacters = allVisible.filter(
+  const visibleCandidates = reviewSafeMode
+    ? filterReviewSafeCharacters(allVisible)
+    : allVisible;
+  const publicCharacters = visibleCandidates.filter(
     (character) =>
       character.status === RoleplayStatus.PUBLISHED &&
       character.visibility === RoleplayVisibility.PUBLIC
@@ -250,15 +259,13 @@ async function buildRecommendations({
       limit: RECENT_CONVERSATION_LIMIT,
     }).catch(() => [] as Awaited<ReturnType<typeof getRoleplayConversations>>),
   ]);
-  const byId = new Map(
-    allVisible.map((character) => [character.id, character])
-  );
+  const byId = new Map(visibleCandidates.map((character) => [character.id, character]));
   const recentCharacters = conversations
     .map((conversation) =>
       conversation.characterId ? byId.get(conversation.characterId) : null
     )
     .filter(Boolean) as RoleplayCharacter[];
-  const privateCharacters = allVisible.filter(
+  const privateCharacters = visibleCandidates.filter(
     (character) =>
       character.userId === user.id &&
       character.visibility === RoleplayVisibility.PRIVATE
@@ -271,7 +278,7 @@ async function buildRecommendations({
         (character) => normalizeGender(character.gender) === oppositeGender
       )
     : [];
-  const otherCharacters = sortByPopularity(allVisible);
+  const otherCharacters = sortByPopularity(visibleCandidates);
 
   pushBucket({
     result,
@@ -332,16 +339,35 @@ export async function getRoleplayHomeInitialData(): Promise<RoleplayHomeInitialD
       }),
       getRoleplayTags().catch(() => []),
     ]);
-    const exploreCharacters = allVisible.slice(0, ROLEPLAY_HOME_EXPLORE_LIMIT);
+    const visibleCharacters = publicOnly
+      ? filterReviewSafeCharacters(allVisible)
+      : allVisible;
+    const exploreCharacters = visibleCharacters.slice(
+      0,
+      ROLEPLAY_HOME_EXPLORE_LIMIT
+    );
     const recommendationPlan = await buildRecommendations({
       user: publicOnly ? undefined : user,
-      allVisible,
+      allVisible: visibleCharacters,
       limit: ROLEPLAY_HOME_RECOMMENDATION_LIMIT,
+      reviewSafeMode: publicOnly,
     });
-    const [characters, recommendedCharacters] = await Promise.all([
+    const [rawCharacters, rawRecommendedCharacters] = await Promise.all([
       toClientCharacters(exploreCharacters),
       toClientCharacters(recommendationPlan.characters),
     ]);
+    const characters = publicOnly
+      ? fillWithReviewSafeCharacters(
+          rawCharacters,
+          ROLEPLAY_HOME_EXPLORE_LIMIT
+        )
+      : rawCharacters;
+    const recommendedCharacters = publicOnly
+      ? fillWithReviewSafeCharacters(
+          rawRecommendedCharacters,
+          ROLEPLAY_HOME_RECOMMENDATION_LIMIT
+        )
+      : rawRecommendedCharacters;
 
     return {
       authenticated,

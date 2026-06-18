@@ -989,8 +989,15 @@ Completed review links:
 [x] Image generation blocks when moderation is unavailable
 [x] Voice selector has no girlfriend/boyfriend/flirty/intimacy labels
 [x] Quick Create has no Crush & Regret or similar sensitive public labels
+[x] Review-Safe Mode replaces public homepage/API character exposure with neutral story, fantasy, learning, and creative-writing characters
+[x] Review-Safe Mode blocks direct public access to risky seeded characters such as Chloe/Sienna
 [x] Admin/backend can still restore hidden capabilities later
 ```
+
+## Implementation Log
+
+- 2026-06-18 14:01 CST: Added review-safe public character curation. In Review-Safe Mode, homepage SSR, public character list API, recommendation API, local fallback characters, and character detail API now filter risky public characters and fill with neutral illustrated story/learning/writing characters. Chloe/Sienna-style seed characters remain available when Review-Safe Mode is off, but are not exposed to public review surfaces while it is on.
+- 2026-06-18 14:01 CST: Extended `pnpm check:creem-compliance` to verify the review-safe character module and route/API filtering hooks.
 
 ## Minimal Fast-Track Scope
 
@@ -1003,6 +1010,7 @@ If speed matters, implement only:
 5. Quick Create display filtering.
 6. Image moderation fail-closed.
 7. AUP/TOS additions.
-8. `pnpm check:creem-compliance` high-risk word scan.
+8. Review-safe public character replacement/filtering.
+9. `pnpm check:creem-compliance` high-risk word scan.
 
 This preserves future flexibility while giving the Creem reviewer a cleaner, lower-risk public product surface.

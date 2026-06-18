@@ -60,6 +60,7 @@ const sourceFiles = [
   'src/app/sitemap.ts',
   'src/shared/lib/compliance.ts',
   'src/shared/lib/payment-product-name.ts',
+  'src/shared/lib/roleplay-review-safe-characters.ts',
   'src/shared/components/roleplay/roleplay-quick-create-wizard.tsx',
   'src/shared/components/roleplay/roleplay-landing.tsx',
   'src/shared/components/roleplay/roleplay-topbar.tsx',
@@ -227,6 +228,27 @@ assert.match(
   'payment product name helper must map old RolePlay order names to Keepsay'
 );
 
+const reviewSafeCharactersSource = read(
+  'src/shared/lib/roleplay-review-safe-characters.ts'
+);
+assert.match(
+  reviewSafeCharactersSource,
+  /REVIEW_SAFE_ROLEPLAY_CHARACTERS/,
+  'review-safe public character fallback list must exist'
+);
+assert.match(
+  reviewSafeCharactersSource,
+  /filterReviewSafeCharacters/,
+  'review-safe public character filter must exist'
+);
+assert.doesNotMatch(
+  reviewSafeCharactersSource.match(
+    /export const REVIEW_SAFE_ROLEPLAY_CHARACTERS[\s\S]*?;\n\nexport function/
+  )?.[0] || '',
+  /chloe-\d|sienna-\d|Date|romantic|companion with|AI companion/i,
+  'review-safe fallback characters must not expose dating/companion seed framing'
+);
+
 for (const file of sourceFiles) {
   assert.doesNotThrow(() => read(file), `${file} must exist`);
 }
@@ -310,8 +332,6 @@ for (const productName of [
 }
 
 for (const file of [
-  'src/shared/components/roleplay/roleplay-character-card.tsx',
-  'src/shared/components/roleplay/roleplay-character-detail.tsx',
   'src/shared/lib/roleplay-client.ts',
   'src/shared/lib/server/roleplay-home-data.ts',
   'src/app/api/roleplay/characters/route.ts',
@@ -322,6 +342,19 @@ for (const file of [
     read(file),
     /getVisiblePublicGallery/,
     `${file} must apply public gallery visibility`
+  );
+}
+
+for (const file of [
+  'src/shared/lib/server/roleplay-home-data.ts',
+  'src/app/api/roleplay/characters/route.ts',
+  'src/app/api/roleplay/characters/[id]/route.ts',
+  'src/app/api/roleplay/recommendations/route.ts',
+]) {
+  assert.match(
+    read(file),
+    /filterReviewSafeCharacters|isReviewSafeCharacterLike|getReviewSafeCharacterById/,
+    `${file} must filter risky public characters in review-safe mode`
   );
 }
 

@@ -11,6 +11,11 @@ import {
   getVisiblePublicGallery,
   isComplianceMode,
 } from '@/shared/lib/compliance';
+import {
+  fillWithReviewSafeCharacters,
+  filterReviewSafeCharacters,
+} from '@/shared/lib/roleplay-review-safe-characters';
+import type { RoleplayCharacterClient } from '@/shared/lib/roleplay-client';
 import { parseFormatStyle } from '@/shared/lib/roleplay-format-style';
 import { parsePersonalityCard } from '@/shared/lib/roleplay-personality';
 import { parseStyleExamples } from '@/shared/lib/roleplay-style-examples';
@@ -111,7 +116,7 @@ function pushBucket({
 async function toClientCharacter(
   character: RoleplayCharacter,
   preloadedTagSlugs?: string[]
-) {
+): Promise<RoleplayCharacterClient> {
   const galleryFilenames = safeJsonParse<string[]>(
     (character as any).gallery ?? '[]',
     []
@@ -161,7 +166,8 @@ async function toClientCharacter(
     premium: false,
     live: false,
     source: 'database',
-    visibility: character.visibility,
+    visibility:
+      character.visibility === RoleplayVisibility.PUBLIC ? 'public' : 'private',
   };
 }
 
@@ -191,7 +197,10 @@ export async function GET(request: Request) {
         MIN_RECOMMENDATION_CANDIDATES
       ),
     });
-    const publicCharacters = allVisible.filter(
+    const visibleCharacters = publicOnly
+      ? filterReviewSafeCharacters(allVisible)
+      : allVisible;
+    const publicCharacters = visibleCharacters.filter(
       (character) =>
         character.status === RoleplayStatus.PUBLISHED &&
         character.visibility === RoleplayVisibility.PUBLIC
@@ -244,14 +253,14 @@ export async function GET(request: Request) {
         ),
       ]);
       const byId = new Map(
-        allVisible.map((character) => [character.id, character])
+        visibleCharacters.map((character) => [character.id, character])
       );
       const recentCharacters = conversations
         .map((conversation) =>
           conversation.characterId ? byId.get(conversation.characterId) : null
         )
         .filter(Boolean) as RoleplayCharacter[];
-      const privateCharacters = allVisible.filter(
+      const privateCharacters = visibleCharacters.filter(
         (character) =>
           character.userId === user.id &&
           character.visibility === RoleplayVisibility.PRIVATE
@@ -268,7 +277,7 @@ export async function GET(request: Request) {
             (character) => normalizeGender(character.gender) === oppositeGender
           )
         : [];
-      const otherCharacters = sortByPopularity(allVisible);
+      const otherCharacters = sortByPopularity(visibleCharacters);
 
       pushBucket({
         result,
@@ -319,7 +328,7 @@ export async function GET(request: Request) {
     const tagSlugsByCharacter = await getCharacterTagSlugsMap(
       result.map((character) => character.id)
     ).catch(() => new Map<string, string[]>());
-    const characters = await Promise.all(
+    const rawCharacters = await Promise.all(
       rankedResult.map((character) =>
         toClientCharacter(
           character,
@@ -327,6 +336,9 @@ export async function GET(request: Request) {
         )
       )
     );
+    const characters = publicOnly
+      ? fillWithReviewSafeCharacters(rawCharacters, limit)
+      : rawCharacters;
 
     return respData({
       authenticated: Boolean(user),

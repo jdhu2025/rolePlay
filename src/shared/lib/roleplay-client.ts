@@ -4,7 +4,11 @@ import {
   type RoleplaySeoSceneSlug,
 } from '@/data/roleplay-seo-scenes';
 
-import { getVisiblePublicGallery } from '@/shared/lib/compliance';
+import { getVisiblePublicGallery, isComplianceMode } from '@/shared/lib/compliance';
+import {
+  getReviewSafeCharacterById,
+  REVIEW_SAFE_ROLEPLAY_CHARACTERS,
+} from '@/shared/lib/roleplay-review-safe-characters';
 import type { RoleplayFormatStyle } from '@/shared/lib/roleplay-format-style';
 import {
   buildFirstExperienceRecommendationQuery,
@@ -38,6 +42,7 @@ export type RoleplayCharacterClient = {
   gallery: string[];
   tags: string[];
   tagSlugs: string[];
+  skills?: string[];
   seoScenes?: RoleplaySeoSceneSlug[];
   metadata?: Record<string, unknown>;
   stats: string;
@@ -59,6 +64,7 @@ export type RoleplayCharacterClient = {
   imageStyleSuffix?: string;
   model: string;
   status?: 'draft' | 'under_review' | 'published' | 'rejected' | 'created';
+  rejectionReason?: string;
   premium: boolean;
   live: boolean;
   source: 'database' | 'local';
@@ -148,7 +154,7 @@ function toSiteImageUrl(value: string): string {
   return `/roleplay/characters/${trimmed}`;
 }
 
-export const OFFICIAL_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
+const LEGACY_OFFICIAL_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
   ROLEPLAY_OFFICIAL_CHARACTERS.map((character) => {
     const gallery = getVisiblePublicGallery(
       character.images.map(toSiteImageUrl).filter(Boolean)
@@ -157,7 +163,7 @@ export const OFFICIAL_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
       id: character.id,
       name: character.name,
       age: character.age,
-      author: 'Roleplay System',
+      author: 'Keepsay Studio',
       tagline: character.intro,
       intro: character.bio,
       opening: character.openingLine,
@@ -189,9 +195,21 @@ export const OFFICIAL_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
     };
   });
 
+export const OFFICIAL_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
+  isComplianceMode()
+    ? REVIEW_SAFE_ROLEPLAY_CHARACTERS
+    : LEGACY_OFFICIAL_ROLEPLAY_CHARACTERS;
+
 export function getLocalRoleplayCharacter(id: string) {
+  const reviewSafeCharacter = getReviewSafeCharacterById(id);
+  if (reviewSafeCharacter) return reviewSafeCharacter;
+
   return (
-    OFFICIAL_ROLEPLAY_CHARACTERS.find((character) => character.id === id) ??
+    (isComplianceMode()
+      ? null
+      : LEGACY_OFFICIAL_ROLEPLAY_CHARACTERS.find(
+          (character) => character.id === id
+        )) ??
     null
   );
 }
