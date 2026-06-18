@@ -3,7 +3,10 @@ import {
   buildCharacterImageUrl,
   buildCharacterImageUrls,
 } from '@/shared/lib/roleplay-assets';
-import { getVisiblePublicGallery } from '@/shared/lib/compliance';
+import {
+  getVisiblePublicGallery,
+  isComplianceMode,
+} from '@/shared/lib/compliance';
 import {
   normalizeFormatStyle,
   parseFormatStyle,
@@ -175,11 +178,12 @@ async function toClientCharacter(
 export async function GET(request: Request) {
   try {
     const user = await getUserInfo();
+    const publicOnly = isComplianceMode();
     const url = new URL(request.url);
     const tagSlug = url.searchParams.get('tag') || undefined;
     const limit = clampListLimit(url.searchParams.get('limit'));
     const characters: RoleplayCharacter[] = await getRoleplayCharacters({
-      userId: user?.id,
+      userId: publicOnly ? undefined : user?.id,
       includePublic: true,
       tagSlug,
       limit,

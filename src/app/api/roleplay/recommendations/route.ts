@@ -7,7 +7,10 @@ import {
   buildCharacterImageUrl,
   buildCharacterImageUrls,
 } from '@/shared/lib/roleplay-assets';
-import { getVisiblePublicGallery } from '@/shared/lib/compliance';
+import {
+  getVisiblePublicGallery,
+  isComplianceMode,
+} from '@/shared/lib/compliance';
 import { parseFormatStyle } from '@/shared/lib/roleplay-format-style';
 import { parsePersonalityCard } from '@/shared/lib/roleplay-personality';
 import { parseStyleExamples } from '@/shared/lib/roleplay-style-examples';
@@ -167,6 +170,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const limit = clampLimit(url.searchParams.get('limit'));
     const user = await getUserInfo();
+    const publicOnly = isComplianceMode();
     const bucketIds: Record<BucketKey, string[]> = {
       recent: [],
       private: [],
@@ -179,7 +183,7 @@ export async function GET(request: Request) {
     };
 
     const allVisible: RoleplayCharacter[] = await getRoleplayCharacters({
-      userId: user?.id,
+      userId: publicOnly ? undefined : user?.id,
       includePublic: true,
       ownerStatuses: [RoleplayStatus.PUBLISHED],
       limit: Math.max(
@@ -195,7 +199,7 @@ export async function GET(request: Request) {
     const result: RoleplayCharacter[] = [];
     const seen = new Set<string>();
 
-    if (!user) {
+    if (!user || publicOnly) {
       const popular = sortByPopularity(publicCharacters);
       const females = popular.filter(
         (character) => normalizeGender(character.gender) === 'female'

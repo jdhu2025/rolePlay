@@ -3,7 +3,10 @@ import {
   buildCharacterImageUrl,
   buildCharacterImageUrls,
 } from '@/shared/lib/roleplay-assets';
-import { getVisiblePublicGallery } from '@/shared/lib/compliance';
+import {
+  getVisiblePublicGallery,
+  isComplianceMode,
+} from '@/shared/lib/compliance';
 import type { RoleplayCharacterClient } from '@/shared/lib/roleplay-client';
 import { parseFormatStyle } from '@/shared/lib/roleplay-format-style';
 import { parsePersonalityCard } from '@/shared/lib/roleplay-personality';
@@ -313,6 +316,7 @@ export async function getRoleplayHomeInitialData(): Promise<RoleplayHomeInitialD
   let authenticated = false;
   try {
     const user = await getUserInfo();
+    const publicOnly = isComplianceMode();
     authenticated = Boolean(user);
     const candidateLimit = Math.max(
       ROLEPLAY_HOME_EXPLORE_LIMIT,
@@ -321,7 +325,7 @@ export async function getRoleplayHomeInitialData(): Promise<RoleplayHomeInitialD
     );
     const [allVisible, tags] = await Promise.all([
       getRoleplayCharacters({
-        userId: user?.id,
+        userId: publicOnly ? undefined : user?.id,
         includePublic: true,
         ownerStatuses: [RoleplayStatus.PUBLISHED],
         limit: candidateLimit,
@@ -330,7 +334,7 @@ export async function getRoleplayHomeInitialData(): Promise<RoleplayHomeInitialD
     ]);
     const exploreCharacters = allVisible.slice(0, ROLEPLAY_HOME_EXPLORE_LIMIT);
     const recommendationPlan = await buildRecommendations({
-      user,
+      user: publicOnly ? undefined : user,
       allVisible,
       limit: ROLEPLAY_HOME_RECOMMENDATION_LIMIT,
     });
