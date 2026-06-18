@@ -285,7 +285,7 @@ export function RoleplayTopbar() {
               style={{ background: 'var(--roleplay-brand-gradient)' }}
             />
             <span className="hidden bg-clip-text text-transparent sm:inline" style={{ backgroundImage: 'var(--roleplay-brand-gradient)' }}>
-              RolePlay
+              Keepsay
             </span>
           </Link>
 

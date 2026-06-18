@@ -49,7 +49,7 @@ export function getConfiguredAuthUrl(fallback = '') {
 
 export const envConfigs: ConfigMap = {
   app_url: getConfiguredAppUrl(),
-  app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'RolePlay',
+  app_name: process.env.NEXT_PUBLIC_APP_NAME ?? 'Keepsay',
   app_description: process.env.NEXT_PUBLIC_APP_DESCRIPTION ?? '',
   app_logo: process.env.NEXT_PUBLIC_APP_LOGO ?? '/logo.png',
   app_favicon: process.env.NEXT_PUBLIC_APP_FAVICON ?? '/favicon.ico',

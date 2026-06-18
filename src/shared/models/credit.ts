@@ -51,11 +51,12 @@ export const ROLEPLAY_STARTER_CREDITS_DEFAULTS = {
   enabled: true,
   amount: 120,
   validDays: 10,
-  description: 'RolePlay starter credits',
+  description: 'Keepsay starter credits',
 } as const;
 
 const INITIAL_CREDIT_DESCRIPTIONS = [
   'initial credits',
+  'Keepsay starter credits',
   'RolePlay starter credits',
 ];
 

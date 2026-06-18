@@ -1,15 +1,15 @@
 {
   "metadata": {
     "title": "价格",
-    "description": "RolePlay 的低价套餐与积分包"
+    "description": "Keepsay 的低价套餐与积分包"
   },
   "page": {
-    "title": "RolePlay 价格",
+    "title": "Keepsay 价格",
     "sections": {
       "pricing": {
         "id": "pricing",
         "title": "价格",
-        "description": "免费开始体验；想继续聊天、生成照片、语音和创建角色时，用更低门槛付费。",
+        "description": "免费开始体验；想继续故事聊天、生成合规角色图片、语音预览和创建角色时，用更低门槛付费。",
         "groups": [
           {
             "name": "one-time",
@@ -34,7 +34,7 @@
             "features_title": "包含",
             "features": [
               "220 积分，有效期 12 个月",
-              "可用于聊天、语音、图片和创建工具",
+              "可用于聊天、语音预览、角色图片和创建工具",
               "新用户一次性首购包"
             ],
             "interval": "one-time",
@@ -51,7 +51,7 @@
               "icon": "Coins"
             },
             "product_id": "roleplay-first-spark",
-            "product_name": "RolePlay First Spark",
+            "product_name": "Keepsay First Spark",
             "credits": 220,
             "valid_days": 365,
             "group": "one-time"
@@ -79,18 +79,18 @@
               "icon": "Coins"
             },
             "product_id": "roleplay-spark",
-            "product_name": "RolePlay Spark 积分包",
+            "product_name": "Keepsay Spark 积分包",
             "credits": 350,
             "valid_days": 365,
             "group": "one-time"
           },
           {
             "title": "Glow",
-            "description": "给照片、语音和更多尝试留出空间。",
+            "description": "给合规角色图片、语音预览和更多尝试留出空间。",
             "features_title": "包含",
             "features": [
               "800 积分，有效期 12 个月",
-              "图片和语音使用更划算",
+              "角色图片和语音预览使用更划算",
               "可搭配任意套餐"
             ],
             "interval": "one-time",
@@ -107,7 +107,7 @@
               "icon": "Coins"
             },
             "product_id": "roleplay-glow",
-            "product_name": "RolePlay Glow 积分包",
+            "product_name": "Keepsay Glow 积分包",
             "credits": 800,
             "valid_days": 365,
             "group": "one-time"
@@ -120,7 +120,7 @@
               "每月 650 积分",
               "更好的聊天连续性和基础记忆",
               "3 个活跃私有角色",
-              "可用积分解锁语音和生成照片"
+              "可用积分解锁语音预览和合规角色图片"
             ],
             "interval": "month",
             "amount": 299,
@@ -136,7 +136,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-lite-monthly",
-            "product_name": "RolePlay Lite 包月",
+            "product_name": "Keepsay Lite 包月",
             "credits": 650,
             "valid_days": 30,
             "group": "monthly",
@@ -144,7 +144,7 @@
           },
           {
             "title": "Plus",
-            "description": "更多记忆、更多消息，在合适时刻解锁照片和语音。",
+            "description": "更多故事记忆、更多消息、合规角色图片和语音预览。",
             "label": "热门",
             "features_title": "包含 Lite，此外",
             "features": [
@@ -152,7 +152,7 @@
               "高级文本模型访问",
               "更好的记忆和云同步",
               "10 个活跃私有角色",
-              "聊天上下文照片和语音生成"
+              "聊天上下文角色图片和语音生成"
             ],
             "interval": "month",
             "amount": 599,
@@ -161,14 +161,14 @@
             "original_price": "$7.99",
             "unit": "/ 月",
             "is_featured": true,
-            "tip": "多数 RolePlay 用户的默认推荐。",
+            "tip": "多数 Keepsay 用户的默认推荐。",
             "button": {
               "title": "开通 Plus",
               "url": "/#pricing",
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-plus-monthly",
-            "product_name": "RolePlay Plus 包月",
+            "product_name": "Keepsay Plus 包月",
             "credits": 1400,
             "valid_days": 30,
             "group": "monthly",
@@ -176,7 +176,7 @@
           },
           {
             "title": "Pro",
-            "description": "面向重度聊天和创作者。",
+            "description": "面向经常创建角色和长期故事的用户。",
             "features_title": "包含 Plus，此外",
             "features": [
               "每月 3,800 积分",
@@ -199,7 +199,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-pro-monthly",
-            "product_name": "RolePlay Pro 包月",
+            "product_name": "Keepsay Pro 包月",
             "credits": 3800,
             "valid_days": 30,
             "group": "monthly",
@@ -228,7 +228,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-lite-yearly",
-            "product_name": "RolePlay Lite 包年",
+            "product_name": "Keepsay Lite 包年",
             "credits": 7800,
             "valid_days": 365,
             "group": "yearly",
@@ -258,7 +258,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-plus-yearly",
-            "product_name": "RolePlay Plus 包年",
+            "product_name": "Keepsay Plus 包年",
             "credits": 16800,
             "valid_days": 365,
             "group": "yearly",
@@ -266,7 +266,7 @@
           },
           {
             "title": "Pro 包年",
-            "description": "重度用户的低价包年。",
+            "description": "长期故事用户的低价包年。",
             "features_title": "包含 Pro 包月权益",
             "features": [
               "每年 45,600 积分",
@@ -287,7 +287,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-pro-yearly",
-            "product_name": "RolePlay Pro 包年",
+            "product_name": "Keepsay Pro 包年",
             "credits": 45600,
             "valid_days": 365,
             "group": "yearly",

@@ -34,7 +34,7 @@
           "children": [
             {
               "title": "Blog",
-              "description": "Read product updates and roleplay notes",
+              "description": "Read product updates and character story notes",
               "url": "/blog",
               "icon": "Newspaper"
             },
@@ -49,6 +49,12 @@
               "description": "Review the content and safety rules",
               "url": "/acceptable-use-policy",
               "icon": "BookOpenText"
+            },
+            {
+              "title": "Safety",
+              "description": "Review moderation and product boundaries",
+              "url": "/safety",
+              "icon": "ShieldCheck"
             }
           ]
         }
@@ -84,7 +90,7 @@
     "id": "footer",
     "brand": {
       "title": "Keepsay",
-      "description": "Keepsay is an AI character chat and roleplay app for fictional companions, story continuity, memory, voice, and policy-safe character images.",
+      "description": "Keepsay is a fictional character chat and creative writing app for original characters, story continuity, memory, voice previews, and policy-safe character images.",
       "logo": {
         "src": "/logo.png",
         "alt": "Keepsay",
@@ -144,6 +150,11 @@
               "target": "_self"
             },
             {
+              "title": "Safety",
+              "url": "/safety",
+              "target": "_self"
+            },
+            {
               "title": "Privacy Policy",
               "url": "/privacy-policy",
               "target": "_self"
@@ -186,6 +197,10 @@
         {
           "title": "Acceptable Use Policy",
           "url": "/acceptable-use-policy"
+        },
+        {
+          "title": "Safety",
+          "url": "/safety"
         }
       ]
     },

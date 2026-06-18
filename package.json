@@ -29,6 +29,7 @@
     "check:roleplay-events": "tsx scripts/check-roleplay-event-taxonomy.ts",
     "check:roleplay-seo": "pnpm check:home-positioning && pnpm check:roleplay-seo-scenes && pnpm check:roleplay-seo-landings && pnpm check:roleplay-events",
     "check:creem-moderation": "tsx scripts/check-creem-moderation.ts",
+    "check:creem-compliance": "node scripts/check-creem-compliance.mjs",
     "check:creem-webhook": "node scripts/check-creem-webhook.mjs",
     "check:support-email": "tsx scripts/check-support-email.ts",
     "check:voice-labels": "tsx scripts/check-voice-labels.ts",

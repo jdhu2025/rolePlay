@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "RolePlay",
-    "description": "A Talkie-style AI character roleplay MVP with discovery, custom personas, chat, memory, gallery, and premium gates.",
-    "keywords": "ai character chat, roleplay, custom persona, ai companion, talkie clone"
+    "title": "Keepsay",
+    "description": "Keepsay helps users create fictional characters, continue story scenes, and generate policy-safe character images with clear content boundaries.",
+    "keywords": "fictional character chat, character creator, story continuity, creative writing, character memory"
   },
   "sign": {
     "sign_in_title": "Sign In",

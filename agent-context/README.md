@@ -7,11 +7,14 @@ maintainers, not as public product documentation.
 ## Suggested Reading Order
 
 1. `talkie-shipany-spec.md` - original product specification and scope framing.
-2. `roleplay-character-redesign-todo.md` - broad implementation status, known
+2. `creem-compliance-remediation-plan.md` - payment-review compliance overlay
+   for Keepsay public positioning, hidden high-risk surfaces, image moderation,
+   and re-review readiness.
+3. `roleplay-character-redesign-todo.md` - broad implementation status, known
    risks, and handoff notes.
-3. `roleplay-quick-create-wizard-plan.md` - creation workflow plan and API
+4. `roleplay-quick-create-wizard-plan.md` - creation workflow plan and API
    expectations.
-4. `roleplay-billing-implementation-log.md` - latest billing and credits
+5. `roleplay-billing-implementation-log.md` - latest billing and credits
    implementation notes.
 
 ## Product And Market Research
@@ -29,6 +32,7 @@ maintainers, not as public product documentation.
 
 ## Plans And Designs
 
+- `creem-compliance-remediation-plan.md`
 - `roleplay-account-hub-design.md`
 - `roleplay-billing-credits-design.md`
 - `roleplay-category-strategy.md`

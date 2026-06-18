@@ -1,3 +1,5 @@
+import { canShowHighRiskSeoPages } from '@/shared/lib/compliance';
+
 export type RoleplaySeoSceneSlug =
   | 'free_chat'
   | 'memory_companion'
@@ -206,6 +208,17 @@ export const QUICK_CREATE_INTENT_GROUPS: Array<{
   },
 ];
 
+const HIGH_RISK_QUICK_CREATE_INTENT_GROUPS = new Set<
+  QuickCreateIntentCategory
+>(['anime_roleplay', 'crush_chat', 'comfort_companion']);
+
+export function getVisibleQuickCreateIntentGroups() {
+  if (canShowHighRiskSeoPages()) return QUICK_CREATE_INTENT_GROUPS;
+  return QUICK_CREATE_INTENT_GROUPS.filter(
+    (item) => !HIGH_RISK_QUICK_CREATE_INTENT_GROUPS.has(item.id)
+  );
+}
+
 export const QUICK_CREATE_INSPIRATIONS: Record<
   QuickCreateInspirationType,
   {
@@ -240,6 +253,22 @@ export const QUICK_CREATE_INSPIRATIONS: Record<
     summaryZh: '围绕共同经历和回访感设计的私有角色。',
   },
 };
+
+const HIGH_RISK_QUICK_CREATE_INSPIRATIONS = new Set<QuickCreateInspirationType>(
+  ['cozy_companion', 'anime_mage', 'crush_chat_template', 'private_memory_companion']
+);
+
+export function getVisibleQuickCreateInspirations() {
+  if (canShowHighRiskSeoPages()) return QUICK_CREATE_INSPIRATIONS;
+  return Object.fromEntries(
+    Object.entries(QUICK_CREATE_INSPIRATIONS).filter(
+      ([key]) =>
+        !HIGH_RISK_QUICK_CREATE_INSPIRATIONS.has(
+          key as QuickCreateInspirationType
+        )
+    )
+  ) as typeof QUICK_CREATE_INSPIRATIONS;
+}
 
 const QUICK_CREATE_TEMPLATE_GROWTH: Record<
   string,

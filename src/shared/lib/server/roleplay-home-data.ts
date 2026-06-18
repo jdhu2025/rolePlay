@@ -3,6 +3,7 @@ import {
   buildCharacterImageUrl,
   buildCharacterImageUrls,
 } from '@/shared/lib/roleplay-assets';
+import { getVisiblePublicGallery } from '@/shared/lib/compliance';
 import type { RoleplayCharacterClient } from '@/shared/lib/roleplay-client';
 import { parseFormatStyle } from '@/shared/lib/roleplay-format-style';
 import { parsePersonalityCard } from '@/shared/lib/roleplay-personality';
@@ -136,7 +137,7 @@ function toClientCharacter(
     opening: character.opening,
     avatar: buildCharacterImageUrl(character.avatarUrl),
     cover: buildCharacterImageUrl(character.coverUrl),
-    gallery: buildCharacterImageUrls(galleryFilenames),
+    gallery: getVisiblePublicGallery(buildCharacterImageUrls(galleryFilenames)),
     tags: safeJsonParse<string[]>(character.tags, []),
     tagSlugs: preloadedTagSlugs,
     stats: String((character as any).chatCount ?? 0),

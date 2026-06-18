@@ -1,15 +1,15 @@
 {
   "metadata": {
     "title": "Pricing",
-    "description": "Low-cost plans and credits for RolePlay"
+    "description": "Low-cost plans and credits for Keepsay"
   },
   "page": {
-    "title": "RolePlay Pricing",
+    "title": "Keepsay Pricing",
     "sections": {
       "pricing": {
         "id": "pricing",
         "title": "Pricing",
-        "description": "Start free, then keep chats, photos, voice, and character creation affordable.",
+        "description": "Start free, then keep story chats, safe character images, voice previews, and character creation affordable.",
         "groups": [
           {
             "name": "one-time",
@@ -30,11 +30,11 @@
         "items": [
           {
             "title": "First Spark",
-            "description": "A tiny first purchase for testing premium moments.",
+            "description": "A tiny first purchase for testing premium story features.",
             "features_title": "Includes",
             "features": [
               "220 credits, valid for 12 months",
-              "Enough for chat plus several voice or image moments",
+              "Enough for chat plus several voice preview or character image actions",
               "One-time new-user starter pack"
             ],
             "interval": "one-time",
@@ -51,7 +51,7 @@
               "icon": "Coins"
             },
             "product_id": "roleplay-first-spark",
-            "product_name": "RolePlay First Spark",
+            "product_name": "Keepsay First Spark",
             "credits": 220,
             "valid_days": 365,
             "group": "one-time"
@@ -79,18 +79,18 @@
               "icon": "Coins"
             },
             "product_id": "roleplay-spark",
-            "product_name": "RolePlay Spark Credits",
+            "product_name": "Keepsay Spark Credits",
             "credits": 350,
             "valid_days": 365,
             "group": "one-time"
           },
           {
             "title": "Glow",
-            "description": "More room for photos, voice, and experiments.",
+            "description": "More room for safe character images, voice previews, and experiments.",
             "features_title": "Includes",
             "features": [
               "800 credits, valid for 12 months",
-              "Better value for image and voice use",
+              "Better value for character image and voice preview use",
               "Works with any plan"
             ],
             "interval": "one-time",
@@ -107,7 +107,7 @@
               "icon": "Coins"
             },
             "product_id": "roleplay-glow",
-            "product_name": "RolePlay Glow Credits",
+            "product_name": "Keepsay Glow Credits",
             "credits": 800,
             "valid_days": 365,
             "group": "one-time"
@@ -120,7 +120,7 @@
               "650 credits every month",
               "Better chat continuity and basic memory",
               "3 active private characters",
-              "Voice and generated photos unlocked with credits"
+              "Voice previews and safe character images unlocked with credits"
             ],
             "interval": "month",
             "amount": 299,
@@ -136,7 +136,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-lite-monthly",
-            "product_name": "RolePlay Lite Monthly",
+            "product_name": "Keepsay Lite Monthly",
             "credits": 650,
             "valid_days": 30,
             "group": "monthly",
@@ -144,7 +144,7 @@
           },
           {
             "title": "Plus",
-            "description": "More memory, more messages, photos and voice when the moment hits.",
+            "description": "More story memory, more messages, safe character images, and voice previews.",
             "label": "Popular",
             "features_title": "Everything in Lite, plus",
             "features": [
@@ -152,7 +152,7 @@
               "Premium text model access",
               "Better memory and cloud sync",
               "10 active private characters",
-              "Chat-context photos and voice generation"
+              "Chat-context character images and voice generation"
             ],
             "interval": "month",
             "amount": 599,
@@ -161,14 +161,14 @@
             "original_price": "$7.99",
             "unit": "/ month",
             "is_featured": true,
-            "tip": "Best value for most roleplay users.",
+            "tip": "Best value for most Keepsay users.",
             "button": {
               "title": "Start Plus",
               "url": "/#pricing",
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-plus-monthly",
-            "product_name": "RolePlay Plus Monthly",
+            "product_name": "Keepsay Plus Monthly",
             "credits": 1400,
             "valid_days": 30,
             "group": "monthly",
@@ -176,7 +176,7 @@
           },
           {
             "title": "Pro",
-            "description": "For heavy roleplay and creators.",
+            "description": "For frequent character creators and long-running stories.",
             "features_title": "Everything in Plus, plus",
             "features": [
               "3,800 credits every month",
@@ -199,7 +199,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-pro-monthly",
-            "product_name": "RolePlay Pro Monthly",
+            "product_name": "Keepsay Pro Monthly",
             "credits": 3800,
             "valid_days": 30,
             "group": "monthly",
@@ -228,7 +228,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-lite-yearly",
-            "product_name": "RolePlay Lite Yearly",
+            "product_name": "Keepsay Lite Yearly",
             "credits": 7800,
             "valid_days": 365,
             "group": "yearly",
@@ -258,7 +258,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-plus-yearly",
-            "product_name": "RolePlay Plus Yearly",
+            "product_name": "Keepsay Plus Yearly",
             "credits": 16800,
             "valid_days": 365,
             "group": "yearly",
@@ -287,7 +287,7 @@
               "icon": "RiFlashlightFill"
             },
             "product_id": "roleplay-pro-yearly",
-            "product_name": "RolePlay Pro Yearly",
+            "product_name": "Keepsay Pro Yearly",
             "credits": 45600,
             "valid_days": 365,
             "group": "yearly",

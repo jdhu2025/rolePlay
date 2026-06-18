@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "RolePlay",
-    "description": "一个 Talkie 风格的 AI 角色扮演 MVP，包含角色发现、自定义人设、聊天、记忆、图库和会员卡点。",
-    "keywords": "AI 角色聊天, 角色扮演, 自定义人设, AI 伴侣, Talkie 模仿"
+    "title": "Keepsay",
+    "description": "Keepsay 帮助用户创建虚构角色、延续故事场景，并在清晰内容边界内生成合规角色图片。",
+    "keywords": "虚构角色聊天, 角色创建器, 故事连续性, 创意写作, 角色记忆"
   },
   "sign": {
     "sign_in_title": "登录",

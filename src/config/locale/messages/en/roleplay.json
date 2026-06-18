@@ -1,8 +1,8 @@
 {
   "nav": {
-    "create": "Create Talkie",
+    "create": "Create Character",
     "discover": "Discover",
-    "my_talkies": "My Talkies",
+    "my_talkies": "My Characters",
     "admin_review": "Moderation queue",
     "chat": "Chat",
     "memory": "Memory",
@@ -13,7 +13,7 @@
     "guest": "Guest creator",
     "signin_ready": "Sign in gate ready",
     "signed_in": "Signed in and saving",
-    "tagline": "Talkie style MVP",
+    "tagline": "Fictional character app",
     "close": "Close navigation",
     "sign_in": "Sign in",
     "sign_up": "Sign up",
@@ -31,34 +31,34 @@
     "sign_up": "Sign up"
   },
   "home": {
-    "hero_title": "Chat anytime, anywhere in your roleplay app.",
-    "hero_subtitle": "Your proactive companion agents are waiting.",
-    "hero_note": "Experience the charm of Talkie Claw.",
-    "try_claw": "Try Talkie Claw",
+    "hero_title": "Create fictional characters and continue their stories.",
+    "hero_subtitle": "Build original characters with memory, voice previews, and safe visual moments.",
+    "hero_note": "Start a story scene in Keepsay.",
+    "try_claw": "Try Keepsay",
     "recommended": "Recommended for you",
     "recommended_subtitle": "Recommended by age, preference, and chat history",
-    "roleplay": "Roleplay",
-    "roleplay_subtitle": "Recommended roleplay worlds",
+    "roleplay": "Story Scenes",
+    "roleplay_subtitle": "Recommended fictional worlds",
     "more_subtitle": "Muses, Anime, Fiction & Media",
-    "claw_beta": "Talkie Claw beta",
-    "claw_channels": "Discord · Telegram · Role agents",
+    "claw_beta": "Keepsay beta",
+    "claw_channels": "Discord · Telegram · Character agents",
     "view_all": "View all",
     "for_you": "For You",
-    "seo_title": "AI characters that remember you.",
-    "seo_subtitle": "Chat with fictional characters, anime-style personas, and story companions who remember your moments, continue your scenes, and keep clear safety boundaries.",
+    "seo_title": "Fictional characters for ongoing stories.",
+    "seo_subtitle": "Create original characters, continue story scenes, and keep story memory across chats with clear safety boundaries.",
     "primary_cta": "Start chatting",
     "secondary_cta": "Create your character",
     "pricing_cta": "View pricing",
     "pricing_note": "Plans, credits, renewal terms, and cancellation options are easy to review before purchase or checkout.",
     "proof_points": [
       "Memory that carries over",
-      "Fictional, anime, and story roles",
+      "Fictional and story-first roles",
       "Voice and character image moments"
     ],
     "seo_links_label": "Guides",
     "seo_links": [
       {
-        "label": "AI companion memory",
+        "label": "Character story memory",
         "href": "/ai-companion-that-remembers-you"
       },
       {
@@ -70,13 +70,13 @@
         "href": "/create-ai-character-with-memory"
       },
       {
-        "label": "Talkie alternative",
+        "label": "Character story app",
         "href": "/talkie-ai-alternative"
       }
     ],
     "explore_label": "Explore",
     "tasks": "Complete your tasks",
-    "tasks_subtitle": "Helper bots that complete practical jobs inside a roleplay shell.",
+    "tasks_subtitle": "Helper characters that complete practical jobs inside story scenes.",
     "more": "Explore more",
     "chat_now": "Chat now",
     "greeting": "is greeting you",
@@ -102,7 +102,7 @@
       "featured": "Featured",
       "muses": "Muses",
       "recommend": "Recommend",
-      "roleplay": "Roleplay",
+      "roleplay": "Story",
       "play_fun": "Play & Fun",
       "helper": "Helper",
       "original": "Original",
@@ -129,7 +129,7 @@
       },
       "compatibility": {
         "title": "Explore the potential",
-        "subtitle": "with Crush Compatibility Quiz"
+        "subtitle": "with Character Compatibility Quiz"
       },
       "ascendant": {
         "title": "Discover your ascendant sign",
@@ -145,36 +145,36 @@
     "message": "Message {name}",
     "typing": "{name} is typing...",
     "voice": "4 sec voice",
-    "private_photo_beta": "Character image generation open during free beta",
-    "private_image_preview": "Character image preview · free beta"
+    "private_photo_beta": "Policy-safe character image generation open during free beta",
+    "private_image_preview": "Policy-safe character image preview · free beta"
   },
   "profile": {
     "author": "Author @{author}",
     "persona": "Persona",
     "age": "Age",
-    "relationship": "Relationship",
+    "relationship": "Story setup",
     "voice": "Voice",
     "style": "Style",
     "intro": "Intro",
     "opening": "Opening line",
-    "chat_with": "Chat with this Talkie",
+    "chat_with": "Chat with this character",
     "features": {
       "voice": "Voice",
-      "photo": "Photo",
+      "photo": "Image",
       "call": "Call",
-      "secret": "Secret"
+      "secret": "Story note"
     }
   },
   "create": {
-    "title": "Create Your Talkie",
-    "list_title": "My Talkies",
+    "title": "Create Your Character",
+    "list_title": "My Characters",
     "list_subtitle": "Drafts, under-review submissions, and published characters.",
-    "create_cta": "Create a Talkie",
+    "create_cta": "Create a Character",
     "quick_create": {
       "entry_cta": "Quick Create",
       "title": "Quick Character Create",
       "headline": "Pick a few feelings. AI fills the rest.",
-      "subtitle": "Use a conflict, relationship start, and one optional memory to make a chat-ready character in minutes.",
+      "subtitle": "Use a story setup, character traits, and one optional memory to make a chat-ready character in minutes.",
       "required_hint": "Required: choose a scene and at least 1 trait. Everything else is optional; defaults are already selected.",
       "badge": "Quick Create",
       "back": "Back",
@@ -232,19 +232,19 @@
       "steps": {
         "template": "Scene",
         "traits": "Traits",
-        "relationship": "Relationship",
+        "relationship": "Story setup",
         "memory": "Key memory",
         "preview": "Preview"
       },
       "groups": {
-        "romance": "Crush & Regret",
+        "romance": "Character Drama",
         "workplace": "Work & Pressure",
         "daily": "Everyday Care",
         "fantasy": "Fantasy Adventure"
       },
       "template_title": "Who do you want to start a story with?",
       "traits_title": "What stands out about them?",
-      "relationship_title": "Where does the relationship begin?",
+      "relationship_title": "Where does the story setup begin?",
       "memory_title": "What should they remember first?",
       "preview_title": "Preview, tune, or publish",
       "tuning": {
@@ -252,7 +252,7 @@
         "warmer": "Warmer",
         "sharper": "Sharper",
         "mysterious": "More mysterious",
-        "closer": "More intimate",
+        "closer": "Warmer",
         "less_action": "Less action narration",
         "new_opening": "New opening"
       }
@@ -264,7 +264,7 @@
     "publishing": "Publishing…",
     "saving": "Saving…",
     "name": "Name",
-    "name_placeholder": "Name your Talkie",
+    "name_placeholder": "Name your character",
     "ai_writer": "AI Writer",
     "gender": "Gender",
     "gender_options": {
@@ -336,7 +336,7 @@
       }
     },
     "skill": "Skill",
-    "skill_desc": "Supports additional capabilities like Image Generation and Song Creation, expanding Talkie's potential use cases",
+    "skill_desc": "Supports additional capabilities like image generation and song creation, expanding character story use cases",
     "image_upload_error": "Image upload failed.",
     "image_uploaded": "Images uploaded.",
     "image_generate_error": "Image generation failed.",
@@ -344,11 +344,11 @@
     "image_prompt_label": "Image prompt",
     "image_prompt_placeholder": "For example: rainy city street, same character, black trench coat, cinematic lighting, change only the scene and pose, keep the same face and hairstyle",
     "image": "Image",
-    "image_desc": "Add image to make your Talkie more engaging",
+    "image_desc": "Add a policy-safe image to make your character more engaging",
     "voice": "Voice",
-    "voice_desc": "Choose a voice for your Talkie",
+    "voice_desc": "Choose a voice preview for your character",
     "tags": "Categories",
-    "tags_help": "Pick one or more categories so your Talkie shows up in the matching tab.",
+    "tags_help": "Pick one or more categories so your character shows up in the matching tab.",
     "add": "Add",
     "upload": "Upload",
     "adapter_ready": "Adapter-ready data",
@@ -356,7 +356,7 @@
     "visual_identity": "Stable visual identity: {items}",
     "persistence_line": "Drafts persist locally for guests and in the database after sign-in.",
     "preview": "Preview and Testing",
-    "notice": "Notice: Everything Talkies says is made up by AI!",
+    "notice": "Notice: Everything characters say is made up by AI!",
     "intro_label": "Intro",
     "reset": "Reset",
     "send": "Send",
@@ -375,8 +375,8 @@
     },
     "list_empty": {
       "title": "No characters yet",
-      "subtitle": "Tap Create a Talkie to start building your first character.",
-      "draft": "No drafts. Create a Talkie to start one.",
+      "subtitle": "Tap Create a Character to start building your first character.",
+      "draft": "No drafts. Create a character to start one.",
       "under_review": "No characters waiting for review.",
       "published": "No published characters yet."
     },
@@ -496,17 +496,17 @@
     "likes": "24 likes",
     "comments": "120 comments",
     "posts": {
-      "spring": "New character challenge: create a spring-themed Talkie and drop the link.",
+      "spring": "New character challenge: create a spring-themed character and drop the link.",
       "song": "Tell me your favorite song and I will make a character who would listen to it.",
       "detective": "I finally made a detective who remembers tiny clues."
     }
   },
   "collection": {
     "title": "Collection",
-    "subtitle": "Unlocked photos and generated memories."
+    "subtitle": "Unlocked character images and generated memories."
   },
   "pricing": {
-    "title": "Talkie+ is open for beta",
+    "title": "Keepsay+ is open for beta",
     "subtitle": "Checkout, subscription callbacks, billing, and credits route through the Keepsay billing system.",
     "start": "Open checkout",
     "credits": "Credits ledger",
@@ -515,11 +515,11 @@
     "plans": {
       "free_beta": {
         "name": "Free beta",
-        "desc": "Roleplay chat, voice previews, gallery access"
+        "desc": "Story chat, voice previews, gallery access"
       },
       "creator_beta": {
         "name": "Creator beta",
-        "desc": "Create Talkies, test memories, keep drafts locally"
+        "desc": "Create characters, test memories, keep drafts locally"
       },
       "pro_beta": {
         "name": "Pro beta",
@@ -528,7 +528,7 @@
     }
   },
   "footer": {
-    "copyright": "Copyright © 2026 RolePlay. All rights reserved.",
+    "copyright": "Copyright © 2026 Keepsay. All rights reserved.",
     "features": "Features",
     "explore": "Explore",
     "overview": "Overview",
@@ -536,12 +536,12 @@
       "faq": "FAQ",
       "pricing": "Pricing",
       "chat": "Chat",
-      "create_talkie": "Create Talkie",
+      "create_talkie": "Create Character",
       "billing": "Billing",
       "payments": "Payments",
       "activities": "Activities",
-      "more_characters": "More AI characters",
-      "blog": "RolePlay Blog",
+      "more_characters": "More characters",
+      "blog": "Keepsay Blog",
       "updates": "Updates",
       "support": "Support",
       "terms": "Terms",
@@ -561,13 +561,13 @@
     "back": "Back to characters",
     "occupation": "Occupation",
     "location": "Location",
-    "seo_line": "Start an AI Character Chat with {name} for immersive AI Roleplay, emotional companion stories, voice, photos, and memory.",
+    "seo_line": "Start a fictional character chat with {name} for story scenes, voice previews, safe character images, and memory.",
     "bio": "About",
     "personality": "Personality",
     "tags": "Tags",
     "comments": "Comments",
     "comments_empty": "No comments yet. Be the first to say hi.",
-    "comments_placeholder": "Share a thought about this Talkie…",
+    "comments_placeholder": "Share a thought about this character…",
     "comments_reply_placeholder": "Reply to {name}…",
     "comments_submit": "Post",
     "comments_signin": "Sign in to leave a comment.",
@@ -626,7 +626,7 @@
     "history_title": "{name} chat history",
     "history_subtitle": "Review the recent saved conversations for this character.",
     "history_empty": "No saved chat history yet.",
-    "history_sign_in": "Sign in to view saved roleplay chat history.",
+    "history_sign_in": "Sign in to view saved character chat history.",
     "continue_chat": "Continue chat",
     "conversation": "Conversation",
     "messages_count": "{count} messages"

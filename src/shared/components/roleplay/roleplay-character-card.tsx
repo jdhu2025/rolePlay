@@ -25,6 +25,11 @@ import {
 } from '@/data/roleplay-seo-scenes';
 import { PhotoCarousel } from '@/shared/components/roleplay/photo-carousel';
 import {
+  canShowHighRiskSeoPages,
+  getVisiblePublicGallery,
+  isHighRiskSeoPath,
+} from '@/shared/lib/compliance';
+import {
   type RoleplayCharacterClient,
   readCharacterSettings,
 } from '@/shared/lib/roleplay-client';
@@ -51,7 +56,17 @@ export function RoleplayCharacterCard({
   const settings = readCharacterSettings(character);
   const location = settings.location || character.scene || '';
   const tagSlice = character.tags.slice(0, 3);
-  const sceneSlice = (character.seoScenes || []).slice(0, 2);
+  const visibleGallery = getVisiblePublicGallery(character.gallery);
+  const sceneSlice = (character.seoScenes || [])
+    .filter((slug) => {
+      const scene = ROLEPLAY_SEO_SCENES[slug as RoleplaySeoSceneSlug];
+      return (
+        canShowHighRiskSeoPages() ||
+        !scene ||
+        !isHighRiskSeoPath(`/${scene.landingSlug}`)
+      );
+    })
+    .slice(0, 2);
   const router = useRouter();
   const tHome = useTranslations('roleplay.home');
   const locale = useLocale();
@@ -124,7 +139,7 @@ export function RoleplayCharacterCard({
     >
       <div className="relative">
         <PhotoCarousel
-          images={character.gallery}
+          images={visibleGallery}
           alt={character.name}
           priority={priority}
           aspectClassName={imageAspectClassName}

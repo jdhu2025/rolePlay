@@ -1,19 +1,19 @@
 {
   "nav": {
-    "create": "创建 Talkie",
+    "create": "创建角色",
     "discover": "发现",
-    "my_talkies": "我的 Talkie",
+    "my_talkies": "我的角色",
     "admin_review": "审核台",
     "chat": "聊天",
     "memory": "记忆",
     "community": "社区",
     "collection": "收藏",
     "my_ai": "我的 AI",
-    "free_beta": "免费 Beta：语音、记忆、图库已开放",
+    "free_beta": "免费 Beta：语音预览、记忆、图库已开放",
     "guest": "游客创作者",
     "signin_ready": "登录后自动保存",
     "signed_in": "已登录并自动保存",
-    "tagline": "Talkie 风格 MVP",
+    "tagline": "虚构角色应用",
     "close": "关闭导航",
     "sign_in": "登录",
     "sign_up": "注册",
@@ -31,21 +31,21 @@
     "sign_up": "注册"
   },
   "home": {
-    "hero_title": "在您的角色聊天应用中，随时随地对话。",
-    "hero_subtitle": "主动陪伴型角色代理正在等你。",
-    "hero_note": "体验 Talkie Claw 的魅力。",
-    "try_claw": "试试 Talkie Claw",
+    "hero_title": "创建虚构角色，延续他们的故事。",
+    "hero_subtitle": "用记忆、语音预览和安全视觉瞬间构建原创角色。",
+    "hero_note": "在 Keepsay 开始一个故事场景。",
+    "try_claw": "试试 Keepsay",
     "recommended": "为你推荐",
     "recommended_subtitle": "根据年龄、偏好、聊天历史推荐",
-    "roleplay": "角色扮演",
-    "roleplay_subtitle": "推荐的角色世界",
+    "roleplay": "故事场景",
+    "roleplay_subtitle": "推荐的虚构世界",
     "more_subtitle": "原创、动漫游戏、影视文学",
-    "claw_beta": "Talkie Claw Beta",
+    "claw_beta": "Keepsay Beta",
     "claw_channels": "Discord · Telegram · 角色代理",
     "view_all": "查看全部",
     "for_you": "为你推荐",
-    "seo_title": "会记住你的 AI 角色。",
-    "seo_subtitle": "和虚构角色、动漫风人设、故事伙伴聊天；他们会记住你们的片段，接上上次没说完的话，并保持清晰的安全边界。",
+    "seo_title": "为持续故事而生的虚构角色。",
+    "seo_subtitle": "创建原创角色、延续故事场景，并在清晰安全边界内保存角色记忆。",
     "primary_cta": "开始聊天",
     "secondary_cta": "创建角色",
     "pricing_cta": "查看价格",
@@ -53,12 +53,12 @@
     "proof_points": [
       "会延续的长期记忆",
       "虚构、动漫、故事角色",
-      "语音和角色图片瞬间"
+      "语音预览和合规角色图片"
     ],
     "seo_links_label": "指南",
     "seo_links": [
       {
-        "label": "AI 伴侣记忆",
+        "label": "角色故事记忆",
         "href": "/ai-companion-that-remembers-you"
       },
       {
@@ -70,13 +70,13 @@
         "href": "/create-ai-character-with-memory"
       },
       {
-        "label": "Talkie 替代品",
+        "label": "角色故事应用",
         "href": "/talkie-ai-alternative"
       }
     ],
     "explore_label": "探索更多",
     "tasks": "完成你的任务",
-    "tasks_subtitle": "用角色扮演外壳完成真实任务的助手。",
+    "tasks_subtitle": "在故事场景中完成真实任务的助手角色。",
     "more": "探索更多",
     "chat_now": "立即聊天",
     "greeting": "正在向你打招呼",
@@ -129,7 +129,7 @@
       },
       "compatibility": {
         "title": "探索关系可能性",
-        "subtitle": "和心动匹配测试"
+        "subtitle": "和角色匹配测试"
       },
       "ascendant": {
         "title": "发现你的上升星座",
@@ -157,24 +157,24 @@
     "style": "风格",
     "intro": "介绍",
     "opening": "开场白",
-    "chat_with": "和这个 Talkie 聊天",
+    "chat_with": "和这个角色聊天",
     "features": {
       "voice": "语音",
-      "photo": "照片",
+      "photo": "图片",
       "call": "通话",
       "secret": "私密"
     }
   },
   "create": {
-    "title": "创建你的 Talkie",
-    "list_title": "我的 Talkie",
+    "title": "创建你的角色",
+    "list_title": "我的角色",
     "list_subtitle": "草稿、审核中和已发布的角色。",
-    "create_cta": "创建一个 Talkie",
+    "create_cta": "创建一个角色",
     "quick_create": {
       "entry_cta": "快速创建",
       "title": "快速创建角色",
       "headline": "选几个感觉，剩下交给 AI 补完。",
-      "subtitle": "用生活冲突、关系起点和一条关键记忆，几分钟内生成一个可聊天的角色。",
+      "subtitle": "用故事设定、角色特质和一条关键记忆，几分钟内生成一个可聊天的角色。",
       "required_hint": "必填：选择一个场景，至少保留 1 个性格。其它内容都可跳过，系统已默认选好。",
       "badge": "快速创建",
       "back": "返回",
@@ -232,19 +232,19 @@
       "steps": {
         "template": "选择场景",
         "traits": "选择性格",
-        "relationship": "选择关系",
+        "relationship": "故事设定",
         "memory": "关键记忆",
         "preview": "预览角色"
       },
       "groups": {
-        "romance": "心动与遗憾",
+        "romance": "角色戏剧",
         "workplace": "职场与压力",
         "daily": "日常陪伴",
         "fantasy": "奇幻冒险"
       },
       "template_title": "你想和谁开始一段故事？",
       "traits_title": "TA 最明显的性格是什么？",
-      "relationship_title": "你们现在是什么关系？",
+      "relationship_title": "故事设定从哪里开始？",
       "memory_title": "想让 TA 先记住什么？",
       "preview_title": "预览、微调或发布",
       "tuning": {
@@ -252,7 +252,7 @@
         "warmer": "更温柔一点",
         "sharper": "更毒舌一点",
         "mysterious": "更神秘一点",
-        "closer": "更亲密一点",
+        "closer": "更温暖一点",
         "less_action": "少点动作描写",
         "new_opening": "换个开场"
       }
@@ -264,7 +264,7 @@
     "publishing": "发布中…",
     "saving": "保存中…",
     "name": "名称",
-    "name_placeholder": "给你的 Talkie 取个名字",
+    "name_placeholder": "给你的角色取个名字",
     "ai_writer": "AI 写作",
     "gender": "性别",
     "gender_options": {
@@ -344,11 +344,11 @@
     "image_prompt_label": "生图提示词",
     "image_prompt_placeholder": "例如：雨夜街头，同一角色，黑色风衣，电影感光影，只改变场景和姿态，保持同一人物脸部与发型",
     "image": "图片",
-    "image_desc": "添加图片让你的 Talkie 更有吸引力",
+    "image_desc": "添加合规图片让你的角色更完整",
     "voice": "声音",
-    "voice_desc": "为你的 Talkie 选择声音",
+    "voice_desc": "为你的角色选择语音预览",
     "tags": "分类",
-    "tags_help": "选择一个或多个分类，让你的 Talkie 出现在对应的标签页里。",
+    "tags_help": "选择一个或多个分类，让你的角色出现在对应的标签页里。",
     "add": "添加",
     "upload": "上传",
     "adapter_ready": "已适配的数据",
@@ -356,7 +356,7 @@
     "visual_identity": "稳定视觉身份：{items}",
     "persistence_line": "游客草稿保存在本地，登录后保存到数据库。",
     "preview": "预览和测试",
-    "notice": "注意：Talkie 说的一切都是 AI 生成的虚构内容。",
+    "notice": "注意：角色说的一切都是 AI 生成的虚构内容。",
     "intro_label": "介绍",
     "reset": "重置",
     "send": "发送",
@@ -375,8 +375,8 @@
     },
     "list_empty": {
       "title": "还没有角色",
-      "subtitle": "点击「创建一个 Talkie」开始你的第一个角色。",
-      "draft": "暂无草稿。点击创建一个 Talkie 开始。",
+      "subtitle": "点击「创建一个角色」开始你的第一个角色。",
+      "draft": "暂无草稿。点击创建一个角色开始。",
       "under_review": "没有等待审核的角色。",
       "published": "还没有已发布的角色。"
     },
@@ -496,17 +496,17 @@
     "likes": "24 个喜欢",
     "comments": "120 条评论",
     "posts": {
-      "spring": "新角色挑战：创建一个春日主题 Talkie 并分享链接。",
+      "spring": "新角色挑战：创建一个春日主题角色并分享链接。",
       "song": "告诉我你最喜欢的歌，我会做一个会听它的角色。",
       "detective": "我终于做出了一个会记住微小线索的侦探。"
     }
   },
   "collection": {
     "title": "收藏",
-    "subtitle": "已解锁照片和生成记忆。"
+    "subtitle": "已解锁角色图片和生成记忆。"
   },
   "pricing": {
-    "title": "Talkie+ 免费 Beta 开放中",
+    "title": "Keepsay+ 免费 Beta 开放中",
     "subtitle": "结账、会员回调、账单和 credits 已接入 Keepsay 账单系统。",
     "start": "打开结账",
     "credits": "Credits 明细",
@@ -515,11 +515,11 @@
     "plans": {
       "free_beta": {
         "name": "免费 Beta",
-        "desc": "角色聊天、语音预览、图库访问"
+        "desc": "故事聊天、语音预览、图库访问"
       },
       "creator_beta": {
         "name": "创作者 Beta",
-        "desc": "创建 Talkie、测试记忆、保留本地草稿"
+        "desc": "创建角色、测试记忆、保留本地草稿"
       },
       "pro_beta": {
         "name": "Pro Beta",
@@ -528,7 +528,7 @@
     }
   },
   "footer": {
-    "copyright": "Copyright © 2026 RolePlay. 保留所有权利。",
+    "copyright": "Copyright © 2026 Keepsay. 保留所有权利。",
     "features": "功能",
     "explore": "探索",
     "overview": "概览",
@@ -536,12 +536,12 @@
       "faq": "常见问题",
       "pricing": "价格",
       "chat": "聊天",
-      "create_talkie": "创建 Talkie",
+      "create_talkie": "创建角色",
       "billing": "账单",
       "payments": "付款记录",
       "activities": "活动",
-      "more_characters": "更多 AI 角色",
-      "blog": "RolePlay 博客",
+      "more_characters": "更多角色",
+      "blog": "Keepsay 博客",
       "updates": "更新日志",
       "support": "支持",
       "terms": "条款",
@@ -554,20 +554,20 @@
     "subtitle": "12 位角色，先看脸",
     "empty": "暂无角色",
     "loading": "加载中…",
-    "photo_count": "{n} 张照片"
+    "photo_count": "{n} 张图片"
   },
   "detail": {
     "start_chat": "开始聊天",
     "back": "返回角色",
     "occupation": "职业",
     "location": "位置",
-    "seo_line": "和 {name} 开始 AI Character Chat，进入沉浸式 AI Roleplay、情绪陪伴故事、语音、照片和记忆体验。",
+    "seo_line": "和 {name} 开始虚构角色聊天，体验故事场景、语音预览、合规角色图片和记忆。",
     "bio": "关于",
     "personality": "性格",
     "tags": "标签",
     "comments": "评论",
     "comments_empty": "还没有评论，来留下第一条吧。",
-    "comments_placeholder": "聊聊对这个 Talkie 的想法…",
+    "comments_placeholder": "聊聊对这个角色的想法…",
     "comments_reply_placeholder": "回复 {name}…",
     "comments_submit": "发送",
     "comments_signin": "登录后才能留言。",

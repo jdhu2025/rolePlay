@@ -101,7 +101,7 @@ export function RoleplayNavDrawer({
         className="w-[min(320px,85vw)] border-white/10 bg-[#15151b] p-0 text-white"
       >
         <SheetHeader className="border-b border-white/5">
-          <SheetTitle className="text-white">RolePlay</SheetTitle>
+          <SheetTitle className="text-white">Keepsay</SheetTitle>
           <SheetDescription className="text-zinc-400">
             {t('tagline')}
           </SheetDescription>

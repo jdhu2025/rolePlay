@@ -3,6 +3,10 @@ import { getSessionCookie } from 'better-auth/cookies';
 import createIntlMiddleware from 'next-intl/middleware';
 
 import { routing } from '@/core/i18n/config';
+import {
+  isHighRiskSeoPath,
+  shouldBlockHighRiskSeoPages,
+} from '@/shared/lib/compliance';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -18,6 +22,14 @@ export async function proxy(request: NextRequest) {
   const pathWithoutLocale = isValidLocale
     ? pathname.slice(locale.length + 1)
     : pathname;
+
+  if (
+    shouldBlockHighRiskSeoPages() &&
+    isHighRiskSeoPath(pathWithoutLocale || '/')
+  ) {
+    const safeUrl = new URL(isValidLocale ? `/${locale}` : '/', request.url);
+    return NextResponse.redirect(safeUrl, 307);
+  }
 
   // Only check authentication for admin routes
   if (

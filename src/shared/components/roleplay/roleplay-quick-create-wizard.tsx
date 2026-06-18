@@ -19,14 +19,16 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
+  getVisibleQuickCreateTemplates,
   QUICK_TRAITS,
   ROLEPLAY_QUICK_CREATE_TEMPLATES,
   type QuickCreateTemplate,
 } from '@/data/roleplay-quick-create-templates';
 import {
   getQuickCreateGrowthMetadata,
+  getVisibleQuickCreateInspirations,
+  getVisibleQuickCreateIntentGroups,
   QUICK_CREATE_INTENT_GROUPS,
-  QUICK_CREATE_INSPIRATIONS,
   type QuickCreateIntentCategory,
   type QuickCreateInspirationType,
 } from '@/data/roleplay-seo-scenes';
@@ -35,6 +37,7 @@ import type { AiWriterDraft } from '@/shared/components/roleplay/ai-writer-dialo
 import { showRoleplayApiErrorToast } from '@/shared/components/roleplay/roleplay-billing-toast';
 import { Input } from '@/shared/components/ui/input';
 import { Textarea } from '@/shared/components/ui/textarea';
+import { canUseCustomImagePrompts } from '@/shared/lib/compliance';
 import {
   createRoleplayApiError,
   createRoleplayRequestId,
@@ -87,6 +90,10 @@ const QUICK_CREATE_INSPIRATION_ORDER: QuickCreateInspirationType[] = [
   'crush_chat_template',
   'private_memory_companion',
 ];
+
+const VISIBLE_QUICK_CREATE_TEMPLATES = getVisibleQuickCreateTemplates();
+const VISIBLE_QUICK_CREATE_INTENT_GROUPS = getVisibleQuickCreateIntentGroups();
+const VISIBLE_QUICK_CREATE_INSPIRATIONS = getVisibleQuickCreateInspirations();
 
 const MEMORY_CHIPS = [
   {
@@ -345,7 +352,8 @@ const TUNING_OPTIONS = [
   },
 ] as const;
 
-const firstTemplate = ROLEPLAY_QUICK_CREATE_TEMPLATES[0];
+const firstTemplate =
+  VISIBLE_QUICK_CREATE_TEMPLATES[0] ?? ROLEPLAY_QUICK_CREATE_TEMPLATES[0];
 
 function uniqueUrls(urls: string[]) {
   return Array.from(new Set(urls.filter(Boolean)));
@@ -570,12 +578,15 @@ export function RoleplayQuickCreateWizard() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [state, setState] = useState<QuickCreateState>(buildInitialState);
   const [activeGroup, setActiveGroup] =
-    useState<QuickCreateIntentCategory>('crush_chat');
+    useState<QuickCreateIntentCategory>(
+      VISIBLE_QUICK_CREATE_INTENT_GROUPS[0]?.id ?? 'private_character'
+    );
 
   const isZh = locale.startsWith('zh');
+  const canCustomizeImagePrompt = canUseCustomImagePrompts();
   const template = useMemo(
     () =>
-      ROLEPLAY_QUICK_CREATE_TEMPLATES.find((item) => item.id === state.templateId) ??
+      VISIBLE_QUICK_CREATE_TEMPLATES.find((item) => item.id === state.templateId) ??
       firstTemplate,
     [state.templateId]
   );
@@ -621,7 +632,7 @@ export function RoleplayQuickCreateWizard() {
 
   const selectGroup = useCallback((group: QuickCreateIntentCategory) => {
     setActiveGroup(group);
-    const next = ROLEPLAY_QUICK_CREATE_TEMPLATES.find(
+    const next = VISIBLE_QUICK_CREATE_TEMPLATES.find(
       (item) => getQuickCreateGrowthMetadata(item).intentCategory === group
     );
     recordRoleplayMomentEvent({
@@ -656,7 +667,7 @@ export function RoleplayQuickCreateWizard() {
   }, []);
 
   const selectInspiration = useCallback((type: QuickCreateInspirationType) => {
-    const next = ROLEPLAY_QUICK_CREATE_TEMPLATES.find(
+    const next = VISIBLE_QUICK_CREATE_TEMPLATES.find(
       (item) => getQuickCreateGrowthMetadata(item).inspirationType === type
     );
     if (!next) return;
@@ -1180,6 +1191,7 @@ export function RoleplayQuickCreateWizard() {
                 generatingImage={state.generatingImage}
                 imagePrompt={state.imagePrompt}
                 keyMemory={state.keyMemory}
+                canCustomizeImagePrompt={canCustomizeImagePrompt}
                 customInstruction={state.customInstruction}
                 uploadingImage={state.uploadingImage}
                 onGenerateImage={generateAvatar}
@@ -1292,50 +1304,57 @@ function TemplateStep({
 }) {
   const t = useTranslations('roleplay.create.quick_create');
   const group =
-    QUICK_CREATE_INTENT_GROUPS.find((item) => item.id === activeGroup) ??
+    VISIBLE_QUICK_CREATE_INTENT_GROUPS.find((item) => item.id === activeGroup) ??
+    VISIBLE_QUICK_CREATE_INTENT_GROUPS[0] ??
     QUICK_CREATE_INTENT_GROUPS[0];
-  const templates = ROLEPLAY_QUICK_CREATE_TEMPLATES.filter((item) =>
+  const templates = VISIBLE_QUICK_CREATE_TEMPLATES.filter((item) =>
     getQuickCreateGrowthMetadata(item).intentCategory === group.id
+  );
+  const visibleInspirationOrder = QUICK_CREATE_INSPIRATION_ORDER.filter(
+    (type) => VISIBLE_QUICK_CREATE_INSPIRATIONS[type]
   );
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
-          {isZh ? '先选灵感' : 'Start from inspiration'}
-        </p>
-        <div className="mt-3 grid gap-2 md:grid-cols-4">
-          {QUICK_CREATE_INSPIRATION_ORDER.map((type) => {
-            const inspiration = QUICK_CREATE_INSPIRATIONS[type];
-            const matchingTemplate = ROLEPLAY_QUICK_CREATE_TEMPLATES.find(
-              (item) => getQuickCreateGrowthMetadata(item).inspirationType === type
-            );
-            const isActive = matchingTemplate?.id === selectedId;
-            return (
-              <button
-                key={type}
-                type="button"
-                onClick={() => onInspirationSelect(type)}
-                data-active={isActive}
-                className={cn(
-                  'min-h-28 rounded-2xl border border-white/10 bg-black/25 p-3 text-left text-zinc-300 transition-colors hover:bg-white/[0.06]',
-                  'data-[active=true]:border-white/60 data-[active=true]:bg-white data-[active=true]:text-black'
-                )}
-              >
-                <Sparkles className="size-4 opacity-70" />
-                <span className="mt-3 block text-sm font-semibold leading-snug">
-                  {isZh ? inspiration.titleZh : inspiration.titleEn}
-                </span>
-                <span className="mt-1 block text-xs leading-snug opacity-70">
-                  {isZh ? inspiration.summaryZh : inspiration.summaryEn}
-                </span>
-              </button>
-            );
-          })}
+      {visibleInspirationOrder.length > 0 ? (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            {isZh ? '先选灵感' : 'Start from inspiration'}
+          </p>
+          <div className="mt-3 grid gap-2 md:grid-cols-4">
+            {visibleInspirationOrder.map((type) => {
+              const inspiration = VISIBLE_QUICK_CREATE_INSPIRATIONS[type];
+              const matchingTemplate = VISIBLE_QUICK_CREATE_TEMPLATES.find(
+                (item) =>
+                  getQuickCreateGrowthMetadata(item).inspirationType === type
+              );
+              const isActive = matchingTemplate?.id === selectedId;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => onInspirationSelect(type)}
+                  data-active={isActive}
+                  className={cn(
+                    'min-h-28 rounded-2xl border border-white/10 bg-black/25 p-3 text-left text-zinc-300 transition-colors hover:bg-white/[0.06]',
+                    'data-[active=true]:border-white/60 data-[active=true]:bg-white data-[active=true]:text-black'
+                  )}
+                >
+                  <Sparkles className="size-4 opacity-70" />
+                  <span className="mt-3 block text-sm font-semibold leading-snug">
+                    {isZh ? inspiration.titleZh : inspiration.titleEn}
+                  </span>
+                  <span className="mt-1 block text-xs leading-snug opacity-70">
+                    {isZh ? inspiration.summaryZh : inspiration.summaryEn}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ) : null}
       <div className="grid gap-2 md:grid-cols-4">
-        {QUICK_CREATE_INTENT_GROUPS.map((item) => (
+        {VISIBLE_QUICK_CREATE_INTENT_GROUPS.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -1617,6 +1636,7 @@ function MemoryStep({
   keyMemory,
   customInstruction,
   uploadingImage,
+  canCustomizeImagePrompt,
   onGenerateImage,
   onDeleteImage,
   onPickImage,
@@ -1629,6 +1649,7 @@ function MemoryStep({
   keyMemory: string;
   customInstruction: string;
   uploadingImage: boolean;
+  canCustomizeImagePrompt: boolean;
   onGenerateImage: () => void;
   onDeleteImage: (url: string) => void;
   onPickImage: () => void;
@@ -1679,12 +1700,16 @@ function MemoryStep({
           <span className="text-sm font-medium text-zinc-200">
             {t('avatar_title')}
           </span>
-          <Input
-            value={imagePrompt}
-            onChange={(event) => onUpdate({ imagePrompt: event.target.value })}
-            placeholder={t('image_prompt_placeholder')}
-            className="border-white/10 bg-black/40 text-zinc-100 placeholder:text-zinc-500"
-          />
+          {canCustomizeImagePrompt ? (
+            <Input
+              value={imagePrompt}
+              onChange={(event) =>
+                onUpdate({ imagePrompt: event.target.value })
+              }
+              placeholder={t('image_prompt_placeholder')}
+              className="border-white/10 bg-black/40 text-zinc-100 placeholder:text-zinc-500"
+            />
+          ) : null}
           <div className="flex flex-wrap gap-2">
             <button
               type="button"

@@ -1,3 +1,5 @@
+import { canShowRomanceTemplates } from '@/shared/lib/compliance';
+
 export type QuickCreateCategory =
   | 'life_conflict'
   | 'workplace'
@@ -538,3 +540,26 @@ export const ROLEPLAY_QUICK_CREATE_TEMPLATES: QuickCreateTemplate[] = [
     },
   },
 ];
+
+const SENSITIVE_QUICK_CREATE_TEMPLATE_IDS = new Set([
+  'life-secret-crush',
+  'life-ex-return',
+  'life-cold-war-lover',
+  'life-old-friend-spark',
+  'life-blind-date',
+]);
+
+export function isComplianceSafeQuickCreateTemplate(
+  template: QuickCreateTemplate
+) {
+  if (template.category === 'romance') return false;
+  if (SENSITIVE_QUICK_CREATE_TEMPLATE_IDS.has(template.id)) return false;
+  return true;
+}
+
+export function getVisibleQuickCreateTemplates() {
+  if (canShowRomanceTemplates()) return ROLEPLAY_QUICK_CREATE_TEMPLATES;
+  return ROLEPLAY_QUICK_CREATE_TEMPLATES.filter(
+    isComplianceSafeQuickCreateTemplate
+  );
+}

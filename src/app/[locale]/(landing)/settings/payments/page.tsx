@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { PaymentType } from '@/extensions/payment/types';
 import { Empty } from '@/shared/blocks/common';
 import { TableCard } from '@/shared/blocks/table';
+import { getReviewSafeProductName } from '@/shared/lib/payment-product-name';
 import {
   getOrders,
   getOrdersCount,
@@ -47,7 +48,12 @@ export default async function PaymentsPage({
     title: t('list.title'),
     columns: [
       { name: 'orderNo', title: t('fields.order_no'), type: 'copy' },
-      { name: 'productName', title: t('fields.product_name') },
+      {
+        title: t('fields.product_name'),
+        callback: function (item) {
+          return getReviewSafeProductName((item as Order).productName);
+        },
+      },
       {
         name: 'status',
         title: t('fields.status'),

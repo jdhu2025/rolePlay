@@ -3,6 +3,7 @@ import {
   buildCharacterImageUrl,
   buildCharacterImageUrls,
 } from '@/shared/lib/roleplay-assets';
+import { getVisiblePublicGallery } from '@/shared/lib/compliance';
 import {
   normalizeFormatStyle,
   parseFormatStyle,
@@ -111,7 +112,7 @@ async function toClientCharacter(
     (character as any).gallery ?? '[]',
     []
   );
-  const gallery = buildCharacterImageUrls(galleryFilenames);
+  const gallery = getVisiblePublicGallery(buildCharacterImageUrls(galleryFilenames));
   // Tag slugs live in the junction table; fall back to the legacy free-form
   // `tags` JSON array if the character has no taxonomy bindings yet.
   const taxonomySlugs =

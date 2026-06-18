@@ -4,6 +4,7 @@ import {
   type RoleplaySeoSceneSlug,
 } from '@/data/roleplay-seo-scenes';
 
+import { getVisiblePublicGallery } from '@/shared/lib/compliance';
 import type { RoleplayFormatStyle } from '@/shared/lib/roleplay-format-style';
 import {
   buildFirstExperienceRecommendationQuery,
@@ -149,7 +150,9 @@ function toSiteImageUrl(value: string): string {
 
 export const OFFICIAL_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
   ROLEPLAY_OFFICIAL_CHARACTERS.map((character) => {
-    const gallery = character.images.map(toSiteImageUrl).filter(Boolean);
+    const gallery = getVisiblePublicGallery(
+      character.images.map(toSiteImageUrl).filter(Boolean)
+    );
     return {
       id: character.id,
       name: character.name,

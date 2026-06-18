@@ -5,6 +5,10 @@ import { ROLEPLAY_OFFICIAL_CHARACTERS } from '@/data/roleplay-characters';
 import { envConfigs } from '@/config';
 import { defaultLocale, localePrefix, locales } from '@/config/locale';
 import {
+  canShowHighRiskSeoPages,
+  isHighRiskSeoPath,
+} from '@/shared/lib/compliance';
+import {
   normalizeSitemapEntries,
   type SitemapInput,
 } from '@/shared/lib/seo-url';
@@ -184,8 +188,11 @@ async function getPublicCharacterEntries(): Promise<SitemapInput[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const staticEntries = canShowHighRiskSeoPages()
+    ? STATIC_PUBLIC_PATHS
+    : STATIC_PUBLIC_PATHS.filter((entry) => !isHighRiskSeoPath(entry.path));
   const entries = [
-    ...STATIC_PUBLIC_PATHS,
+    ...staticEntries,
     ...(await getPublicCharacterEntries()),
   ];
 

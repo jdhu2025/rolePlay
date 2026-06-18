@@ -3,6 +3,7 @@ import {
   buildCharacterImageUrl,
   buildCharacterImageUrls,
 } from '@/shared/lib/roleplay-assets';
+import { getVisiblePublicGallery } from '@/shared/lib/compliance';
 import {
   normalizeFormatStyle,
   parseFormatStyle,
@@ -104,7 +105,7 @@ async function toClientCharacter(character: RoleplayCharacter) {
     opening: character.opening,
     avatar: buildCharacterImageUrl(character.avatarUrl),
     cover: buildCharacterImageUrl(character.coverUrl),
-    gallery: buildCharacterImageUrls(galleryFilenames),
+    gallery: getVisiblePublicGallery(buildCharacterImageUrls(galleryFilenames)),
     tags: safeJsonParse<string[]>(character.tags, []),
     tagSlugs: taxonomySlugs,
     skills: safeJsonParse<string[]>((character as any).skills ?? '[]', []),

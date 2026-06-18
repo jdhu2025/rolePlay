@@ -7,6 +7,7 @@ import {
   buildCharacterImageUrl,
   buildCharacterImageUrls,
 } from '@/shared/lib/roleplay-assets';
+import { getVisiblePublicGallery } from '@/shared/lib/compliance';
 import { parseFormatStyle } from '@/shared/lib/roleplay-format-style';
 import { parsePersonalityCard } from '@/shared/lib/roleplay-personality';
 import { parseStyleExamples } from '@/shared/lib/roleplay-style-examples';
@@ -112,7 +113,7 @@ async function toClientCharacter(
     (character as any).gallery ?? '[]',
     []
   );
-  const gallery = buildCharacterImageUrls(galleryFilenames);
+  const gallery = getVisiblePublicGallery(buildCharacterImageUrls(galleryFilenames));
   const taxonomySlugs = preloadedTagSlugs ?? [];
   const personalityCard = parsePersonalityCard(
     (character as any).personalityCard ?? '{}'

@@ -7,6 +7,10 @@ import {
   generateOpenAICompatibleImage,
   resolveImageProviderConfig,
 } from '@/shared/lib/ai-provider';
+import {
+  shouldFailClosedOnModerationUnavailable,
+  shouldRequireCreemModeration,
+} from '@/shared/lib/compliance';
 import { moderatePromptForCreem } from '@/shared/lib/creem-moderation';
 import { md5 } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
@@ -59,6 +63,7 @@ function readBooleanSetting(
 }
 
 function isRoleplayImageModerationEnabled(configs: Record<string, string>) {
+  if (shouldRequireCreemModeration(configs)) return true;
   return readBooleanSetting(configs, 'roleplay_image_moderation_enabled', true);
 }
 
@@ -711,9 +716,16 @@ export async function POST(request: Request) {
       : NO_REFERENCE_IDENTITY_LOCK;
     const providerPrompt = buildFinalProviderPrompt(imagePrompt, identityLock);
     if (isRoleplayImageModerationEnabled(configs)) {
+      const moderationConfigs = shouldFailClosedOnModerationUnavailable(configs)
+        ? {
+            ...configs,
+            creem_moderation_fail_closed: 'true',
+            creem_moderation_fail_open: 'false',
+          }
+        : configs;
       const moderation = await moderatePromptForCreem({
         prompt: imagePrompt,
-        configs,
+        configs: moderationConfigs,
         externalId: `user_${user.id}:roleplay_image_${requestId || idempotencyKey}`,
       });
       timing.mark('creem_moderation');

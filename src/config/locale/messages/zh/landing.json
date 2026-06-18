@@ -34,7 +34,7 @@
           "children": [
             {
               "title": "博客",
-              "description": "阅读产品更新和角色扮演内容",
+              "description": "阅读产品更新和角色故事内容",
               "url": "/blog",
               "icon": "Newspaper"
             },
@@ -49,6 +49,12 @@
               "description": "查看内容和安全规则",
               "url": "/acceptable-use-policy",
               "icon": "BookOpenText"
+            },
+            {
+              "title": "安全",
+              "description": "查看审核和产品边界",
+              "url": "/safety",
+              "icon": "ShieldCheck"
             }
           ]
         }
@@ -84,7 +90,7 @@
     "id": "footer",
     "brand": {
       "title": "Keepsay",
-      "description": "Keepsay 是面向虚构角色聊天和故事连续性的 AI roleplay 应用，支持记忆、语音和合规的角色图片生成。",
+      "description": "Keepsay 是面向虚构角色聊天和创意写作的应用，支持原创角色、故事连续性、记忆、语音预览和合规角色图片。",
       "logo": {
         "src": "/logo.png",
         "alt": "Keepsay",
@@ -144,6 +150,11 @@
               "target": "_self"
             },
             {
+              "title": "安全",
+              "url": "/safety",
+              "target": "_self"
+            },
+            {
               "title": "隐私政策",
               "url": "/privacy-policy",
               "target": "_self"
@@ -186,6 +197,10 @@
         {
           "title": "可接受使用政策",
           "url": "/acceptable-use-policy"
+        },
+        {
+          "title": "安全",
+          "url": "/safety"
         }
       ]
     },

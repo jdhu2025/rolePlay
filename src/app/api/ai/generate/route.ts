@@ -4,6 +4,7 @@ import {
   moderatePromptForCreem,
   shouldModerateAIGeneration,
 } from '@/shared/lib/creem-moderation';
+import { shouldFailClosedOnModerationUnavailable } from '@/shared/lib/compliance';
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { createAITask, NewAITask } from '@/shared/models/ai_task';
@@ -118,9 +119,16 @@ export async function POST(request: Request) {
 
     if (shouldModerateAIGeneration({ mediaType, scene })) {
       const configs = await getAllConfigs();
+      const moderationConfigs = shouldFailClosedOnModerationUnavailable(configs)
+        ? {
+            ...configs,
+            creem_moderation_fail_closed: 'true',
+            creem_moderation_fail_open: 'false',
+          }
+        : configs;
       const moderation = await moderatePromptForCreem({
         prompt,
-        configs,
+        configs: moderationConfigs,
         externalId: `user_${user.id}:ai_${mediaType}_${scene}_${getUuid()}`,
       });
 

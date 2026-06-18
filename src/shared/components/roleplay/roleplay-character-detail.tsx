@@ -22,6 +22,11 @@ import { PhotoCarousel } from '@/shared/components/roleplay/photo-carousel';
 import { TrackedRoleplayLink } from '@/shared/components/roleplay/tracked-roleplay-link';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import {
+  canShowHighRiskSeoPages,
+  getVisiblePublicGallery,
+  isHighRiskSeoPath,
+} from '@/shared/lib/compliance';
+import {
   ROLEPLAY_CHARACTER_SEO_SCENES,
   ROLEPLAY_SEO_SCENES,
 } from '@/data/roleplay-seo-scenes';
@@ -84,6 +89,7 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
   const occupation = settings.occupation || character.style;
   const location = settings.location || character.scene;
   const chatHref = `/chat/profile/${character.id}`;
+  const visibleGallery = getVisiblePublicGallery(character.gallery);
   const sceneLinks = (ROLEPLAY_CHARACTER_SEO_SCENES[character.id] ?? [])
     .map((slug) => {
       const scene = ROLEPLAY_SEO_SCENES[slug];
@@ -94,6 +100,11 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
         href: `/${scene.landingSlug}`,
       };
     })
+    .filter((link) =>
+      link
+        ? canShowHighRiskSeoPages() || !isHighRiskSeoPath(link.href)
+        : false
+    )
     .filter(Boolean) as Array<{ slug: string; label: string; href: string }>;
 
   return (
@@ -109,7 +120,7 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
 
         <div className="grid gap-6 md:grid-cols-[minmax(0,420px)_1fr] md:items-start md:gap-8">
           <PhotoCarousel
-            images={character.gallery}
+            images={visibleGallery}
             alt={character.name}
             priority
             aspectClassName="aspect-[3/4]"

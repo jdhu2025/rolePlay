@@ -50,6 +50,7 @@ import {
 } from '@/shared/lib/roleplay-first-experience';
 import { recordRoleplayMomentEvent } from '@/shared/lib/roleplay-moment-events';
 import { useAppContext } from '@/shared/contexts/app';
+import { canShowPublicGallery } from '@/shared/lib/compliance';
 import { getSupportMailto } from '@/shared/lib/support-email';
 
 import type { RoleplayHomeInitialData } from '@/shared/lib/server/roleplay-home-data';
@@ -348,22 +349,22 @@ function SeoSceneRail() {
       href: '/ai-character-chat-with-memory',
       labelEn: 'AI chat with memory',
       labelZh: '带记忆的 AI 聊天',
-      descriptionEn: 'For companions that can return to your story.',
-      descriptionZh: '适合想要故事能接上的陪伴体验。',
+      descriptionEn: 'For characters that can return to your story.',
+      descriptionZh: '适合想要故事能接上的角色体验。',
     },
     {
       href: '/anime-ai-roleplay-characters',
-      labelEn: 'Anime roleplay',
-      labelZh: '动漫角色扮演',
-      descriptionEn: 'Original anime companions and fantasy scenes.',
+      labelEn: 'Anime story characters',
+      labelZh: '动漫故事角色',
+      descriptionEn: 'Original anime characters and fantasy scenes.',
       descriptionZh: '原创动漫角色和幻想场景。',
     },
     {
       href: '/custom-ai-character-creator',
       labelEn: 'Custom creator',
       labelZh: '自定义角色创建',
-      descriptionEn: 'Use cozy, anime, crush, or private memory templates.',
-      descriptionZh: '使用治愈、动漫、心动或私有记忆模板。',
+      descriptionEn: 'Use story, anime, character drama, or private memory templates.',
+      descriptionZh: '使用故事、动漫、角色戏剧或私有记忆模板。',
     },
   ];
 
@@ -723,6 +724,14 @@ function RoleplayHomeFooter() {
   const t = useTranslations('roleplay.footer');
   const { configs } = useAppContext();
   const supportMailto = getSupportMailto(configs);
+  const exploreItems = [
+    [t('items.activities'), '/activity'],
+    ...(canShowPublicGallery(configs)
+      ? ([[t('items.more_characters'), '/']] as string[][])
+      : []),
+    [t('items.blog'), '/blog'],
+    [t('items.updates'), '/updates'],
+  ];
   const groups = [
     {
       title: t('features'),
@@ -736,12 +745,7 @@ function RoleplayHomeFooter() {
     },
     {
       title: t('explore'),
-      items: [
-        [t('items.activities'), '/activity'],
-        [t('items.more_characters'), '/'],
-        [t('items.blog'), '/blog'],
-        [t('items.updates'), '/updates'],
-      ],
+      items: exploreItems,
     },
     {
       title: t('overview'),
