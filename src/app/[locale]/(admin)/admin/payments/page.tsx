@@ -4,7 +4,10 @@ import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { PaymentType } from '@/extensions/payment/types';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
 import { TableCard } from '@/shared/blocks/table';
+import { ManualCryptoReviewActions } from '@/shared/components/billing/manual-crypto-review-actions';
 import { getOrders, getOrdersCount, OrderStatus } from '@/shared/models/order';
+import { getSignUser } from '@/shared/models/user';
+import { hasRole, ROLES } from '@/shared/services/rbac';
 import { Crumb, Filter, Search, Tab } from '@/shared/types/blocks/common';
 import { type Table } from '@/shared/types/blocks/table';
 
@@ -31,6 +34,10 @@ export default async function PaymentsPage({
     redirectUrl: '/admin/no-permission',
     locale,
   });
+  const signUser = await getSignUser();
+  const canReviewManualCrypto = signUser
+    ? await hasRole(signUser.id, ROLES.SUPER_ADMIN)
+    : false;
 
   const t = await getTranslations('admin.payments');
 
@@ -114,6 +121,10 @@ export default async function PaymentsPage({
           value: 'paypal',
           label: t('list.filters.provider.options.paypal'),
         },
+        {
+          value: 'manual_crypto',
+          label: 'Manual crypto',
+        },
       ],
     },
   ];
@@ -177,6 +188,17 @@ export default async function PaymentsPage({
         name: 'paymentProvider',
         title: t('fields.provider'),
         type: 'label',
+      },
+      {
+        title: 'Review',
+        callback: (item) => (
+          <ManualCryptoReviewActions
+            orderNo={item.orderNo}
+            provider={item.paymentProvider}
+            status={item.status}
+            canReview={canReviewManualCrypto}
+          />
+        ),
       },
       { name: 'createdAt', title: t('fields.created_at'), type: 'time' },
     ],

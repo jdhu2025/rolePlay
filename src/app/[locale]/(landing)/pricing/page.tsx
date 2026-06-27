@@ -1,12 +1,14 @@
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 
-import { getThemePage } from '@/core/theme';
 import { getMetadata } from '@/shared/lib/seo';
-import { getCurrentSubscription } from '@/shared/models/subscription';
-import { getUserInfo } from '@/shared/models/user';
-import { DynamicPage } from '@/shared/types/blocks/landing';
+import { ManualCryptoTopupForm } from '@/shared/components/billing/manual-crypto-topup-form';
+import {
+  getManualCryptoTopupPlans,
+  getManualCryptoWalletOptions,
+} from '@/shared/lib/manual-crypto-topup';
+import { getAllConfigs } from '@/shared/models/config';
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export const generateMetadata = getMetadata({
   metadataKey: 'pages.pricing.metadata',
@@ -21,35 +23,25 @@ export default async function PricingPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  // get current subscription
-  let currentSubscription;
-  try {
-    const user = await getUserInfo();
-    if (user) {
-      currentSubscription = await getCurrentSubscription(user.id);
-    }
-  } catch (error) {
-    console.log('getting current subscription failed:', error);
-  }
+  const configs = await getAllConfigs();
+  const cryptoPlans = getManualCryptoTopupPlans(configs);
+  const walletOptions = getManualCryptoWalletOptions(configs);
 
-  // get pricing data
-  const t = await getTranslations('pages.pricing');
-
-  // build page sections
-  const page: DynamicPage = {
-    title: t.raw('page.title'),
-    sections: {
-      pricing: {
-        ...t.raw('page.sections.pricing'),
-        data: {
-          currentSubscription,
-        },
-      },
-    },
-  };
-
-  // load page component
-  const Page = await getThemePage('dynamic-page');
-
-  return <Page locale={locale} page={page} />;
+  return (
+    <main className="bg-muted/30 min-h-screen py-8 md:py-12">
+      <section className="mx-auto w-full max-w-6xl px-4">
+        <div className="bg-background rounded-xl border p-6 shadow-sm md:p-8">
+          <h1 className="text-foreground text-3xl font-bold tracking-tight">
+            Crypto top-up
+          </h1>
+          <div className="mt-8">
+            <ManualCryptoTopupForm
+              plans={cryptoPlans}
+              walletOptions={walletOptions}
+            />
+          </div>
+        </div>
+      </section>
+    </main>
+  );
 }

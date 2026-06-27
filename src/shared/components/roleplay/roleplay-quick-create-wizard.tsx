@@ -19,15 +19,13 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
-  getVisibleQuickCreateTemplates,
   QUICK_TRAITS,
   ROLEPLAY_QUICK_CREATE_TEMPLATES,
   type QuickCreateTemplate,
 } from '@/data/roleplay-quick-create-templates';
 import {
   getQuickCreateGrowthMetadata,
-  getVisibleQuickCreateInspirations,
-  getVisibleQuickCreateIntentGroups,
+  QUICK_CREATE_INSPIRATIONS,
   QUICK_CREATE_INTENT_GROUPS,
   type QuickCreateIntentCategory,
   type QuickCreateInspirationType,
@@ -91,9 +89,9 @@ const QUICK_CREATE_INSPIRATION_ORDER: QuickCreateInspirationType[] = [
   'private_memory_companion',
 ];
 
-const VISIBLE_QUICK_CREATE_TEMPLATES = getVisibleQuickCreateTemplates();
-const VISIBLE_QUICK_CREATE_INTENT_GROUPS = getVisibleQuickCreateIntentGroups();
-const VISIBLE_QUICK_CREATE_INSPIRATIONS = getVisibleQuickCreateInspirations();
+const VISIBLE_QUICK_CREATE_TEMPLATES = ROLEPLAY_QUICK_CREATE_TEMPLATES;
+const VISIBLE_QUICK_CREATE_INTENT_GROUPS = QUICK_CREATE_INTENT_GROUPS;
+const VISIBLE_QUICK_CREATE_INSPIRATIONS = QUICK_CREATE_INSPIRATIONS;
 
 const MEMORY_CHIPS = [
   {

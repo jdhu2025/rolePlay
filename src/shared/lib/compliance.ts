@@ -22,6 +22,18 @@ function readRawConfig(configs: ConfigLike | undefined, key: string) {
   return '';
 }
 
+function isGrowthModeForced() {
+  const raw = String(
+    process.env.FORCE_GROWTH_MODE ??
+      process.env.NEXT_PUBLIC_FORCE_GROWTH_MODE ??
+      'true'
+  )
+    .trim()
+    .toLowerCase();
+
+  return !FALSE_VALUES.has(raw);
+}
+
 export function readComplianceBoolean(
   configs: ConfigLike | undefined,
   key: string,
@@ -35,7 +47,8 @@ export function readComplianceBoolean(
 }
 
 export function isComplianceMode(configs?: ConfigLike) {
-  return readComplianceBoolean(configs, 'public_compliance_mode', true);
+  if (isGrowthModeForced()) return false;
+  return readComplianceBoolean(configs, 'public_compliance_mode', false);
 }
 
 export function canShowHighRiskSeoPages(configs?: ConfigLike) {

@@ -3,6 +3,12 @@ import { getTranslations } from 'next-intl/server';
 import { Empty } from '@/shared/blocks/common';
 import { PanelCard } from '@/shared/blocks/panel';
 import { TableCard } from '@/shared/blocks/table';
+import { ManualCryptoTopupForm } from '@/shared/components/billing/manual-crypto-topup-form';
+import {
+  getManualCryptoTopupPlans,
+  getManualCryptoWalletOptions,
+} from '@/shared/lib/manual-crypto-topup';
+import { getAllConfigs } from '@/shared/models/config';
 import {
   Credit,
   CreditStatus,
@@ -95,6 +101,9 @@ export default async function CreditsPage({
   };
 
   const remainingCredits = await getRemainingCredits(user.id);
+  const configs = await getAllConfigs();
+  const cryptoPlans = getManualCryptoTopupPlans(configs);
+  const walletOptions = getManualCryptoWalletOptions(configs);
 
   const tabs: Tab[] = [
     {
@@ -123,9 +132,8 @@ export default async function CreditsPage({
         title={t('view.title')}
         buttons={[
           {
-            title: t('view.buttons.purchase'),
-            url: '/pricing',
-            target: '_blank',
+            title: 'Top up with crypto',
+            url: '#crypto-topup',
             icon: 'Coins',
           },
         ]}
@@ -133,6 +141,14 @@ export default async function CreditsPage({
       >
         <div className="text-primary text-3xl font-bold">
           {remainingCredits}
+        </div>
+      </PanelCard>
+      <PanelCard title="Crypto top-up" className="max-w-3xl">
+        <div id="crypto-topup">
+          <ManualCryptoTopupForm
+            plans={cryptoPlans}
+            walletOptions={walletOptions}
+          />
         </div>
       </PanelCard>
       <TableCard title={t('list.title')} tabs={tabs} table={table} />
