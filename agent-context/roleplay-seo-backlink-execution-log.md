@@ -2,6 +2,69 @@
 
 ## 2026-06-30
 
+Status: local SEO priority pass implemented; offsite execution still gated
+
+### Completed Later Session
+
+- [x] Reviewed the full SEO implementation plan instead of only the AITDK
+  density subsection, then prioritized the highest-impact tasks that could be
+  completed without external accounts: SEO-G13, SEO-G15, SEO-G12, and a first
+  pass of SEO-G14.
+- [x] Implemented SEO-G13 local homepage audit fixes:
+  homepage `og:image` / `twitter:image` now use a Keepsay character image
+  instead of the stale ShipAny `preview.png`, homepage meta keywords were
+  shortened and changed to memory-led phrases, homepage `ItemList` now starts
+  with memory/create-with-memory pages, and character cards use descriptive
+  alt/title/aria text.
+- [x] Implemented SEO-G15 grounded vocabulary refresh across the homepage,
+  scene rail, overview block, FAQ, proof points, creator page, and
+  Talkie-alternative page. Added natural phrases such as AI friend, fictional
+  crush story, roommate roleplay, adult classmate, comfort chat, fantasy
+  adventure, anime school story, free AI character chat, create your own
+  character, favorite drink, nickname, last scene, and remembers your story.
+- [x] Implemented SEO-G12 creator-page refresh by changing
+  `/custom-ai-character-creator` toward private chat-character creation with
+  memory, story continuity, memory seeds, and chat-first templates rather than
+  image/avatar-generator positioning.
+- [x] Started SEO-G14 by strengthening character-card anchor semantics, adding
+  restrained footer discovery links, and refreshing `/talkie-ai-alternative`
+  around memory/private continuity. Collection/category page expansion remains
+  a separate pending task.
+- [x] Updated the backlink tracker target rotation after the keyword refresh:
+  `create-ai-character-with-memory` is now the preferred creator-intent target,
+  while `custom-ai-character-creator` is secondary.
+- [x] Ran verification successfully:
+  `node --import tsx scripts/check-seo-copy.ts`,
+  `node --import tsx scripts/check-home-positioning.ts`,
+  `node --import tsx scripts/check-roleplay-seo-scenes.ts`,
+  `node --import tsx scripts/check-roleplay-seo-landing-pages.ts`,
+  `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm exec fumadocs-mdx`,
+  `pnpm check:roleplay-seo`, and `pnpm build`.
+
+### Notes
+
+- The first sandboxed `pnpm check:roleplay-seo` attempt failed before running
+  business checks because `tsx` could not create its IPC pipe under
+  `/var/folders/...`. The same command passed after rerunning outside the
+  sandbox.
+- `pnpm lint` still reports existing warnings only. `pnpm build` still logs the
+  expected local `DATABASE_URL is not set` sitemap fallback, then succeeds.
+- No offsite directory submission, community answer, or outreach email was
+  completed in this session because those actions require account access,
+  login/CAPTCHA, paid-placement decisions, backlink-placement approval, or an
+  outreach identity.
+
+### Next Actions From This Session
+
+- Deploy the local SEO changes and re-run AITDK on the live homepage to confirm
+  social image, image alt text, `ItemList` order, and meta keywords.
+- Continue SEO-G14 with clean collection/category pages for memory characters,
+  anime roleplay, free chat, creator/private characters, and alternatives.
+- Resume SEO-G11 offsite execution once submission accounts, paid-placement
+  policy, backlink placement decisions, and outreach identity are available.
+
+---
+
 Status: indexing-first production release prepared
 
 ### Completed

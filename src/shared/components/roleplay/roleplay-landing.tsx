@@ -348,32 +348,46 @@ function SeoSceneRail() {
   const isZh = locale.startsWith('zh');
   const scenes = [
     {
+      href: '/ai-character-chat-with-memory',
+      labelEn: 'AI friend chat with memory',
+      labelZh: '带记忆的 AI friend 聊天',
+      descriptionEn: 'A character who remembers your story and the small stuff.',
+      descriptionZh: '角色会记住你的故事和那些小细节。',
+    },
+    {
+      href: '/create-ai-character-with-memory',
+      labelEn: 'Create your own character',
+      labelZh: '创建自己的角色',
+      descriptionEn: 'Start from a scene, then keep the character private.',
+      descriptionZh: '先选场景，再保存成私有角色。',
+    },
+    {
       href: '/free-ai-character-chat',
       labelEn: 'Free AI character chat',
       labelZh: '免费 AI 角色聊天',
-      descriptionEn: 'Start with public characters before creating your own.',
-      descriptionZh: '先体验公共角色，再创建自己的私有角色。',
-    },
-    {
-      href: '/ai-character-chat-with-memory',
-      labelEn: 'AI chat with memory',
-      labelZh: '带记忆的 AI 聊天',
-      descriptionEn: 'For characters that can return to your story.',
-      descriptionZh: '适合想要故事能接上的角色体验。',
+      descriptionEn: 'Try anime, comfort, roommate, and fantasy scenes first.',
+      descriptionZh: '先体验动漫、治愈、室友和幻想场景。',
     },
     {
       href: '/anime-ai-roleplay-characters',
-      labelEn: 'Anime story characters',
-      labelZh: '动漫故事角色',
-      descriptionEn: 'Original anime characters and fantasy scenes.',
-      descriptionZh: '原创动漫角色和幻想场景。',
+      labelEn: 'Anime school and fantasy',
+      labelZh: '动漫校园和幻想故事',
+      descriptionEn: 'Original adult campus mentors, mages, and adventure arcs.',
+      descriptionZh: '原创成人校园导师、魔法师和冒险线。',
     },
     {
-      href: '/custom-ai-character-creator',
-      labelEn: 'Custom creator',
-      labelZh: '自定义角色创建',
-      descriptionEn: 'Use story, anime, character drama, or private memory templates.',
-      descriptionZh: '使用故事、动漫、角色戏剧或私有记忆模板。',
+      href: '/comfort-ai-companion',
+      labelEn: 'Comfort companion',
+      labelZh: '治愈陪伴',
+      descriptionEn: 'Low-pressure comfort chat that can continue tomorrow.',
+      descriptionZh: '低压力治愈聊天，明天也能接上。',
+    },
+    {
+      href: '/talkie-ai-alternative',
+      labelEn: 'Talkie alternative with memory',
+      labelZh: '带记忆的 Talkie 替代品',
+      descriptionEn: 'Compare character chat through memory and private continuity.',
+      descriptionZh: '用记忆和私有连续性来比较角色聊天应用。',
     },
   ];
 
@@ -383,7 +397,7 @@ function SeoSceneRail() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
           {isZh ? '按场景开始' : 'Start by scene'}
         </p>
-        <div className="mt-3 grid gap-2 md:grid-cols-4">
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {scenes.map((scene) => (
             <Link
               key={scene.href}
@@ -841,8 +855,27 @@ function HomeFaqSection() {
 
 function RoleplayHomeFooter() {
   const t = useTranslations('roleplay.footer');
+  const locale = useLocale();
+  const isZh = locale.startsWith('zh');
   const { configs } = useAppContext();
   const supportMailto = getSupportMailto(configs);
+  const discoveryItems = isZh
+    ? [
+        ['带记忆 AI 聊天', '/ai-character-chat-with-memory'],
+        ['免费 AI 角色聊天', '/free-ai-character-chat'],
+        ['动漫 AI 角色扮演', '/anime-ai-roleplay-characters'],
+        ['创建带记忆角色', '/create-ai-character-with-memory'],
+        ['Character.AI 替代品', '/character-ai-alternative-with-memory'],
+        ['Talkie 替代品', '/talkie-ai-alternative'],
+      ]
+    : [
+        ['AI Character Chat With Memory', '/ai-character-chat-with-memory'],
+        ['Free AI Character Chat', '/free-ai-character-chat'],
+        ['AI Anime Chat', '/anime-ai-roleplay-characters'],
+        ['Create AI Character With Memory', '/create-ai-character-with-memory'],
+        ['Character AI Alternative', '/character-ai-alternative-with-memory'],
+        ['Talkie AI Alternative', '/talkie-ai-alternative'],
+      ];
   const exploreItems = [
     [t('items.activities'), '/activity'],
     ...(canShowPublicGallery(configs)
@@ -864,7 +897,7 @@ function RoleplayHomeFooter() {
     },
     {
       title: t('explore'),
-      items: exploreItems,
+      items: [...discoveryItems, ...exploreItems],
     },
     {
       title: t('overview'),

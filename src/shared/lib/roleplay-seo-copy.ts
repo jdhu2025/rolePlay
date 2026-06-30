@@ -1,26 +1,20 @@
 export const ROLEPLAY_HOME_SEO = {
   brandName: 'Keepsay',
-  title: 'Keepsay | AI Character Chat & AI Roleplay',
+  title: 'Keepsay | AI Character Chat With Memory',
   subtitle:
-    'Crush-style companions, anime personas, and immersive stories for late-night company.',
+    'Free AI character chat for anime friends, comfort companions, fantasy stories, and private characters that remember your story.',
   description:
-    'Keepsay is an AI character chat and AI roleplay app for crush-style stories, anime personas, and immersive companion chats. Create characters with voice, photos, memory, and clear story boundaries as a Character.AI alternative.',
+    'Keepsay is an AI character chat app with memory for anime roleplay, comfort companions, fantasy adventure, and private character creation. Start free chat or create an AI character that remembers your story as a Character.AI alternative with memory.',
   keywords: [
     'Keepsay',
-    'AI Character Chat',
-    'AI Roleplay',
-    'AI roleplay characters',
-    'Best Character AI alternatives',
-    'Character.AI alternative',
-    'Talkie AI alternative',
-    'PolyBuzz alternative',
-    'AI companion chat',
-    'lonely AI companion',
-    'not alone AI chat',
-    'crush AI chat',
-    'anime AI roleplay',
-    'immersive roleplay chat',
-    'voice photo memory AI chat',
+    'AI character chat',
+    'AI roleplay with memory',
+    'AI character chat with memory',
+    'create AI character with memory',
+    'private AI character creator',
+    'free AI character chat',
+    'Character.AI alternative with memory',
+    'Talkie AI alternative with memory',
   ],
 } as const;
 
@@ -58,7 +52,7 @@ export function buildCharacterSeoCopy(character: CharacterSeoInput) {
   const description = [
     `AI Character Chat with ${name}:`,
     intro || 'start an immersive companion story',
-    'Explore AI Roleplay with voice, photos, memory, and Character.AI alternative discovery.',
+    'Explore AI roleplay with memory, story continuity, voice previews, safe character images, and Character.AI alternative discovery.',
   ].join(' ');
 
   return {
@@ -70,13 +64,10 @@ export function buildCharacterSeoCopy(character: CharacterSeoInput) {
       'AI Character Chat',
       'AI Roleplay',
       'AI roleplay character',
-      'Best Character AI alternatives',
-      'Character.AI alternative',
-      'Talkie AI alternative',
-      'PolyBuzz alternative',
-      'AI companion chat',
-      'lonely AI companion',
-      'crush AI chat',
+      'AI character chat with memory',
+      'Character.AI alternative with memory',
+      'Talkie AI alternative with memory',
+      'AI companion chat with memory',
       'anime AI roleplay',
     ].filter(Boolean),
   };

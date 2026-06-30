@@ -1,6 +1,6 @@
 # RolePlay SEO Implementation Plan
 
-Last updated: 2026-06-30 Asia/Shanghai
+Last updated: 2026-06-30 17:44 Asia/Shanghai
 
 ## Remaining Todo
 
@@ -39,6 +39,27 @@ Last updated: 2026-06-30 Asia/Shanghai
   and query clusters for the new scene landing pages.
 - [ ] Consider adding Playwright screenshot regression tests if UI iteration on
   these pages becomes frequent.
+- [x] Fix AITDK extension issues found on the live homepage:
+  `og:image` / `twitter:image` still show the ShipAny template graphic, 5
+  images are missing alt text, homepage `ItemList` structured data order does
+  not match the refreshed memory-led priority, and meta keywords are too long
+  at roughly 303 characters. Local implementation now sets the homepage social
+  image to a Keepsay character asset, shortens homepage meta keywords, reorders
+  homepage `ItemList` toward memory/create-with-memory pages, and gives
+  homepage character cards more descriptive image alt/title/aria labels. Recheck
+  the live AITDK extension after deployment.
+- [ ] Apply Talkie competitor lessons without copying its technical debt:
+  strengthen character-card internal links, add clean collection/category
+  pages, expand footer discovery links, and make the Talkie alternative angle
+  clearly about memory and private story continuity. First local pass is done:
+  footer discovery links, character-card anchor semantics, and Talkie
+  alternative copy now emphasize memory and private continuity. Clean
+  collection/category pages remain pending.
+- [x] Refresh homepage and landing-page copy with a more grounded user
+  vocabulary layer: AI friend, fictional crush, roommate, classmate, comfort
+  chat, fantasy adventure, anime school story, free chat, create character,
+  and "remembers your story" phrasing. Local homepage, creator page, and
+  Talkie-alternative page copy now use this layer.
 
 ## Indexing First Fix
 
@@ -66,6 +87,231 @@ This section is for external backlink acquisition only. Do not turn site edits
 into a day-by-day plan. Site edits are supporting prerequisites: fix them in
 batches when needed, then return to offsite execution.
 
+## 2026-06-30 Keyword Refresh
+
+Method:
+
+- Used `bb-browser` to open Google Trends at
+  `https://trends.google.com/trends/explore?q=custom%20AI%20character%20creator&legacy&hl=zh-CN`.
+- Scope for trend checks: global, past 12 months, all categories, Google web
+  search. Google Trends numbers are relative indices, not search volume.
+- Benchmarked key phrases against `AI character chat` where Trends returned
+  complete visible data. Later Trends widget requests hit temporary 429
+  responses, so non-returned rows are treated as directional only.
+- Used `bb-browser site google/search` for first-page SERP checks. Competition
+  density below is an observed SERP density label, not paid-tool keyword
+  difficulty.
+- Used `bb-browser` on `https://aitdk.com/ai-seo-keywords-generator` as a
+  supplemental keyword-idea check. AITDK generated keyword suggestions but did
+  not provide search volume, keyword difficulty, or competition metrics. Its
+  output is therefore used only for intent validation and copy expansion.
+
+AITDK supplemental output:
+
+| Input | AITDK Keyword Suggestions | SEO Use |
+| --- | --- | --- |
+| `custom AI character creator` | `AI character design`, `personalized character generator`, `custom avatar maker`, `unique character design`, `AI-driven character customization`, `digital character builder`, `virtual character artist` | Confirms this phrase drifts toward visual/avatar generation. Keep exact phrase secondary and avoid making it the main acquisition anchor. |
+| `AI character chat with memory` | `chat with memory`, `memory-enabled chatbots`, `personalized AI interactions`, `memory in chatbots`, `AI character dialogue`, `immersive AI experiences` | Useful copy-expansion terms for memory pages, FAQs, and comparison outreach. |
+| `create AI character with memory` | `character memory`, `memory retention in AI`, `AI storytelling`, `character personalization`, `memory simulation`, `intelligent character design` | Useful for the creation-with-memory page and creator-page rewrite. |
+
+### Refresh Summary
+
+| Keyword / Cluster | Trend Signal | SERP Competition Density | Decision |
+| --- | --- | --- | --- |
+| `AI character chat` | Strongest benchmark: avg 77, peak 100, recent pullback from May peak but still high. | High: Character.AI, Talkie, Perchance, app stores, PolyBuzz. | Keep as broad category language in titles, nav, intro copy, and internal anchors. Too competitive as a standalone new-domain page. |
+| `AI character creator` | Mid signal: avg 12, peak 23, rising into May-June before pullback. | High and partly mismatched: Canva, Adobe, OpenArt, Hotpot, Perchance image-generator pages. | Use as a supporting phrase. Do not rely on it as the primary Keepsay acquisition keyword. |
+| `custom AI character creator` | Very low exact signal when benchmarked: avg 0; sparse or insufficient weekly data. | High and mismatched: top results skew toward visual character/image generators. | Demote exact-match anchor and directory priority. Keep the page, but position it around private chat-character creation and memory. |
+| `AI roleplay with memory` / `AI character chat with memory` | Low exact-volume signal in Trends, but visible sparse demand. | Medium: Reddit, smaller guides, small products, GitHub/technical pages appear alongside competitors. | Promote as a high-fit long-tail cluster. Best for editorial pages, FAQ, comparison outreach, and memory-focused backlinks. |
+| `create AI character with memory` / `custom AI character with memory` | Very low exact Trends signal. | Low-medium: Reddit, OpenAI community, GitHub, YouTube, technical guides, and fewer polished commercial pages. | Make this the preferred creation-intent long-tail over `custom AI character creator`. |
+| `AI companion that remembers you` | Directional only after Trends rate limit. | Medium: Reddit, Nomi, Dearest, Replika, Questie, and smaller memory-app guides. | Keep as a P0/P1 emotional memory page and outreach angle. |
+| `character ai alternative with memory` | Directional only after Trends rate limit. | Medium-high: Reddit plus 2026 alternative listicles and competitor blogs. | Keep as a P1 comparison page; useful for switching intent, but harder than memory-only long tails. |
+| `free AI character chat` | Directional only after Trends rate limit. | High: Talkie, Character.AI, SeaArt, Saylo, Perchance, Emochi, PolyBuzz. | Keep for directories and low-friction discovery, but avoid making it the main SEO bet for a new domain. |
+| `anime character AI chat` / `anime AI roleplay` | Directional only after Trends rate limit. | High: app stores, Character.AI, Talkie, Talefy, Reddit, PolyBuzz. | Keep as a supporting growth page because it matches user intent, but it needs internal links and character assets to compete. |
+| `talkie ai alternative` | Directional only after Trends rate limit. | Medium-high: Reddit plus several 2026 alternative/listicle pages. | Keep as P2/P1 depending on outreach fit; use memory and continuity as the differentiator. |
+
+Rising related queries visible for the `AI character chat` benchmark included
+`chat ai charms.ai`, `character ai charms.ai`, `darlink ai`, `ourdream ai`, and
+`swerve ai`. Treat these as competitor/market-watch terms, not target anchors
+for Keepsay pages.
+
+### Refreshed Keyword Direction
+
+1. Use `AI character chat` as the broad category umbrella.
+2. Use memory-specific long tails for ranking attempts:
+   `AI character chat with memory`, `AI roleplay with memory`,
+   `AI companion that remembers you`, and `create AI character with memory`.
+3. Demote exact `custom AI character creator` from P0 promotion because Trends
+   showed insufficient exact demand and Google SERPs skew toward image/avatar
+   generators rather than chat-character creation.
+4. Keep competitor alternatives, but lead them with a narrower memory angle:
+   `Character.AI alternative with memory`, `Talkie AI alternative with memory`,
+   and `AI roleplay app with good memory`.
+5. For new copy, prefer natural product-fit anchors over exact-match bulk
+   anchors: `an AI character chat app with memory`, `a private AI character
+   creator`, `create an AI character that remembers the story`.
+
+## 2026-06-30 Talkie Competitor Notes
+
+Method:
+
+- Used `bb-browser` to open `https://www.talkie-ai.com/`. The live page
+  redirected to `https://www.talkie-ai.com/zh-Hant` in the current browser
+  session.
+- Compared the live extraction with the user's AITDK extension screenshots for
+  traffic, headings, density, and links.
+- Treat AITDK traffic and keyword-density numbers as third-party directional
+  estimates, not first-party analytics.
+
+Observed Talkie signals:
+
+| Area | Finding | Keepsay Takeaway |
+| --- | --- | --- |
+| Traffic | AITDK reported May 2026 monthly visits of 6.75M, bounce rate 24.53%, pages per visit 11.19, average visit duration 00:14:45, global rank 5,784, and domain age 3.13 years. | The category has real demand and strong engagement when users can browse many characters. Keepsay should measure page depth and repeat chat starts, not only landing-page clicks. |
+| Sources | AITDK reported Direct 54.97%, Search 33.36%, Social 7.68%, Referrals 1.73%, Display Ads 1.06%, Mail 0.26%, Other 0.94%. | Brand/direct and SEO both matter. Offsite work should build brand mentions plus targeted memory-led pages, not only generic directory links. |
+| Metadata | User screenshot/root data showed canonical `https://www.talkie-ai.com/`, description around free AI character chat, personalized connections, real conversations, and AI friends, plus keywords such as `talkie ai`, `ai character chat`, `roleplay ai`, `free ai chat`, `ai girlfriend`, and `ai boyfriend`. Live localized meta repeats the same category in Traditional Chinese and canonicalizes to `/zh-Hant/`. | Use simple broad-category language in top-level metadata, but pair it with Keepsay's sharper differentiator: memory, private characters, and story continuity. |
+| Headings | AITDK and live extraction both showed 3 H1s: `For You` / `為您推薦`, `Roleplay` / `角色扮演`, and `Get your tasks done` / `完成您的任務`; no H2/H3. | Do not copy the heading structure. Keepsay should keep one clear H1 and use H2/H3 for collections such as memory, anime roleplay, companions, creator, and alternatives. |
+| Density | AITDK showed `chat` as the top keyword with 173 uses / 1.73%, while the rest of the list was noisy character-story vocabulary such as pronouns, relationship terms, places, and names. | Talkie's topical mass comes from many character stories, not clean keyword density. Keepsay should generate useful character/story copy, but keep landing-page density focused on memory-led terms. |
+| Internal links | Live extraction found 219 links, with many dofollow character links whose anchors include character names plus long backstory snippets. AITDK showed link `title` missing on these anchors. | Character cards are SEO assets. Keepsay should make character-card anchors descriptive, indexable, and safe, while using clean titles/alt text where useful. |
+| Images | Live extraction found 750 images and 171 images without alt text. Many visible card images do use alt text like `Talkie AI - Chat with [name]`, but hidden/hover assets still create noise. | Add useful alt text consistently. This is an area where Keepsay can be technically cleaner than Talkie. |
+| Footer/navigation | Talkie links to `Create Talkie`, Explore, Search, Memory, Community, FAQ, app download, blog/support/legal, plus SEO discovery links such as `AI Anime Chat`, `Free AI Chat`, `AI Roleplay Chat`, and `Character AI Alternative`. | Add a restrained footer/category layer for discovery terms, and make the memory pages prominent in nav/footer instead of burying them. |
+| Structured data | Live HTML included Organization, WebSite with SearchAction, WebPage, and FAQPage JSON-LD, plus broad hreflang coverage. | Keep Keepsay's structured data healthy and add/maintain FAQPage and ItemList ordering around memory-led pages. |
+
+What to reference:
+
+1. Clear top-level promise: free AI character chat, real-feeling
+   conversations, personalized AI friends.
+2. Browse-first homepage: character cards and collections are the product,
+   not a marketing wrapper.
+3. Long character descriptions as internal-link anchors and search-context
+   text.
+4. Footer discovery links for high-volume category pages.
+5. FAQPage, WebSite SearchAction, localized alternates, and social preview
+   completeness.
+6. Engagement model: many pages per visit and long sessions imply users
+   browse, sample, and return to characters.
+
+What not to copy:
+
+1. Multiple H1s and no H2/H3 hierarchy.
+2. Noisy keyword density that depends on scraped/user-generated story text.
+3. Missing anchor titles and many missing image alt texts.
+4. Over-broad romance/adult-adjacent keyword positioning. Keepsay should stay
+   boundary-aware and lead with memory, privacy, and story continuity.
+5. Reliance on celebrity/anime/IP-heavy character names as the primary SEO
+   engine. Keepsay should prefer original, safe, high-fit characters and
+   collection pages.
+
+Keepsay action items from Talkie:
+
+1. Refresh `/talkie-ai-alternative` copy toward `Talkie AI alternative with
+   memory`, `AI roleplay app that remembers the story`, and private companion
+   continuity.
+2. Add or strengthen collection pages around memory characters, anime
+   roleplay, companions, creator/private characters, free chat, and
+   alternatives.
+3. Upgrade character cards/details into consistent internal-link assets:
+   descriptive anchor text, useful image alt text, reply/chat counts where
+   available, and links back to the right SEO landing pages.
+4. Add footer discovery links for `AI Anime Chat`, `Free AI Chat`,
+   `AI Roleplay Chat`, `Character AI Alternative`, and memory-led pages, using
+   natural labels rather than keyword stuffing.
+5. Keep technical SEO cleaner than Talkie: one H1, sensible H2/H3 hierarchy,
+   canonical/hreflang correctness, FAQ/ItemList/SearchAction structured data,
+   and no stale social preview images.
+
+## 2026-06-30 Keepsay Density Reality Check
+
+Trigger:
+
+- The user's AITDK density screenshot for `https://keepsay.dpdns.org` showed
+  top terms such as `chat` 26 / 2.78%, `character` 14 / 1.50%, `anime` 14 /
+  1.50%, `keepsay` 10 / 1.07%, `memory` 9 / 0.96%, `story` 8 / 0.85%,
+  `characters` 7 / 0.75%, then softer or less search-natural words such as
+  `room`, `small`, `composed`, character names, and `celestial`.
+- Live `bb-browser` extraction showed the homepage has about 936 visible words,
+  while the Talkie AITDK screenshot showed about 9,984 words. Talkie's density
+  is not only a keyword choice advantage; it has much more visible character
+  story text.
+
+Diagnosis:
+
+The current Keepsay page is strategically correct but less grounded. It says
+`AI character chat`, `memory`, `story`, and `anime`, but the surrounding words
+often feel literary or internal: `composed`, `celestial`, `ongoing stories`,
+`private continuity`, `clear story boundaries`. Talkie is messier, but it uses
+words closer to how users browse and search: `friend`, `girl`, `boy`, `school`,
+`roommate`, `crush`, `world`, `date`, `fantasy`, `reply`, and character-name
+anchors.
+
+AITDK Density interpretation:
+
+- AITDK Density is a visible-word frequency table, not a keyword strategy
+  table. It counts simple words from all visible copy, including character
+  names, pronouns, story snippets, UI labels, and repeated card text.
+- Talkie's simple words are not all deliberate SEO targets. Words like
+  `eyes`, `years`, `school`, `friend`, `boyfriend`, `room`, `reply`, `family`,
+  and character names appear because the page contains many character stories.
+- Keepsay's long phrases come from deliberate SEO positioning and metadata:
+  `AI character chat with memory`, `Talkie AI alternative with memory`,
+  `create AI character with memory`, `private story continuity`, and similar
+  phrases. These are useful for titles, H1/H2 copy, comparison pages, and
+  backlinks, but they feel too stiff when repeated in homepage cards.
+- Therefore, do not replace all long-tail strategy with one-word density
+  chasing. Instead, use long-tail phrases for search direction and simple
+  scene words for homepage readability, character-card text, and natural
+  topical mass.
+
+Use two keyword layers:
+
+| Layer | Purpose | Example Phrases |
+| --- | --- | --- |
+| Strategic SEO layer | Page titles, H1/H2, metadata, backlinks, comparison pages. | `AI character chat`, `AI roleplay`, `AI character chat with memory`, `Talkie AI alternative with memory`, `create AI character with memory`. |
+| Grounded user layer | Homepage cards, character descriptions, chips, FAQs, internal anchors. | `AI friend chat`, `fictional crush story`, `anime school roleplay`, `roommate character chat`, `comfort companion`, `fantasy adventure`, `create your own character`, `free AI character chat`, `remembers your story`. |
+
+Grounded vocabulary to add naturally:
+
+| User Intent | Safer Keepsay Language | Avoid As Primary Positioning |
+| --- | --- | --- |
+| Friendship / companion | `AI friend`, `comfort companion`, `someone to talk to`, `character who remembers the small stuff` | Do not overclaim therapy or emotional dependence. |
+| Crush / romance-lite | `fictional crush story`, `slow-burn roleplay`, `date scene`, `romantic story character` | Do not market as `AI girlfriend`, `AI boyfriend`, NSFW, or adult chatbot. |
+| School / campus | `adult campus story`, `classmate roleplay`, `graduate campus mentor`, `school-style anime story` | Avoid minor-coded school language; keep characters clearly adult. |
+| Roommate / everyday scenes | `roommate character chat`, `shared apartment story`, `late-night kitchen scene`, `favorite drink` | Avoid coercive or unsafe relationship framing. |
+| Fantasy / anime | `anime mage`, `fantasy adventure`, `cafe fantasy character`, `mystery roleplay`, `story world` | Avoid relying on third-party IP or celebrity names. |
+| Memory | `remembers your story`, `remembers your favorite drink`, `picks up the last scene`, `keeps the nickname`, `continues tomorrow` | Avoid abstract-only phrases like `memory layer` without examples. |
+
+Suggested copy direction:
+
+- Homepage H1 test: `Chat with AI characters who remember your story.`
+- Homepage subtitle test: `Start a free AI character chat with an anime
+  friend, fantasy companion, classmate, roommate, or fictional crush story.
+  Create your own character and come back to a story that remembers the small
+  stuff.`
+- Quick-entry chips: `AI friend chat`, `Anime school story`, `Roommate
+  roleplay`, `Fictional crush chat`, `Fantasy adventure`, `Comfort companion`,
+  `Create your own character`, `Talkie alternative with memory`.
+- Character-card anchors should combine name + simple scenario, not only
+  polished adjectives: `Chloe - fashion friend who remembers your last outfit`,
+  `Mika - cozy cafe character who remembers your favorite drink`, `Liora -
+  adult campus mentor for classmate-style roleplay`.
+
+Density target:
+
+- Do not chase a fixed density percentage. Keep `chat`, `character`, `anime`,
+  `memory`, `story`, `create`, and `free` visible, but add grounded scene words
+  through real UI text and character descriptions.
+- A near-term healthy homepage should have 1,500-2,500 visible words, enough
+  for category clarity without becoming a thin keyword page.
+- AITDK should show more everyday terms after the refresh: `friend`, `crush`,
+  `roommate`, `school`, `fantasy`, `comfort`, `create`, `free`, `remember`,
+  and `story`.
+
+Execution principle:
+
+Long-tail phrases should define the ranking map; simple words should make the
+page feel real. The next copy pass should turn the homepage from an SEO product
+explanation into a character-story entry point without losing the memory-led
+differentiator.
+
 ### Goal
 
 Build qualified external references to `https://keepsay.dpdns.org/` and the
@@ -85,11 +331,13 @@ context, referral traffic, and stronger discovery signals.
 | Priority | URL | Use Case |
 | --- | --- | --- |
 | P0 | `https://keepsay.dpdns.org/en/ai-character-chat-with-memory` | Memory-based AI character chat listings, reviews, and comparisons. |
-| P0 | `https://keepsay.dpdns.org/en/custom-ai-character-creator` | Creator-tool, prompt-tool, and custom character directory submissions. |
-| P0 | `https://keepsay.dpdns.org/en/free-ai-character-chat` | Free AI chat directories and low-friction product listings. |
+| P0 | `https://keepsay.dpdns.org/en/create-ai-character-with-memory` | Creation intent with memory; better product fit than exact `custom AI character creator`. |
+| P0 | `https://keepsay.dpdns.org/en/ai-companion-that-remembers-you` | Emotional memory and companion-content references. |
+| P1 | `https://keepsay.dpdns.org/en/ai-roleplay-secret-memory` | Private memory, secrets, promises, and story-continuity outreach. |
 | P1 | `https://keepsay.dpdns.org/en/character-ai-alternative-with-memory` | Character.AI / Talkie alternative pages and comparison mentions. |
+| P1 | `https://keepsay.dpdns.org/en/free-ai-character-chat` | Free AI chat directories and low-friction product listings; high competition. |
 | P1 | `https://keepsay.dpdns.org/en/anime-ai-roleplay-characters` | Anime roleplay, character chat, and fandom-adjacent discovery pages. |
-| P1 | `https://keepsay.dpdns.org/en/ai-companion-that-remembers-you` | Memory and companion-content references. |
+| P2 | `https://keepsay.dpdns.org/en/custom-ai-character-creator` | Keep for private creator-tool context; exact SERP skews toward image generators. |
 | P2 | `https://keepsay.dpdns.org/en/talkie-ai-alternative` | Talkie alternative discussions and listicles. |
 
 ### Anchor Text Rules
@@ -98,10 +346,10 @@ Use mixed anchors. Avoid repeating exact-match anchors in bulk.
 
 | Anchor Type | Target Share | Examples |
 | --- | --- | --- |
-| Brand | 40% | `Keepsay`, `Keepsay AI`, `Keepsay RolePlay` |
-| Natural description | 30% | `an AI character chat app`, `a custom AI character creator`, `an AI roleplay app with memory` |
-| URL / naked link | 20% | `https://keepsay.dpdns.org/` |
-| Exact or partial long-tail | 10% | `AI character chat with memory`, `custom AI character creator`, `free AI character chat` |
+| Brand | 45% | `Keepsay`, `Keepsay AI`, `Keepsay RolePlay` |
+| Natural description | 35% | `an AI character chat app with memory`, `a private AI character creator`, `an AI roleplay app that remembers the story` |
+| URL / naked link | 15% | `https://keepsay.dpdns.org/` |
+| Exact or partial long-tail | 5% | `AI character chat with memory`, `AI companion that remembers you`, `create AI character with memory` |
 
 ### Quality Rules
 
@@ -140,7 +388,7 @@ Daily work here means offsite work only.
 | 8 | Write 3 helpful community answers without forced links. | 3 community rows; link only where relevant. | Pending |
 | 9 | Submit to startup / indie maker directories. | 5 submissions. | Pending |
 | 10 | Pitch `AI character chat with memory` angle to 10 comparison/listicle pages. | 10 outreach rows. | Pending |
-| 11 | Pitch `custom AI character creator` angle to creator-tool pages. | 10 outreach rows. | Pending |
+| 11 | Pitch `create AI character with memory` and private creator angle to creator-tool pages. | 10 outreach rows. | Pending |
 | 12 | Publish or prepare one external guest/resource post pitch. | 1 pitch draft. | Pending |
 | 13 | Check which submissions are indexed or live. | Tracker statuses updated. | Pending |
 | 14 | Weekly review: count live links, replies, referral visits, and blockers. | Week 2 report in log. | Pending |
@@ -380,10 +628,12 @@ These are lower competition and closer to RolePlay's actual product strengths.
 
 | Landing Page | Primary Intent Cluster |
 | --- | --- |
-| `/ai-companion-with-memory` | `ai companion that remembers you`, `character ai alternative with memory`, `ai roleplay with long term memory` |
-| `/create-ai-character-free` | `create custom ai character free`, `create ai character with backstory free`, `how to create your own ai character for free` |
+| `/ai-companion-that-remembers-you` | `ai companion that remembers you`, `ai companion with memory`, `chat with ai character who knows you` |
+| `/ai-character-chat-with-memory` | `AI character chat with memory`, `AI roleplay with memory`, `AI roleplay app with good memory` |
+| `/create-ai-character-with-memory` | `create AI character with memory`, `custom AI character with memory`, `create an AI character that remembers the story` |
 | `/ai-character-chat-with-voice` | `ai character chat with voice`, `ai character chat that unlocks voice`, `voice AI roleplay` |
 | `/private-ai-roleplay-secrets` | `ai companion with secrets`, `ai roleplay with private memories`, `chat with ai character who knows you` |
+| `/custom-ai-character-creator` | `private AI character creator`, `custom chat character creator`, `make a private AI character` |
 
 #### Layer 3: Low-Competition Long-Tail Pages
 
@@ -395,6 +645,7 @@ they can rank faster than broad competitor terms.
 | `/anime-character-ai-chat` | `anime character ai chat no login`, `what app lets you chat with anime characters`, `anime AI roleplay` |
 | `/ai-boyfriend-remembers-your-story` | `ai boyfriend that remembers your story`, `lonely AI companion`, `not alone AI chat` |
 | `/roleplay-stories-character-ai-alternative` | `character ai alternative for roleplay stories`, `immersive roleplay chat`, `AI story companion` |
+| `/create-ai-character-free` | `how to create your own AI character for free`, `create AI character free`, `create custom AI character free` |
 
 #### Layer 4: Question Pages / People Also Ask
 
@@ -404,8 +655,9 @@ landing pages.
 | Question | Recommended Destination |
 | --- | --- |
 | `what is the best character ai alternative in 2026` | `/character-ai-alternative` |
-| `which ai character app has the best memory` | `/ai-companion-with-memory` |
+| `which ai character app has the best memory` | `/ai-character-chat-with-memory` |
 | `is there an ai like character ai with no filter` | `/character-ai-alternative` with careful safety language |
+| `how do I create an AI character that remembers my story` | `/create-ai-character-with-memory` |
 | `how to create your own ai character for free` | `/create-ai-character-free` |
 | `what app lets you chat with anime characters` | `/anime-character-ai-chat` |
 
@@ -560,7 +812,7 @@ Before building each landing page:
 
 ### First Landing Pages To Build After Domain Setup
 
-Recommended order:
+Historical recommended order from the 2026-06-09 domain/setup review:
 
 1. `/ai-roleplay-secret-memory`
 2. `/ai-roleplay-shared-memory`
@@ -569,7 +821,7 @@ Recommended order:
 5. `/talkie-ai-alternative`
 6. `/character-ai-alternative`
 
-`/ai-roleplay-secret-memory` is now the first page to build because the exact
+At that point, `/ai-roleplay-secret-memory` was the first page to build because the exact
 `remembers you` and broad `AI roleplay memory` `.dpdns.org` variants were
 reported unavailable, while broader `AI roleplay with memory` results already
 contain several relevant product pages. The lower-competition path is to lead
@@ -596,16 +848,21 @@ Suggested page angle:
 - Sections: memory problem, how RolePlay remembers, small secrets/promises,
   fast character creation, voice/photo unlocks, FAQ.
 
-Previous recommended order before SERP review:
+Refreshed recommended order after the 2026-06-30 Trends and SERP review:
 
-1. `/ai-companion-with-memory`
-2. `/create-ai-character-free`
-3. `/anime-character-ai-chat`
-4. `/talkie-ai-alternative`
-5. `/character-ai-alternative`
+1. `/ai-character-chat-with-memory`
+2. `/create-ai-character-with-memory`
+3. `/ai-companion-that-remembers-you`
+4. `/ai-roleplay-secret-memory`
+5. `/character-ai-alternative-with-memory`
+6. `/anime-character-ai-chat`
+7. `/talkie-ai-alternative`
+8. `/create-ai-character-free`
 
-This order favors low-to-mid competition terms first while still preparing the
-required competitor-alternative pages.
+This order keeps broad `AI character chat` language in the site architecture,
+but puts new-domain ranking effort into memory-led and creation-with-memory
+long tails. `create-ai-character-free` is still useful for low-friction
+discovery, but it is no longer ahead of memory-led creation terms.
 
 ## Implementation Tasks
 
@@ -639,7 +896,7 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | --- | --- | --- | --- | --- |
 | SEO-G1 | Build `/anime-character-ai-chat` localized landing pages and add them to sitemap/tests | ✅ done | P0 | Added English and Chinese MDX pages, sitemap entries, and URL rule coverage. Targets `anime character ai chat`, `anime AI roleplay`, and `what app lets you chat with anime characters`. |
 | SEO-G2 | Build `/talkie-ai-alternative` localized landing pages and add them to sitemap/tests | ✅ done | P0 | Added English and Chinese MDX pages, sitemap entries, and URL rule coverage for users searching `talkie ai alternative` and apps like Talkie. |
-| SEO-G3 | Build `/create-ai-character-free` localized landing pages and add them to sitemap/tests | ⏳ pending | P1 | Creation-intent page from the earlier recommended order; can cross-link to `/create-ai-character-with-memory`. |
+| SEO-G3 | Build `/create-ai-character-free` localized landing pages and add them to sitemap/tests | ⏳ pending | P2 | Keep as a free-creation support page, but 2026-06-30 keyword refresh demoted exact `custom AI character creator` / free-creation terms below memory-led creation intent. |
 | SEO-G4 | Build `/character-ai-alternative` localized landing pages and add them to sitemap/tests | ⏳ pending | P1 | Broader competitor-alternative page; keep safety/no-filter wording careful and boundary-aware. |
 | SEO-G5 | Build `/polybuzz-alternative` localized landing pages and add them to sitemap/tests | ⏳ pending | P2 | Optional competitor page after Talkie and Character.AI alternatives are live. |
 | SEO-G6 | Add homepage and SEO-page internal links to the primary and growth landing pages | ✅ done | P0 | Added homepage guide links plus related-guide sections across the primary and growth SEO landing pages to concentrate authority around memory, anime roleplay, creation, and alternatives. |
@@ -647,7 +904,11 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | SEO-G8 | Run final-domain PageSpeed Insights for core SEO pages and record results | ⏳ pending | P1 | Re-run against `https://keepsay.dpdns.org` after new pages ship. |
 | SEO-G9 | Run Google Search Console URL Inspection for homepage, primary SEO pages, and new growth pages | ⏳ pending | P1 | Track indexing status, canonical selected by Google, and crawl issues. |
 | SEO-G10 | SERP-validate each new page target before or immediately after publishing | ⏳ pending | P1 | Follow the SERP validation workflow above; prioritize terms where forums, Reddit, Quora, or thin pages rank. |
-| SEO-G11 | Execute offsite backlink campaign and maintain backlink tracker/log | ▶ in progress | P0 | Daily cadence applies only to external submissions, outreach, community answers, and follow-ups. Tracker: `agent-context/roleplay-seo-backlink-tracker.md`; log: `agent-context/roleplay-seo-backlink-execution-log.md`. |
+| SEO-G11 | Execute offsite backlink campaign and maintain backlink tracker/log | ▶ in progress | P0 | Daily cadence applies only to external submissions, outreach, community answers, and follow-ups. Tracker target rotation was refreshed toward memory/create-with-memory pages. Actual submissions/outreach remain blocked by login, CAPTCHA, paid-placement decisions, backlink requirements, or outreach identity approval. |
+| SEO-G12 | Refresh creator-page copy around private chat-character creation with memory | ✅ done | P1 | Refreshed `/custom-ai-character-creator` metadata and page copy around `private AI character creator`, `create AI character with memory`, chat-first creation, memory seeds, and story continuity instead of broad image-generator SERPs. |
+| SEO-G13 | Fix AITDK live-homepage audit issues | ✅ done | P0 | Local implementation replaces the ShipAny homepage social preview with a Keepsay character image, shortens homepage meta keywords, reorders homepage `ItemList` toward memory/create-with-memory pages, and adds more useful character-card alt/title/aria text. Requires post-deploy AITDK recheck to confirm live extension output. |
+| SEO-G14 | Apply Talkie competitor lessons to IA, internal links, and comparison copy | ▶ in progress | P1 | First pass done: strengthened character-card anchor semantics, added restrained footer discovery links, and refreshed `/talkie-ai-alternative` around memory/private continuity. Clean collection/category pages remain pending. |
+| SEO-G15 | Refresh copy with grounded user vocabulary | ✅ done | P0 | Added everyday scene terms to homepage, scene rail, creator page, and Talkie alternative page: AI friend, fictional crush, roommate, classmate, comfort chat, fantasy adventure, anime school story, free chat, create character, and remembers-your-story examples. Avoided AI girlfriend/boyfriend and NSFW positioning. |
 
 ## Verification Log
 
@@ -689,6 +950,40 @@ alternative`, and `PolyBuzz alternative`.
   now returns the Keepsay title, description, canonical URL, `og:site_name`
   `Keepsay`, `WebSite.name` `Keepsay`, visible overview copy, visible FAQ copy,
   and `WebSite`, `ItemList`, plus `FAQPage` JSON-LD.
+- 2026-06-30 keyword refresh verification: used `bb-browser` Google Trends
+  with global, past-12-month, Google web-search scope and Google SERP adapter
+  checks. Trends returned complete visible data for the benchmark group:
+  `AI character chat` avg 77, `AI character creator` avg 12, and exact
+  memory/custom-creator long tails at avg 0 or sparse data. Later Trends widget
+  calls hit temporary 429 responses, so the plan records exact numbers only
+  where the page rendered them and uses SERP density labels for competition.
+- 2026-06-30 Talkie competitor verification: used `bb-browser` against
+  `https://www.talkie-ai.com/` and the user's AITDK screenshots. The live
+  session redirected to `/zh-Hant`, exposed localized meta/canonical tags, 3
+  H1s, 219 links, 750 images with 171 missing alt attributes, footer SEO
+  discovery links, hreflang alternates, and Organization/WebSite/WebPage/FAQPage
+  JSON-LD.
+- 2026-06-30 Keepsay density check: reviewed the user's AITDK screenshot and
+  extracted the live homepage with `bb-browser`. Keepsay's top density terms
+  are strategically relevant but less grounded than Talkie's character-story
+  vocabulary, and the homepage has far less visible text than Talkie's large
+  character gallery.
+- 2026-06-30 density interpretation follow-up: documented that AITDK Density
+  is a single-word frequency table, not a keyword strategy table. The plan now
+  separates long-tail SEO phrases for ranking direction from simple scene words
+  for natural homepage and character-card language.
+- 2026-06-30 local implementation verification for SEO-G12/G13/G14/G15:
+  `node --import tsx scripts/check-seo-copy.ts`,
+  `node --import tsx scripts/check-home-positioning.ts`,
+  `node --import tsx scripts/check-roleplay-seo-scenes.ts`,
+  `node --import tsx scripts/check-roleplay-seo-landing-pages.ts`,
+  `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm exec fumadocs-mdx`,
+  `pnpm check:roleplay-seo`, and `pnpm build` passed. The first
+  sandboxed `pnpm check:roleplay-seo` attempt failed before business checks
+  because `tsx` could not create an IPC pipe under `/var/folders/...`; rerunning
+  the same local check outside the sandbox passed. `pnpm lint` still reports
+  existing warnings only, and local build still logs the expected
+  `DATABASE_URL is not set` sitemap fallback before succeeding.
 
 ## Status Log
 
@@ -724,3 +1019,44 @@ alternative`, and `PolyBuzz alternative`.
 - 2026-06-29 18:35: Started SEO-G11. Converted the external-link strategy into an offsite-only execution workflow, added the backlink tracker, and opened the backlink execution log. No third-party submissions were made yet because they require prospect research plus account/login or outreach identity decisions.
 - 2026-06-30 10:45: Prepared indexing-first hardening for production. Direct Vercel CLI upload was attempted but aborted during file upload because of a TLS/network error, so deployment is proceeding through the normal GitHub push to Vercel auto-deploy flow instead.
 - 2026-06-30 11:20: Pushed `2741241` and `8f441b7` to `origin/main`, triggering Vercel auto-deploys. Verified production with `bb-browser`; homepage indexing-first hardening and brand-consistency fields are live.
+- 2026-06-30 15:43: Refreshed keyword priorities with `bb-browser` Google
+  Trends and SERP checks. Demoted exact `custom AI character creator` promotion
+  because Trends showed sparse exact demand and SERPs skew to image/avatar
+  generators; promoted memory-led chat and creation terms for outbound links,
+  internal anchors, and next copy updates.
+- 2026-06-30 16:08: Added AITDK extension findings to the SEO todo list.
+  Live homepage issues to fix: stale ShipAny social preview image, 5 missing
+  image alt texts, `ItemList` structured data order lagging the refreshed
+  keyword priority, and overlong meta keywords.
+- 2026-06-30 16:45: Added Talkie competitor analysis from `bb-browser` and the
+  user's AITDK screenshots. The plan now tracks what to reference from Talkie's
+  traffic, character-card SEO, footer discovery links, structured data, and
+  multilingual setup, plus what to avoid: multiple H1s, missing alt/title
+  hygiene, noisy density, and over-broad romance/IP positioning.
+- 2026-06-30 16:50: Added a grounded vocabulary layer after comparing Keepsay's
+  AITDK density screenshot with Talkie's. The next copy pass should keep the
+  memory-led SEO strategy, but express it through user-native scene words such
+  as AI friend, fictional crush, roommate, classmate, comfort chat, fantasy
+  adventure, anime school story, free chat, create character, and remembers
+  your story.
+- 2026-06-30 16:57: Added the AITDK Density interpretation rule requested by
+  the user: Talkie's simple words come from visible character-story text, while
+  Keepsay's long strings come from SEO positioning. Future copy should use
+  long-tail terms for page strategy and simple scene words for natural user
+  language.
+- 2026-06-30 17:44: Implemented the highest-priority local SEO plan items
+  that do not require external account access. Completed SEO-G13 homepage
+  audit fixes locally: homepage metadata now uses a Keepsay character social
+  image instead of the stale ShipAny `preview.png`, meta keywords are shorter
+  and memory-led, homepage `ItemList` starts with memory/create-with-memory
+  pages, and character cards have descriptive alt/title/aria anchor text.
+  Completed SEO-G15 grounded vocabulary refresh across homepage H1/subtitle,
+  scene rail, overview, FAQ, proof points, creator page, and Talkie-alternative
+  page. Completed SEO-G12 creator-page copy refresh around private
+  chat-character creation with memory. Started SEO-G14 by adding footer
+  discovery links and rewriting Talkie-alternative copy around memory/private
+  continuity; category/collection page expansion remains pending. Updated the
+  backlink tracker target rotation toward memory/create-with-memory pages, but
+  no offsite submissions or outreach were performed because they require
+  account/login/CAPTCHA, paid-placement decisions, backlink placement approval,
+  or outreach identity.

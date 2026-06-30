@@ -16,6 +16,7 @@ export const generateMetadata = getMetadata({
   description: ROLEPLAY_HOME_SEO.description,
   keywords: ROLEPLAY_HOME_SEO.keywords.join(', '),
   canonicalUrl: '/',
+  imageUrl: '/roleplay/characters/rp-anime-001-elira.png',
   appName: ROLEPLAY_HOME_SEO.brandName,
 });
 
@@ -51,12 +52,16 @@ export default async function LandingPage({
       {
         '@type': 'ItemList',
         '@id': `${canonicalUrl}#roleplay-guides`,
-        name: 'AI character chat guides',
+        name: 'AI character chat with memory guides',
         itemListElement: [
-          '/free-ai-character-chat',
           '/ai-character-chat-with-memory',
-          '/anime-ai-roleplay-characters',
+          '/create-ai-character-with-memory',
+          '/ai-companion-that-remembers-you',
+          '/free-ai-character-chat',
+          '/character-ai-alternative-with-memory',
           '/custom-ai-character-creator',
+          '/anime-ai-roleplay-characters',
+          '/talkie-ai-alternative',
         ].map((path, index) => ({
           '@type': 'ListItem',
           position: index + 1,

@@ -34,27 +34,27 @@
     "hero_title": "创建虚构角色，延续他们的故事。",
     "hero_subtitle": "用记忆、语音预览和安全视觉瞬间构建原创角色。",
     "hero_note": "在 Keepsay 开始一个故事场景。",
-    "seo_intro_title": "为什么 Keepsay 适合作为 AI 角色聊天首页",
-    "seo_intro_body": "Keepsay 把 AI 角色聊天、故事记忆和快速角色创建放在同一个入口里。首页是通往免费聊天、记忆陪伴、动漫角色扮演和自定义创建的真实入口，也让搜索引擎更容易从一个规范化主域理解整个产品。",
+    "seo_intro_title": "从真实场景开始的 AI 角色聊天",
+    "seo_intro_body": "Keepsay 是一个免费 AI 角色聊天入口，适合想找 AI friend、虚构心动故事、成人校园同学、室友角色聊天、治愈陪伴或幻想冒险的人。记忆会保留具体细节，比如你喜欢的饮料、上次场景、昵称或一个小承诺；快速创建则可以从这些场景出发，生成默认私有的角色。",
     "seo_intro_points": [
-      "唯一规范主域：keepsay.dpdns.org",
-      "先从免费聊天或记忆陪伴开始",
-      "直接跳转到动漫角色与自定义创建"
+      "免费聊天、动漫校园故事和幻想角色扮演集中在同一个规范首页",
+      "角色能记住你的故事、昵称、喜欢的饮料和上次场景",
+      "从场景创建私有 AI 角色，而不是从空白提示词开始"
     ],
     "seo_faq_label": "常见问题",
     "seo_faq_title": "很多人在尝试 Keepsay 前都会问这几个问题",
     "seo_faqs": [
       {
         "question": "Keepsay 是什么？",
-        "answer": "Keepsay 是一个 AI 角色聊天和角色扮演应用，适合想要故事连续性、记忆和快速创建角色的人。"
+        "answer": "Keepsay 是一个 AI 角色聊天和角色扮演应用，适合想要免费聊天、故事连续性、记忆和快速创建私有角色的人。"
       },
       {
         "question": "我应该先打开哪个页面？",
-        "answer": "可以先看中文首页，再根据需求进入记忆、免费聊天、动漫角色扮演或自定义创建页面。"
+        "answer": "可以先看中文首页，再选择 AI friend 聊天、动漫校园故事、室友角色扮演、虚构心动聊天、幻想冒险、治愈陪伴，或直接创建自己的角色。"
       },
       {
-        "question": "为什么首页会影响收录？",
-        "answer": "首页提供唯一规范入口、明确的产品说明、站内深链接和结构化问答，能帮助搜索引擎判断这是一个稳定的核心页面。"
+        "question": "记忆会给角色聊天带来什么变化？",
+        "answer": "记忆可以让角色接上上次场景、保留昵称、记住喜欢的饮料，并让故事继续，而不是每次聊天都从零开始。"
       }
     ],
     "seo_related_label": "继续探索这些页面",
@@ -69,33 +69,33 @@
     "claw_channels": "Discord · Telegram · 角色代理",
     "view_all": "查看全部",
     "for_you": "为你推荐",
-    "seo_title": "为持续故事而生的虚构角色。",
-    "seo_subtitle": "创建原创角色、延续故事场景，并在清晰安全边界内保存角色记忆。",
+    "seo_title": "和会记住你故事的 AI 角色聊天。",
+    "seo_subtitle": "从免费 AI 角色聊天开始：动漫朋友、幻想伙伴、成人校园同学、室友、治愈陪伴或虚构心动故事。创建自己的角色，下次回来时故事还能记得那些小细节。",
     "primary_cta": "开始聊天",
     "secondary_cta": "创建角色",
     "pricing_cta": "查看价格",
     "pricing_note": "购买前即可清楚查看套餐、积分、续费条款和取消方式。",
     "proof_points": [
-      "会延续的长期记忆",
-      "虚构、动漫、故事角色",
-      "语音预览和合规角色图片"
+      "先免费聊天，再决定是否创建",
+      "记忆会记住你的故事",
+      "动漫、治愈、室友和幻想场景"
     ],
     "seo_links_label": "指南",
     "seo_links": [
       {
-        "label": "角色故事记忆",
-        "href": "/ai-companion-that-remembers-you"
+        "label": "带记忆的 AI 角色聊天",
+        "href": "/ai-character-chat-with-memory"
       },
       {
-        "label": "动漫角色聊天",
-        "href": "/anime-character-ai-chat"
-      },
-      {
-        "label": "创建 AI 角色",
+        "label": "创建带记忆的 AI 角色",
         "href": "/create-ai-character-with-memory"
       },
       {
-        "label": "角色故事应用",
+        "label": "会记住你的 AI 伴侣",
+        "href": "/ai-companion-that-remembers-you"
+      },
+      {
+        "label": "带记忆的 Talkie 替代品",
         "href": "/talkie-ai-alternative"
       }
     ],

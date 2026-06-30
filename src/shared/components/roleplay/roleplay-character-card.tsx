@@ -76,6 +76,7 @@ export function RoleplayCharacterCard({
 
   const detailHref = `/character/${character.id}`;
   const chatHref = `/chat/profile/${character.id}`;
+  const cardAnchorText = buildCharacterAnchorText(character, location);
   const greeting = useMemo(() => {
     const text = character.opening || character.intro || character.tagline || '';
     return text.replace(/\s+/g, ' ').trim().slice(0, 220);
@@ -140,7 +141,7 @@ export function RoleplayCharacterCard({
       <div className="relative">
         <PhotoCarousel
           images={visibleGallery}
-          alt={character.name}
+          alt={`${cardAnchorText} portrait`}
           priority={priority}
           aspectClassName={imageAspectClassName}
           className="cursor-pointer rounded-none rounded-t-[20px]"
@@ -171,7 +172,7 @@ export function RoleplayCharacterCard({
             'hover:-translate-y-0.5 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70',
             'md:opacity-0 md:translate-y-2 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100'
           )}
-          aria-label={`Chat with ${character.name}`}
+          aria-label={`Chat with ${cardAnchorText}`}
         >
           <MessageCircle size={17} aria-hidden="true" />
           {tHome('chat_now')}
@@ -185,7 +186,8 @@ export function RoleplayCharacterCard({
           'relative z-[1] flex flex-col gap-2 px-4 pb-4 pt-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60',
           contentClassName
         )}
-        aria-label={`${character.name}, ${character.age}`}
+        aria-label={cardAnchorText}
+        title={cardAnchorText}
       >
         <div className="flex min-w-0 items-baseline gap-2">
           <h3 className="min-w-0 flex-1 truncate text-lg font-semibold leading-tight">
@@ -244,4 +246,18 @@ export function RoleplayCharacterCard({
       </Link>
     </article>
   );
+}
+
+function buildCharacterAnchorText(
+  character: RoleplayCharacterClient,
+  location: string
+) {
+  const scene = location || character.scene || '';
+  const text = [character.name, character.intro || character.tagline, scene]
+    .filter(Boolean)
+    .join(' - ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (text.length <= 140) return text;
+  return `${text.slice(0, 137).trim()}...`;
 }
