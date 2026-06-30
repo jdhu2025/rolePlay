@@ -33,23 +33,24 @@ Status: indexing-first production release prepared
   likely because the Vercel environment still has an old
   `NEXT_PUBLIC_APP_NAME`. Patched the homepage SEO metadata and WebSite JSON-LD
   to use the explicit Keepsay brand name for the homepage.
+- [x] Pushed the brand-consistency patch and verified the second
+  GitHub-triggered deployment with `bb-browser`. Production now renders
+  `og:site_name` as `Keepsay` and WebSite JSON-LD `name` as `Keepsay`.
 
 ### Current Status
 
-- The first GitHub-triggered deployment is live and verified for the major
-  indexing-first changes.
-- One follow-up brand-consistency patch is ready for a second GitHub-triggered
-  auto-deploy.
+- The GitHub-triggered deployments are live and verified for the
+  indexing-first changes and the homepage brand-consistency follow-up.
+- Next SEO action is Google Search Console URL Inspection for the canonical
+  homepage, then continued offsite backlink prospecting/submissions.
 
 ### Next Actions
 
-- Push the brand-consistency patch to `origin/main`.
-- After Vercel completes, rerun `bb-browser` checks for
-  `https://keepsay.dpdns.org/en`: title, description, canonical,
-  `og:site_name`, WebSite JSON-LD name, overview copy, FAQ copy, and FAQ
-  JSON-LD.
-- If live verification passes, request URL Inspection for
+- Request URL Inspection for
   `https://keepsay.dpdns.org/en` in Google Search Console.
+- Continue building the backlink tracker toward the first 50 qualified
+  prospects and submit only where account/CAPTCHA/paid-placement decisions are
+  cleared.
 
 ## 2026-06-29
 

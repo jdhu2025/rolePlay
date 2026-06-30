@@ -52,7 +52,7 @@ Last updated: 2026-06-30 Asia/Shanghai
   Vercel auto-deploy flow. `bb-browser` verified the live Keepsay title,
   description, canonical URL, visible overview copy, visible FAQ copy, and
   `FAQPage` JSON-LD.
-- [ ] Deploy and verify the homepage brand-consistency follow-up for
+- [x] Deploy and verify the homepage brand-consistency follow-up for
   `og:site_name` and `WebSite.name`, so production no longer depends on the
   old `NEXT_PUBLIC_APP_NAME` value.
 - [ ] Re-run GSC URL Inspection for `https://keepsay.dpdns.org/en` after the
@@ -683,6 +683,10 @@ alternative`, and `PolyBuzz alternative`.
   `pnpm lint` reported warnings only. Local sitemap checks and build still log
   `DATABASE_URL is not set`, then use the intended local fallback for roleplay
   character sitemap entries.
+- 2026-06-30 live `bb-browser` verification: `https://keepsay.dpdns.org/en`
+  now returns the Keepsay title, description, canonical URL, `og:site_name`
+  `Keepsay`, `WebSite.name` `Keepsay`, visible overview copy, visible FAQ copy,
+  and `WebSite`, `ItemList`, plus `FAQPage` JSON-LD.
 
 ## Status Log
 
@@ -717,3 +721,4 @@ alternative`, and `PolyBuzz alternative`.
 - 2026-06-13 11:17: Completed SEO-G6. Added homepage guide links and related-guide link sections across the primary and growth SEO landing pages, then verified MDX generation, SEO scripts, typecheck, lint, and production build.
 - 2026-06-29 18:35: Started SEO-G11. Converted the external-link strategy into an offsite-only execution workflow, added the backlink tracker, and opened the backlink execution log. No third-party submissions were made yet because they require prospect research plus account/login or outreach identity decisions.
 - 2026-06-30 10:45: Prepared indexing-first hardening for production. Direct Vercel CLI upload was attempted but aborted during file upload because of a TLS/network error, so deployment is proceeding through the normal GitHub push to Vercel auto-deploy flow instead.
+- 2026-06-30 11:20: Pushed `2741241` and `8f441b7` to `origin/main`, triggering Vercel auto-deploys. Verified production with `bb-browser`; homepage indexing-first hardening and brand-consistency fields are live.
