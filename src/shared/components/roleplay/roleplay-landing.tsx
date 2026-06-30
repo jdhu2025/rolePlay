@@ -21,11 +21,17 @@
  */
 
 import { useLocale, useTranslations } from 'next-intl';
-import { BadgeDollarSign, MessageCircle, Sparkles } from 'lucide-react';
+import { ArrowRight, BadgeDollarSign, MessageCircle, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Link } from '@/core/i18n/navigation';
 import { RoleplayCharacterCard } from '@/shared/components/roleplay/roleplay-character-card';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/shared/components/ui/accordion';
 import {
   TagChips,
   type RoleplayTagItem,
@@ -52,6 +58,7 @@ import { recordRoleplayMomentEvent } from '@/shared/lib/roleplay-moment-events';
 import { useAppContext } from '@/shared/contexts/app';
 import { canShowPublicGallery } from '@/shared/lib/compliance';
 import { getSupportMailto } from '@/shared/lib/support-email';
+import { TrackedRoleplayLink } from '@/shared/components/roleplay/tracked-roleplay-link';
 
 import type { RoleplayHomeInitialData } from '@/shared/lib/server/roleplay-home-data';
 
@@ -265,6 +272,8 @@ export function RoleplayLanding({ initialData }: Props) {
         loading={recommendationsLoading}
       />
       <FirstMomentPreference />
+      <HomeSeoSignals />
+      <HomeFaqSection />
 
       <section className="mx-auto max-w-6xl px-4 pt-6 md:px-6 md:pt-10">
         <div className="flex flex-col gap-1 pb-4">
@@ -714,6 +723,116 @@ function ForYouSection({
                     </div>
                   ))}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HomeSeoSignals() {
+  const t = useTranslations('roleplay.home');
+  const seoIntroPoints = t.raw('seo_intro_points') as string[];
+  const seoLinks = t.raw('seo_links') as Array<{ label: string; href: string }>;
+
+  return (
+    <section className="border-b border-white/6 bg-[#0f1012]">
+      <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              Keepsay overview
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white md:text-3xl">
+              {t('seo_intro_title')}
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-300 md:text-base">
+              {t('seo_intro_body')}
+            </p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              {seoIntroPoints.map((point) => (
+                <div
+                  key={point}
+                  className="border-b border-white/10 pb-2 text-sm leading-6 text-zinc-300"
+                >
+                  {point}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              {t('seo_related_label')}
+            </p>
+            <h3 className="mt-2 text-lg font-semibold tracking-tight text-white">
+              {t('seo_related_title')}
+            </h3>
+            <div className="mt-3 flex flex-col">
+              {seoLinks.map((link, idx) => (
+                <TrackedRoleplayLink
+                  key={link.href}
+                  href={link.href}
+                  eventType="seo_scene_link_clicked"
+                  eventMetadata={{
+                    surface: 'home_related_links',
+                    label: link.label,
+                  }}
+                  className={`flex items-center justify-between gap-3 border-white/10 py-3 text-sm text-zinc-200 transition hover:text-white ${
+                    idx === 0 ? 'border-t' : ''
+                  } border-b`}
+                >
+                  <span>{link.label}</span>
+                  <ArrowRight className="size-4 shrink-0 text-zinc-500" />
+                </TrackedRoleplayLink>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HomeFaqSection() {
+  const t = useTranslations('roleplay.home');
+  const faqs = t.raw('seo_faqs') as Array<{
+    question: string;
+    answer: string;
+  }>;
+
+  return (
+    <section className="border-b border-white/6 bg-[#101114]">
+      <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
+        <div className="grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              {t('seo_faq_label')}
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white md:text-3xl">
+              {t('seo_faq_title')}
+            </h2>
+          </div>
+
+          <Accordion
+            type="single"
+            collapsible
+            className="border-t border-white/10"
+          >
+            {faqs.map((faq, index) => (
+              <AccordionItem
+                key={faq.question}
+                value={`faq-${index}`}
+                className="border-white/10"
+              >
+                <AccordionTrigger className="py-4 text-left text-base font-semibold text-white hover:no-underline">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 pr-8 text-sm leading-7 text-zinc-400">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </div>
     </section>

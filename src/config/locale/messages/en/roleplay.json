@@ -34,6 +34,31 @@
     "hero_title": "Create fictional characters and continue their stories.",
     "hero_subtitle": "Build original characters with memory, voice previews, and safe visual moments.",
     "hero_note": "Start a story scene in Keepsay.",
+    "seo_intro_title": "Why Keepsay is a useful AI character chat home",
+    "seo_intro_body": "Keepsay combines AI character chat, story memory, and quick character creation in one place. The home page is a live entry point for free chat, memory companions, anime roleplay, and custom character creation, so search engines can discover the main product and the strongest intent pages from a single canonical host.",
+    "seo_intro_points": [
+      "One canonical host: keepsay.dpdns.org",
+      "Start with free chat or memory companions",
+      "Jump straight to anime roleplay and custom creation"
+    ],
+    "seo_faq_label": "FAQ",
+    "seo_faq_title": "Questions people usually ask before trying Keepsay",
+    "seo_faqs": [
+      {
+        "question": "What is Keepsay?",
+        "answer": "Keepsay is an AI character chat and roleplay app for people who want story continuity, memory, and fast character creation."
+      },
+      {
+        "question": "What should I open first?",
+        "answer": "Start with the English home page, then use the memory, free chat, anime roleplay, or custom creator pages depending on your intent."
+      },
+      {
+        "question": "Why does the home page matter for indexing?",
+        "answer": "It gives Google a single canonical entry with clear product language, internal links, and structured answers that point to the most important landing pages."
+      }
+    ],
+    "seo_related_label": "Explore these pages",
+    "seo_related_title": "Helpful paths into Keepsay",
     "try_claw": "Try Keepsay",
     "recommended": "Recommended for you",
     "recommended_subtitle": "Recommended by age, preference, and chat history",
@@ -185,6 +210,9 @@
       "generating": "Generating and saving…",
       "draft_saved": "Character draft saved.",
       "generate_error": "Generation failed. Please retry.",
+      "save_error": "Character save failed. Please retry.",
+      "generate_network_error": "The generate request did not receive a server response. Check that the local server is still running, then retry.",
+      "save_network_error": "The character save request did not receive a server response. Check that the local server is still running, then retry.",
       "trait_required": "Choose at least one trait.",
       "audit_blocked": "Publish audit did not pass. Open advanced edit to fix it.",
       "adjust_inputs": "Adjust choices",
@@ -227,7 +255,9 @@
       "image_deleted": "Image deleted.",
       "delete_image": "Delete image",
       "image_generate_error": "Could not generate portrait.",
+      "image_generate_network_error": "The portrait generation request did not receive a server response. Check that the local server is still running, then retry.",
       "image_upload_error": "Could not upload portrait.",
+      "image_upload_network_error": "The portrait upload request did not receive a server response. Check that the local server is still running, then retry.",
       "step_count": "Step {current} / {total}",
       "steps": {
         "template": "Scene",

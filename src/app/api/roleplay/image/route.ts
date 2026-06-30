@@ -278,17 +278,54 @@ function getUrlHost(value: string) {
   }
 }
 
+function flattenProviderErrorText(value: unknown, depth = 0): string[] {
+  if (depth > 4 || value == null) return [];
+  if (typeof value === 'string') return [value];
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return [String(value)];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => flattenProviderErrorText(item, depth + 1));
+  }
+  if (typeof value === 'object') {
+    return Object.values(value as Record<string, unknown>).flatMap((item) =>
+      flattenProviderErrorText(item, depth + 1)
+    );
+  }
+  return [];
+}
+
+function parseProviderErrorBody(raw: string) {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function getImageErrorStatus(error: any) {
+  const status =
+    error?.statusCode ||
+    error?.status ||
+    error?.response?.status ||
+    error?.data?.statusCode;
+
+  return typeof status === 'number' ? status : undefined;
+}
+
 function getImageErrorText(error: unknown) {
   const raw = String((error as any)?.message || error || '');
-  try {
-    const parsed = JSON.parse(raw);
-    return [raw, parsed?.error, parsed?.message, parsed?.code]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
-  } catch {
-    return raw.toLowerCase();
-  }
+  const responseBody = String((error as any)?.responseBody || '');
+  const data = (error as any)?.data;
+  const parts = [
+    raw,
+    responseBody,
+    ...flattenProviderErrorText(parseProviderErrorBody(raw)),
+    ...flattenProviderErrorText(parseProviderErrorBody(responseBody)),
+    ...flattenProviderErrorText(data),
+  ];
+
+  return parts.filter(Boolean).join(' ').toLowerCase();
 }
 
 function isImageModerationError(error: unknown) {
@@ -297,12 +334,72 @@ function isImageModerationError(error: unknown) {
   );
 }
 
-function getImageErrorMessage(error: unknown) {
+function normalizeImageGenerationError(error: any) {
+  const status = getImageErrorStatus(error);
+  const text = getImageErrorText(error);
+
   if (isImageModerationError(error)) {
-    return 'Image provider content moderation rejected this generation. Try a fully clothed, non-bedroom, less body-focused scene or prompt.';
+    return {
+      status,
+      reason: 'content_moderation',
+      message:
+        'Image provider content moderation rejected this generation. Try a fully clothed, non-bedroom, less body-focused scene or prompt.',
+    };
   }
 
-  return String((error as any)?.message || 'roleplay image failed');
+  if (
+    status === 401 ||
+    /\b(invalid token|invalid api key|unauthorized)\b/.test(text)
+  ) {
+    return {
+      status: 401,
+      reason: 'image_provider_auth_failed',
+      message:
+        'Image provider rejected the API key. Check the active image provider settings in Admin > Settings > AI.',
+    };
+  }
+
+  if (
+    status === 403 ||
+    /\b(forbidden|permission|permission denied|access denied|no permission|not authorized)\b/.test(
+      text
+    ) ||
+    /无权访问|没有权限|权限不足|分组/.test(text)
+  ) {
+    return {
+      status: 403,
+      reason: 'image_provider_permission_denied',
+      message:
+        'Image provider denied this request. Check that the active image API key has access to the configured image model.',
+    };
+  }
+
+  if (
+    status === 429 ||
+    /\b(rate.?limit|rate-limited|too many requests|retry shortly)\b/.test(text)
+  ) {
+    return {
+      status: 429,
+      reason: 'image_provider_rate_limited',
+      message:
+        'Image provider is temporarily rate-limited. Please retry shortly, or switch to another provider/model.',
+    };
+  }
+
+  if (/\b(invalid url|failed to parse url|err_invalid_url)\b/.test(text)) {
+    return {
+      status: 500,
+      reason: 'image_provider_config_invalid',
+      message:
+        'Image provider Base URL is invalid. Use the full compatible API base URL configured for your image provider.',
+    };
+  }
+
+  return {
+    status,
+    reason: 'image_generation_failed',
+    message: String(error?.message || 'roleplay image failed'),
+  };
 }
 
 function normalizeCharacterGender(value: unknown): CharacterGender | undefined {
@@ -752,10 +849,10 @@ export async function POST(request: Request) {
         timeoutMs: 90_000,
       });
     } catch (error: any) {
-      return respErr(getImageErrorMessage(error), {
-        reason: isImageModerationError(error)
-          ? 'content_moderation'
-          : 'image_generation_failed',
+      const normalizedError = normalizeImageGenerationError(error);
+      return respErr(normalizedError.message, {
+        reason: normalizedError.reason,
+        status: normalizedError.status,
       });
     }
     timing.mark('provider_generate');

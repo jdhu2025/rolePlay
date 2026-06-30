@@ -1,9 +1,29 @@
 # RolePlay SEO Implementation Plan
 
-Last updated: 2026-06-15 Asia/Shanghai
+Last updated: 2026-06-30 Asia/Shanghai
 
 ## Remaining Todo
 
+- [ ] In Google Search Console, inspect the canonical URL
+  `https://keepsay.dpdns.org/en` and record Google's selected canonical,
+  crawl date, crawl user agent, and any page quality notes. The current GSC
+  bucket is `Crawled - currently not indexed`, so this is a quality/canonical
+  confidence problem unless URL Inspection shows a new technical blocker.
+- [ ] Use root variants only as discovery/redirect variants:
+  `http://keepsay.dpdns.org/` and `https://keepsay.dpdns.org/` should point
+  users and crawlers to the localized canonical entry, while offsite links
+  should primarily use `https://keepsay.dpdns.org/en` or the specific SEO
+  landing page being promoted.
+- [ ] Execute the offsite backlink plan. Daily cadence applies only to
+  external submissions, outreach, community answers, and backlink follow-up.
+  Site changes should stay as one-time prerequisites or backlog tasks, not
+  daily work.
+- [ ] Maintain the backlink tracker in
+  `agent-context/roleplay-seo-backlink-tracker.md` after every submission,
+  outreach email, community answer, listing approval, or rejection.
+- [ ] Maintain the backlink execution log in
+  `agent-context/roleplay-seo-backlink-execution-log.md` after each working
+  session.
 - [ ] Run real browser screenshot QA for homepage, Quick Create, and the new
   SEO landing pages after the local dev-server lock is cleared or Playwright is
   installed. Current coverage includes build, route status, and HTML checks.
@@ -20,18 +40,209 @@ Last updated: 2026-06-15 Asia/Shanghai
 - [ ] Consider adding Playwright screenshot regression tests if UI iteration on
   these pages becomes frequent.
 
+## Indexing First Fix
+
+- [x] Harden the root redirect so `/` resolves permanently to `/en`.
+- [x] Add a visible product explanation block on the home page.
+- [x] Add a visible FAQ block on the home page.
+- [x] Add server-rendered `FAQPage` JSON-LD on the home page.
+- [x] Align homepage SEO copy to the Keepsay brand while keeping the core
+  discovery terms.
+- [ ] Deploy the current SEO hardening changes through the normal GitHub to
+  Vercel auto-deploy flow. Pre-deploy checks pass locally; live `bb-browser`
+  verification still shows the old `RolePlay` title/description and no
+  homepage overview or FAQ content until the GitHub-triggered deployment
+  finishes.
+- [ ] Re-run GSC URL Inspection for `https://keepsay.dpdns.org/en` after the
+  live update is deployed and watch for bucket movement.
+
+## Offsite Backlink Execution Plan
+
+This section is for external backlink acquisition only. Do not turn site edits
+into a day-by-day plan. Site edits are supporting prerequisites: fix them in
+batches when needed, then return to offsite execution.
+
+### Goal
+
+Build qualified external references to `https://keepsay.dpdns.org/` and the
+highest-intent SEO pages so Keepsay gains referring domains, relevant anchor
+context, referral traffic, and stronger discovery signals.
+
+90-day targets:
+
+- 40-60 qualified referring domains.
+- 15+ relevant AI / chatbot / character chat / creator-tool references.
+- 10+ links or mentions pointing to memory and creator pages, not only the
+  homepage.
+- 5+ links from pages that can plausibly send real trial users.
+
+### Target Pages
+
+| Priority | URL | Use Case |
+| --- | --- | --- |
+| P0 | `https://keepsay.dpdns.org/en/ai-character-chat-with-memory` | Memory-based AI character chat listings, reviews, and comparisons. |
+| P0 | `https://keepsay.dpdns.org/en/custom-ai-character-creator` | Creator-tool, prompt-tool, and custom character directory submissions. |
+| P0 | `https://keepsay.dpdns.org/en/free-ai-character-chat` | Free AI chat directories and low-friction product listings. |
+| P1 | `https://keepsay.dpdns.org/en/character-ai-alternative-with-memory` | Character.AI / Talkie alternative pages and comparison mentions. |
+| P1 | `https://keepsay.dpdns.org/en/anime-ai-roleplay-characters` | Anime roleplay, character chat, and fandom-adjacent discovery pages. |
+| P1 | `https://keepsay.dpdns.org/en/ai-companion-that-remembers-you` | Memory and companion-content references. |
+| P2 | `https://keepsay.dpdns.org/en/talkie-ai-alternative` | Talkie alternative discussions and listicles. |
+
+### Anchor Text Rules
+
+Use mixed anchors. Avoid repeating exact-match anchors in bulk.
+
+| Anchor Type | Target Share | Examples |
+| --- | --- | --- |
+| Brand | 40% | `Keepsay`, `Keepsay AI`, `Keepsay RolePlay` |
+| Natural description | 30% | `an AI character chat app`, `a custom AI character creator`, `an AI roleplay app with memory` |
+| URL / naked link | 20% | `https://keepsay.dpdns.org/` |
+| Exact or partial long-tail | 10% | `AI character chat with memory`, `custom AI character creator`, `free AI character chat` |
+
+### Quality Rules
+
+Accept a backlink target only when it passes most of these checks:
+
+- The page or site is indexable and not obviously auto-generated spam.
+- The topic is related to AI tools, chatbots, companions, roleplay, character
+  creation, anime roleplay, creator tools, or startup discovery.
+- The link can appear in body copy, a product profile, a review, a comparison,
+  a resource list, or a genuinely helpful community answer.
+- The surrounding page does not mix Keepsay with adult, gambling, malware,
+  crypto spam, or unrelated bulk-link content.
+- Paid placements are recorded as paid and should use `rel="sponsored"` or
+  `nofollow`; do not treat paid dofollow links as an SEO win.
+
+Reject:
+
+- PBNs, link farms, bulk directory packs, comment spam, forum signature spam,
+  irrelevant profile links, and "guaranteed DA" packages.
+- Any pitch that frames Keepsay as NSFW, adult chat, no-filter chat, or explicit
+  companion content.
+
+### 30-Day Offsite Schedule
+
+Daily work here means offsite work only.
+
+| Day | Action | Output | Status |
+| --- | --- | --- | --- |
+| 1 | Set target pages, anchor rules, tracker, and outreach templates. | Tracker and log created. | Done |
+| 2 | Build first 50-target prospect list across AI directories, launch sites, communities, and comparison pages. | 50 rows in tracker with status `prospect`. | Pending |
+| 3 | Submit Keepsay to 5 AI tool directories. | 5 tracker rows moved to `submitted`. | Pending |
+| 4 | Submit Keepsay to 5 more directories or product databases. | 5 additional submissions. | Pending |
+| 5 | Draft Product Hunt / launch-platform positioning assets. | Tagline, description, gallery notes. | Pending |
+| 6 | Reach out to 10 AI-tool bloggers or directory editors. | 10 outreach rows. | Pending |
+| 7 | Follow up, check submission confirmations, and update tracker. | First weekly backlink status review. | Pending |
+| 8 | Write 3 helpful community answers without forced links. | 3 community rows; link only where relevant. | Pending |
+| 9 | Submit to startup / indie maker directories. | 5 submissions. | Pending |
+| 10 | Pitch `AI character chat with memory` angle to 10 comparison/listicle pages. | 10 outreach rows. | Pending |
+| 11 | Pitch `custom AI character creator` angle to creator-tool pages. | 10 outreach rows. | Pending |
+| 12 | Publish or prepare one external guest/resource post pitch. | 1 pitch draft. | Pending |
+| 13 | Check which submissions are indexed or live. | Tracker statuses updated. | Pending |
+| 14 | Weekly review: count live links, replies, referral visits, and blockers. | Week 2 report in log. | Pending |
+| 15 | Add 30 new prospects based on winners from first two weeks. | 30 new prospects. | Pending |
+| 16 | Submit 5 more directories/listings. | 5 submissions. | Pending |
+| 17 | Send 10 second-wave outreach emails. | 10 outreach rows. | Pending |
+| 18 | Build comparison-page pitch around Character.AI/Talkie alternatives. | 10 targeted prospects. | Pending |
+| 19 | Answer 3 more community threads. | 3 community rows. | Pending |
+| 20 | Follow up with all non-responsive high-fit prospects from days 6, 10, 11. | Follow-up statuses updated. | Pending |
+| 21 | Weekly review and prune low-quality channels. | Week 3 report in log. | Pending |
+| 22 | Create a small embeddable resource pitch: memory checklist, template list, or comparison table. | Pitch asset defined. | Pending |
+| 23 | Pitch the resource to 10 blogs/newsletters/resource pages. | 10 outreach rows. | Pending |
+| 24 | Submit to 5 remaining high-quality directories. | 5 submissions. | Pending |
+| 25 | Review all live links for anchor text, target page, and surrounding context. | Quality audit complete. | Pending |
+| 26 | Replace weak prospects with stronger alternatives. | Tracker cleanup. | Pending |
+| 27 | Run GSC/referral review for linked pages. | Performance notes in log. | Pending |
+| 28 | Prepare next 30-day prospect batch. | 50 new prospects. | Pending |
+| 29 | Final follow-up on month-one outreach. | Follow-up rows updated. | Pending |
+| 30 | Month-one report and next-month priorities. | Summary report in log. | Pending |
+
+### Outreach Templates
+
+Directory submission description:
+
+```text
+Keepsay is an AI character chat app focused on memory-based roleplay, fast
+custom character creation, and private story continuity. Users can start with
+free public characters or create a private AI companion with personality,
+scene, voice, and memory.
+```
+
+Short blogger/editor pitch:
+
+```text
+Subject: Keepsay for your AI character chat / AI tools list
+
+Hi [Name],
+
+I found your AI tools list and thought Keepsay may fit the character chat or
+AI companion category.
+
+Keepsay is an AI character chat app focused on memory-based roleplay and fast
+custom AI character creation. The best fit page for your readers is:
+https://keepsay.dpdns.org/en/ai-character-chat-with-memory
+
+Short description:
+Keepsay lets users chat with AI characters, create private roleplay companions,
+and keep stories going with memory.
+
+Would this be a fit for your list or a future update?
+
+Thanks,
+[Name]
+```
+
+Community answer rule:
+
+```text
+Answer the question first. Mention Keepsay only when the user explicitly asks
+for an AI character chat app, a Character.AI/Talkie alternative, memory, or
+custom character creation. Use one natural link at most.
+```
+
 ## Goal
 
 Improve crawlability and search-result quality for the current Vercel preview domain while leaving the final production domain setup as a tracked pending item.
 
 ## Current Findings
 
-- `https://role-play-eta.vercel.app/en` is indexable and renders meaningful content.
-- Lighthouse SEO is 92 on mobile and desktop.
-- `robots.txt` points to `/sitemap.xml`, but the sitemap currently contains `https://your-domain.com/...`.
-- `/en` and `/en/character/rp-anime-001` both canonicalize to the root URL, even though `localePrefix` is configured as `always`.
-- Character detail pages inherit the generic `RolePlay` title and generic MVP description.
-- PageSpeed Insights has no CrUX field data for this preview domain yet.
+### Current Production Indexing Diagnosis: 2026-06-29
+
+- Google Search Console shows `Crawled - currently not indexed` for three
+  variants last crawled on 2026-06-09:
+  `http://keepsay.dpdns.org/`, `https://keepsay.dpdns.org/`, and
+  `https://keepsay.dpdns.org/en`. This means Google has discovered and fetched
+  the URLs, but has not decided they are worth putting into the searchable
+  index yet.
+- Public search checks for `site:keepsay.dpdns.org` returned no visible Google
+  results during the 2026-06-29 review.
+- Live response checks showed `http://keepsay.dpdns.org/` returns a permanent
+  HTTP-to-HTTPS redirect, and `https://keepsay.dpdns.org/` returns a 307
+  redirect to `https://keepsay.dpdns.org/en`. The canonical user-facing
+  homepage should therefore be treated as `/en` for English promotion.
+- `https://keepsay.dpdns.org/en` returns 200 and is crawlable. The response
+  includes hreflang alternates for `/en`, `/zh`, and x-default `/`.
+- Live `robots.txt` allows `User-agent: *`, includes Cloudflare content signals
+  with `search=yes`, and points to
+  `https://keepsay.dpdns.org/sitemap.xml`.
+- Live `sitemap.xml` lists the localized homepage, SEO landing pages, legal
+  pages, and character pages under `https://keepsay.dpdns.org`.
+- No evidence was found that the homepage is blocked by robots.txt or missing
+  from the sitemap. The likely blockers are low domain trust/new-domain
+  quality evaluation, weak external references, and diluted crawl signals from
+  multiple root variants being crawled before Google settles on `/en`.
+- The first practical priority is external authority: build clean backlinks to
+  `/en` and the most relevant SEO landing pages, then request URL inspection
+  for those exact URLs after new references go live.
+
+### Historical Technical Findings
+
+- `https://role-play-eta.vercel.app/en` was indexable and rendered meaningful content.
+- Lighthouse SEO was 92 on mobile and desktop.
+- Earlier `robots.txt` pointed to `/sitemap.xml`, but the sitemap contained `https://your-domain.com/...`.
+- Earlier `/en` and `/en/character/rp-anime-001` both canonicalized to the root URL, even though `localePrefix` was configured as `always`.
+- Earlier character detail pages inherited the generic `RolePlay` title and generic MVP description.
+- PageSpeed Insights had no CrUX field data for the preview domain yet.
 
 ## Scope
 
@@ -432,6 +643,7 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | SEO-G8 | Run final-domain PageSpeed Insights for core SEO pages and record results | ⏳ pending | P1 | Re-run against `https://keepsay.dpdns.org` after new pages ship. |
 | SEO-G9 | Run Google Search Console URL Inspection for homepage, primary SEO pages, and new growth pages | ⏳ pending | P1 | Track indexing status, canonical selected by Google, and crawl issues. |
 | SEO-G10 | SERP-validate each new page target before or immediately after publishing | ⏳ pending | P1 | Follow the SERP validation workflow above; prioritize terms where forums, Reddit, Quora, or thin pages rank. |
+| SEO-G11 | Execute offsite backlink campaign and maintain backlink tracker/log | ▶ in progress | P0 | Daily cadence applies only to external submissions, outreach, community answers, and follow-ups. Tracker: `agent-context/roleplay-seo-backlink-tracker.md`; log: `agent-context/roleplay-seo-backlink-execution-log.md`. |
 
 ## Verification Log
 
@@ -450,6 +662,25 @@ alternative`, and `PolyBuzz alternative`.
 - Google Search Console sitemap submission: completed externally for `https://keepsay.dpdns.org/sitemap.xml`.
 - SEO-G1/G2 local verification: `pnpm exec fumadocs-mdx`, `node --import tsx scripts/check-seo-url-rules.ts`, `node --import tsx scripts/check-seo-copy.ts`, `pnpm exec tsc --noEmit`, `pnpm lint`, and `pnpm build` passed. Local sitemap checks and build still log `DATABASE_URL is not set`, then use the intended local fallback for roleplay character sitemap entries.
 - SEO-G6 local verification: `pnpm exec fumadocs-mdx`, `node --import tsx scripts/check-seo-url-rules.ts`, `node --import tsx scripts/check-seo-copy.ts`, `pnpm exec tsc --noEmit`, `pnpm lint`, and `pnpm build` passed. Browser automation was not available in the current tool context, so verification relied on build, lint, generated MDX source, and content/link inspection.
+- SEO-G11 documentation verification: created the backlink tracker and
+  backlink execution log, then updated the implementation plan with target
+  pages, anchor rules, quality rules, a 30-day offsite schedule, and outreach
+  templates. No code build was required because this pass changed
+  documentation only.
+- SEO-G11 follow-up verification: server-rendered the homepage FAQ structured
+  data in `src/app/[locale]/(landing)/page.tsx`, removed the duplicate client
+  FAQ JSON-LD from `src/shared/components/roleplay/roleplay-landing.tsx`, then
+  reran `pnpm exec tsc --noEmit` and `pnpm lint` successfully.
+- Live `bb-browser` follow-up: `https://keepsay.dpdns.org/en` still shows the
+  old title `AI Character Chat & AI Roleplay | RolePlay`, old description,
+  `WebSite` JSON-LD name `RolePlay`, and no visible homepage overview/FAQ
+  copy. Deploy before requesting indexing again in Google Search Console.
+- 2026-06-30 pre-deploy verification: `pnpm exec tsc --noEmit`, `pnpm lint`,
+  `node --import tsx scripts/check-seo-copy.ts`,
+  `node --import tsx scripts/check-seo-url-rules.ts`, and `pnpm build` passed.
+  `pnpm lint` reported warnings only. Local sitemap checks and build still log
+  `DATABASE_URL is not set`, then use the intended local fallback for roleplay
+  character sitemap entries.
 
 ## Status Log
 
@@ -482,3 +713,5 @@ alternative`, and `PolyBuzz alternative`.
 - 2026-06-13 00:00: Re-opened SEO planning for the next growth phase. Added `SEO Growth Backlog` with pending landing pages, internal-linking work, PageSpeed/Search Console checks, and SERP validation follow-ups.
 - 2026-06-13 11:09: Completed SEO-G1 and SEO-G2. Added first-pass localized MDX pages for `/anime-character-ai-chat` and `/talkie-ai-alternative`, added both paths to the dynamic sitemap and SEO URL rule checks, regenerated MDX source, and verified with SEO scripts, typecheck, lint, and production build.
 - 2026-06-13 11:17: Completed SEO-G6. Added homepage guide links and related-guide link sections across the primary and growth SEO landing pages, then verified MDX generation, SEO scripts, typecheck, lint, and production build.
+- 2026-06-29 18:35: Started SEO-G11. Converted the external-link strategy into an offsite-only execution workflow, added the backlink tracker, and opened the backlink execution log. No third-party submissions were made yet because they require prospect research plus account/login or outreach identity decisions.
+- 2026-06-30 10:45: Prepared indexing-first hardening for production. Direct Vercel CLI upload was attempted but aborted during file upload because of a TLS/network error, so deployment is proceeding through the normal GitHub push to Vercel auto-deploy flow instead.

@@ -31,6 +31,15 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(safeUrl, 307);
   }
 
+  if (pathname === '/') {
+    const homeUrl = new URL('/en', request.url);
+    const response = NextResponse.redirect(homeUrl, 308);
+    response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=14400');
+    response.headers.set('CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=14400');
+    response.headers.set('Cloudflare-CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=14400');
+    return response;
+  }
+
   // Only check authentication for admin routes
   if (
     pathWithoutLocale.startsWith('/admin') ||

@@ -34,6 +34,31 @@
     "hero_title": "创建虚构角色，延续他们的故事。",
     "hero_subtitle": "用记忆、语音预览和安全视觉瞬间构建原创角色。",
     "hero_note": "在 Keepsay 开始一个故事场景。",
+    "seo_intro_title": "为什么 Keepsay 适合作为 AI 角色聊天首页",
+    "seo_intro_body": "Keepsay 把 AI 角色聊天、故事记忆和快速角色创建放在同一个入口里。首页是通往免费聊天、记忆陪伴、动漫角色扮演和自定义创建的真实入口，也让搜索引擎更容易从一个规范化主域理解整个产品。",
+    "seo_intro_points": [
+      "唯一规范主域：keepsay.dpdns.org",
+      "先从免费聊天或记忆陪伴开始",
+      "直接跳转到动漫角色与自定义创建"
+    ],
+    "seo_faq_label": "常见问题",
+    "seo_faq_title": "很多人在尝试 Keepsay 前都会问这几个问题",
+    "seo_faqs": [
+      {
+        "question": "Keepsay 是什么？",
+        "answer": "Keepsay 是一个 AI 角色聊天和角色扮演应用，适合想要故事连续性、记忆和快速创建角色的人。"
+      },
+      {
+        "question": "我应该先打开哪个页面？",
+        "answer": "可以先看中文首页，再根据需求进入记忆、免费聊天、动漫角色扮演或自定义创建页面。"
+      },
+      {
+        "question": "为什么首页会影响收录？",
+        "answer": "首页提供唯一规范入口、明确的产品说明、站内深链接和结构化问答，能帮助搜索引擎判断这是一个稳定的核心页面。"
+      }
+    ],
+    "seo_related_label": "继续探索这些页面",
+    "seo_related_title": "进入 Keepsay 的快捷路径",
     "try_claw": "试试 Keepsay",
     "recommended": "为你推荐",
     "recommended_subtitle": "根据年龄、偏好、聊天历史推荐",
@@ -185,6 +210,9 @@
       "generating": "正在生成并保存…",
       "draft_saved": "角色草稿已保存。",
       "generate_error": "生成失败，请重试。",
+      "save_error": "角色保存失败，请重试。",
+      "generate_network_error": "生成请求没有收到服务器响应，请确认本地服务仍在运行后重试。",
+      "save_network_error": "角色保存请求没有收到服务器响应，请确认本地服务仍在运行后重试。",
       "trait_required": "请至少选择一个性格标签。",
       "audit_blocked": "发布审计未通过，请进入高级编辑修复。",
       "adjust_inputs": "调整选择",
@@ -227,7 +255,9 @@
       "image_deleted": "图片已删除。",
       "delete_image": "删除图片",
       "image_generate_error": "头像生成失败。",
+      "image_generate_network_error": "头像生成请求没有收到服务器响应，请确认本地服务仍在运行后重试。",
       "image_upload_error": "头像上传失败。",
+      "image_upload_network_error": "头像上传请求没有收到服务器响应，请确认本地服务仍在运行后重试。",
       "step_count": "第 {current} / {total} 步",
       "steps": {
         "template": "选择场景",

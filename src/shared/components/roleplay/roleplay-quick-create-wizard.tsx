@@ -391,6 +391,42 @@ function mergeDraftAfterImageDelete(
   };
 }
 
+function isFetchNetworkError(error: unknown) {
+  const message = String((error as any)?.message || error || '');
+  return (
+    (error instanceof TypeError &&
+      /failed to fetch|fetch failed|networkerror|load failed/i.test(message)) ||
+    (error as any)?.name === 'AbortError'
+  );
+}
+
+function createQuickCreateRequestError(error: unknown, networkMessage: string) {
+  if (isFetchNetworkError(error)) return new Error(networkMessage);
+  if (error instanceof Error) return error;
+  return new Error(String(error || networkMessage));
+}
+
+async function requestQuickCreateJson(
+  input: RequestInfo | URL,
+  init: RequestInit,
+  fallback: string,
+  networkMessage: string
+) {
+  let res: Response;
+  try {
+    res = await fetch(input, init);
+  } catch (error) {
+    throw createQuickCreateRequestError(error, networkMessage);
+  }
+
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok || (payload?.code && payload.code !== 0)) {
+    throw createRoleplayApiError(payload, fallback);
+  }
+
+  return payload;
+}
+
 function genderLabel(gender: GenderOption | undefined, isZh: boolean) {
   if (isZh) {
     if (gender === 'female') return '女性';
@@ -722,97 +758,6 @@ export function RoleplayQuickCreateWizard() {
     });
   }, []);
 
-  const uploadImages = useCallback(
-    async (files: File[]) => {
-      if (!files.length) return;
-      updateState({ uploadingImage: true });
-      try {
-        const formData = new FormData();
-        files.forEach((file) => formData.append('files', file));
-        const res = await fetch('/api/storage/upload-image', {
-          method: 'POST',
-          body: formData,
-        });
-        const payload = await res.json().catch(() => ({}));
-        if (!res.ok || (payload?.code && payload.code !== 0)) {
-          throw new Error(payload?.message || t('image_upload_error'));
-        }
-        const urls = Array.isArray(payload?.data?.urls)
-          ? payload.data.urls.filter(Boolean)
-          : [];
-        if (!urls.length) throw new Error(t('image_upload_error'));
-        setState((prev) => {
-          const nextSync = syncAvatarFromGallery([...prev.gallery, ...urls]);
-          return {
-            ...prev,
-            ...nextSync,
-            draft: mergeDraftGallery(prev.draft, nextSync.gallery),
-          };
-        });
-        toast.success(t('image_uploaded'));
-      } catch (error: any) {
-        toast.error(error?.message || t('image_upload_error'));
-      } finally {
-        updateState({ uploadingImage: false });
-      }
-    },
-    [t, updateState]
-  );
-
-  const generateAvatar = useCallback(async () => {
-    updateState({ generatingImage: true });
-    try {
-      const imageContext = buildQuickCreateImageContext({
-        state,
-        template,
-        isZh,
-      });
-      const referenceImage = state.gallery[0] || '';
-      const res = await fetch('/api/roleplay/image', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          ...imageContext,
-          imageStyleSuffix: template.visualStyleHint,
-          characterAvatar: referenceImage || undefined,
-          requestId: createRoleplayRequestId('rp-image'),
-        }),
-      });
-      const payload = await res.json().catch(() => ({}));
-      if (!res.ok || (payload?.code && payload.code !== 0)) {
-        throw createRoleplayApiError(payload, t('image_generate_error'));
-      }
-      const url = payload?.data?.url;
-      if (!url) throw new Error(t('image_generate_error'));
-      setState((prev) => {
-        const nextSync = syncAvatarFromGallery([...prev.gallery, url]);
-        return {
-          ...prev,
-          ...nextSync,
-          draft: mergeDraftGallery(prev.draft, nextSync.gallery),
-        };
-      });
-      toast.success(t('image_generated'));
-    } catch (error: any) {
-      showRoleplayApiErrorToast(error, t('image_generate_error'));
-    } finally {
-      updateState({ generatingImage: false });
-    }
-  }, [isZh, state, t, template, updateState]);
-
-  const removeImage = useCallback((url: string) => {
-    setState((prev) => {
-      const nextGallery = prev.gallery.filter((item) => item !== url);
-      return {
-        ...prev,
-        ...syncAvatarFromGallery(nextGallery),
-        draft: mergeDraftAfterImageDelete(prev.draft, nextGallery),
-      };
-    });
-    toast.success(t('image_deleted'));
-  }, [t]);
-
   const saveDraft = useCallback(
     async (draft: AiWriterDraft, id?: string) => {
       const gallery = uniqueUrls([
@@ -852,23 +797,135 @@ export function RoleplayQuickCreateWizard() {
           ].filter(Boolean),
         },
       };
-      const res = await fetch(
+      const payload = await requestQuickCreateJson(
         id ? `/api/roleplay/characters/${id}` : '/api/roleplay/characters',
         {
           method: id ? 'PATCH' : 'POST',
           credentials: 'include',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(body),
-        }
+        },
+        t('save_error'),
+        t('save_network_error')
       );
-      const payload = await res.json().catch(() => ({}));
-      if (!res.ok || (payload?.code && payload.code !== 0)) {
-        throw new Error(payload?.message || 'save failed');
-      }
       return payload?.data?.character?.id as string;
     },
-    [state.gallery, template]
+    [state.gallery, t, template]
   );
+
+  const persistSavedDraftImages = useCallback(
+    async (gallery: string[]) => {
+      if (!state.savedCharacterId || !state.draft) return;
+      const draft = mergeDraftGallery(state.draft, gallery);
+      if (!draft) return;
+      const id = await saveDraft(draft, state.savedCharacterId);
+      if (id && id !== state.savedCharacterId) {
+        updateState({ savedCharacterId: id });
+      }
+    },
+    [saveDraft, state.draft, state.savedCharacterId, updateState]
+  );
+
+  const uploadImages = useCallback(
+    async (files: File[]) => {
+      if (!files.length) return;
+      updateState({ uploadingImage: true });
+      try {
+        const formData = new FormData();
+        files.forEach((file) => formData.append('files', file));
+        const payload = await requestQuickCreateJson(
+          '/api/storage/upload-image',
+          {
+            method: 'POST',
+            body: formData,
+          },
+          t('image_upload_error'),
+          t('image_upload_network_error')
+        );
+        const urls = Array.isArray(payload?.data?.urls)
+          ? payload.data.urls.filter(Boolean)
+          : [];
+        if (!urls.length) throw new Error(t('image_upload_error'));
+        const persistedGallery = uniqueUrls([...state.gallery, ...urls]);
+        setState((prev) => {
+          const nextSync = syncAvatarFromGallery([...prev.gallery, ...urls]);
+          return {
+            ...prev,
+            ...nextSync,
+            draft: mergeDraftGallery(prev.draft, nextSync.gallery),
+          };
+        });
+        await persistSavedDraftImages(persistedGallery);
+        toast.success(t('image_uploaded'));
+      } catch (error: any) {
+        toast.error(error?.message || t('image_upload_error'));
+      } finally {
+        updateState({ uploadingImage: false });
+      }
+    },
+    [persistSavedDraftImages, state.gallery, t, updateState]
+  );
+
+  const generateAvatar = useCallback(async () => {
+    updateState({ generatingImage: true });
+    try {
+      const imageContext = buildQuickCreateImageContext({
+        state,
+        template,
+        isZh,
+      });
+      const referenceImage = state.gallery[0] || '';
+      const payload = await requestQuickCreateJson(
+        '/api/roleplay/image',
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            ...imageContext,
+            imageStyleSuffix: template.visualStyleHint,
+            characterAvatar: referenceImage || undefined,
+            requestId: createRoleplayRequestId('rp-image'),
+          }),
+        },
+        t('image_generate_error'),
+        t('image_generate_network_error')
+      );
+      const url = payload?.data?.url;
+      if (!url) throw new Error(t('image_generate_error'));
+      const persistedGallery = uniqueUrls([...state.gallery, url]);
+      setState((prev) => {
+        const nextSync = syncAvatarFromGallery([...prev.gallery, url]);
+        return {
+          ...prev,
+          ...nextSync,
+          draft: mergeDraftGallery(prev.draft, nextSync.gallery),
+        };
+      });
+      await persistSavedDraftImages(persistedGallery);
+      toast.success(t('image_generated'));
+    } catch (error: any) {
+      showRoleplayApiErrorToast(error, t('image_generate_error'));
+    } finally {
+      updateState({ generatingImage: false });
+    }
+  }, [isZh, persistSavedDraftImages, state, t, template, updateState]);
+
+  const removeImage = useCallback((url: string) => {
+    const nextGallery = state.gallery.filter((item) => item !== url);
+    setState((prev) => {
+      const nextGallery = prev.gallery.filter((item) => item !== url);
+      return {
+        ...prev,
+        ...syncAvatarFromGallery(nextGallery),
+        draft: mergeDraftAfterImageDelete(prev.draft, nextGallery),
+      };
+    });
+    void persistSavedDraftImages(nextGallery).catch((error) => {
+      showRoleplayApiErrorToast(error, t('save_error'));
+    });
+    toast.success(t('image_deleted'));
+  }, [persistSavedDraftImages, state.gallery, t]);
 
   const generateDraft = useCallback(
     async (tuningInstruction?: string) => {
@@ -888,59 +945,64 @@ export function RoleplayQuickCreateWizard() {
         ]
           .filter(Boolean)
           .join('\n');
-        const res = await fetch('/api/roleplay/ai-writer', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            mode: 'quick_create',
-            requestId: createRoleplayRequestId('rp-ai-writer'),
-            gender: state.gender || template.defaultGender || 'non-binary',
-            language: isZh ? 'zh' : 'en',
-            hint: `${isZh ? template.titleZh : template.titleEn}: ${localizedTraits.join(' / ')}`,
-            quickCreate: {
-              templateId: template.id,
-              templateTitle: isZh ? template.titleZh : template.titleEn,
-              category: template.category,
-              world: isZh
-                ? template.world
-                : `${template.titleEn}. ${template.summaryEn}`,
-              sceneConflict: l10n(template.sceneConflict, isZh, template.summaryEn),
-              characterRole: l10n(template.characterRole, isZh),
-              userRole: l10n(state.userRole, isZh),
-              relationshipPreset: l10n(state.relationship, isZh),
-              openingHook: renderOpeningHookForPrompt({
-                hook: state.openingHook,
-                isZh,
-                template,
-              }),
-              coreTraits: localizedTraits,
-              defaultTension: l10n(
-                template.defaultTension,
-                isZh,
-                'They want closeness but hesitate because the relationship has unresolved tension.'
-              ),
-              keyMemory: state.keyMemory,
-              memorySeeds: isZh
-                ? template.memorySeeds
-                : [
-                    'They remember one small user preference.',
-                    'There is one unresolved moment between them.',
-                  ],
-              safetyBoundary: isZh
-                ? template.safetyBoundary
-                : 'Keep the relationship bounded, consensual, realistic, and unresolved at the start.',
-              visualStyleHint: template.visualStyleHint,
-              voiceTone: template.voiceTone,
-              customInstruction: customInstruction || undefined,
-              emotionalHookPreset: template.emotionalHookPreset,
-            },
-          }),
-        });
-        const payload = await res.json().catch(() => ({}));
-        if (!res.ok || (payload?.code && payload.code !== 0)) {
-          throw createRoleplayApiError(payload, t('generate_error'));
-        }
+        const payload = await requestQuickCreateJson(
+          '/api/roleplay/ai-writer',
+          {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              mode: 'quick_create',
+              requestId: createRoleplayRequestId('rp-ai-writer'),
+              gender: state.gender || template.defaultGender || 'non-binary',
+              language: isZh ? 'zh' : 'en',
+              hint: `${isZh ? template.titleZh : template.titleEn}: ${localizedTraits.join(' / ')}`,
+              quickCreate: {
+                templateId: template.id,
+                templateTitle: isZh ? template.titleZh : template.titleEn,
+                category: template.category,
+                world: isZh
+                  ? template.world
+                  : `${template.titleEn}. ${template.summaryEn}`,
+                sceneConflict: l10n(
+                  template.sceneConflict,
+                  isZh,
+                  template.summaryEn
+                ),
+                characterRole: l10n(template.characterRole, isZh),
+                userRole: l10n(state.userRole, isZh),
+                relationshipPreset: l10n(state.relationship, isZh),
+                openingHook: renderOpeningHookForPrompt({
+                  hook: state.openingHook,
+                  isZh,
+                  template,
+                }),
+                coreTraits: localizedTraits,
+                defaultTension: l10n(
+                  template.defaultTension,
+                  isZh,
+                  'They want closeness but hesitate because the relationship has unresolved tension.'
+                ),
+                keyMemory: state.keyMemory,
+                memorySeeds: isZh
+                  ? template.memorySeeds
+                  : [
+                      'They remember one small user preference.',
+                      'There is one unresolved moment between them.',
+                    ],
+                safetyBoundary: isZh
+                  ? template.safetyBoundary
+                  : 'Keep the relationship bounded, consensual, realistic, and unresolved at the start.',
+                visualStyleHint: template.visualStyleHint,
+                voiceTone: template.voiceTone,
+                customInstruction: customInstruction || undefined,
+                emotionalHookPreset: template.emotionalHookPreset,
+              },
+            }),
+          },
+          t('generate_error'),
+          t('generate_network_error')
+        );
         const draft = payload?.data?.draft as AiWriterDraft | undefined;
         if (!draft) throw new Error(t('generate_error'));
         const hasUserImages = state.gallery.length > 0;

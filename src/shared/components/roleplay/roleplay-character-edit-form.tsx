@@ -631,14 +631,29 @@ export function RoleplayCharacterEditForm({ characterId }: Props) {
         invalidateRoleplayClientCache(`character:${character.id}`);
         invalidateRoleplayClientCache('characters:');
         invalidateRoleplayClientCache('recommendations:');
-        setState((prev) => ({
-          ...prev,
-          id: character.id,
-          status: character.status || 'draft',
-          visibility:
-            character.visibility === 'public' ? 'public' : prev.visibility,
-          rejectionReason: character.rejectionReason || '',
-        }));
+        setState((prev) => {
+          const gallery = Array.isArray(character.gallery)
+            ? character.gallery.filter(Boolean)
+            : prev.gallery;
+          const avatar =
+            typeof character.avatar === 'string' && character.avatar
+              ? character.avatar
+              : gallery[0] || prev.avatar;
+          return {
+            ...prev,
+            id: character.id,
+            status: character.status || 'draft',
+            avatar,
+            gallery,
+            visibility:
+              character.visibility === 'public'
+                ? 'public'
+                : character.visibility === 'private'
+                  ? 'private'
+                  : prev.visibility,
+            rejectionReason: character.rejectionReason || '',
+          };
+        });
         // For freshly created drafts, swap the URL so subsequent saves PATCH
         // instead of duplicating. router.replace keeps history clean.
         if (!state.id && character.id) {

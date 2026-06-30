@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
 import { defaultLocale, localePrefix } from '@/config/locale';
@@ -25,12 +25,17 @@ export default async function LandingPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const tHome = await getTranslations({ locale, namespace: 'roleplay.home' });
   const initialData = await getRoleplayHomeInitialData();
   const canonicalUrl = buildLocalizedUrl('/', locale, {
     appUrl: envConfigs.app_url,
     defaultLocale,
     localePrefix,
   });
+  const faqs = tHome.raw('seo_faqs') as Array<{
+    question: string;
+    answer: string;
+  }>;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -59,6 +64,18 @@ export default async function LandingPage({
             defaultLocale,
             localePrefix,
           }),
+        })),
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': `${canonicalUrl}#faq`,
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
         })),
       },
     ],

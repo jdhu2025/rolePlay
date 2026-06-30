@@ -765,6 +765,13 @@ function buildImageEndpoint(baseURL: string, path: string) {
     return `${normalizedBaseURL}/api/v1${path}`;
   }
 
+  if (
+    path === '/images' &&
+    normalizedBaseURL === 'https://openrouter.ai'
+  ) {
+    return `${normalizedBaseURL}/api/v1${path}`;
+  }
+
   return `${normalizedBaseURL}${path}`;
 }
 
@@ -789,7 +796,7 @@ export async function generateOpenAICompatibleImage({
   try {
     if (isOpenRouterImageProvider(config.provider, config.baseURL)) {
       response = await fetch(
-        buildImageEndpoint(config.baseURL, '/chat/completions'),
+        buildImageEndpoint(config.baseURL, '/images'),
         {
           method: 'POST',
           headers: {
@@ -873,7 +880,12 @@ export async function generateOpenAICompatibleImage({
   }
 
   if (!response.ok) {
-    throw new Error(await response.text());
+    const responseBody = await response.text();
+    const error = new Error(responseBody || response.statusText);
+    (error as any).status = response.status;
+    (error as any).statusCode = response.status;
+    (error as any).responseBody = responseBody;
+    throw error;
   }
 
   const contentType = response.headers.get('content-type') || '';
@@ -894,15 +906,15 @@ export async function generateOpenAICompatibleImage({
   const json = await response.json();
 
   if (isOpenRouterImageProvider(config.provider, config.baseURL)) {
-    const urls = extractOpenRouterImageUrls(json);
-    if (!urls.length) {
-      throw new Error(`OpenRouter image generation returned no image URL`);
+    const normalized = normalizeImageGenerationResponse(json) as {
+      created?: number;
+      data?: Array<{ url?: string; b64_json?: string }>;
+    };
+    if (!normalized.data?.some((item) => item.url || item.b64_json)) {
+      throw new Error(`OpenRouter image generation returned no image data`);
     }
 
-    return {
-      created: Date.now(),
-      data: urls.map((url) => ({ url })),
-    };
+    return normalized;
   }
 
   return normalizeImageGenerationResponse(json) as {
@@ -922,27 +934,32 @@ function buildOpenRouterImagePayload(
     : imageInput
       ? [imageInput]
       : [];
-  const content =
-    imageInputs.length > 0
-      ? [
-          { type: 'text', text: prompt },
-          ...imageInputs.map((url) => ({
-            type: 'image_url',
-            image_url: { url },
-          })),
-        ]
-      : prompt;
-  const imageSize = size || config.size;
+  const imageSize = normalizeOpenRouterImageSize(size || config.size);
 
   return {
     model: config.model,
-    messages: [{ role: 'user', content }],
-    modalities: isLikelyOpenRouterImageOnlyModel(config.model)
-      ? ['image']
-      : ['image', 'text'],
-    stream: false,
-    ...(imageSize ? { image_config: { size: imageSize } } : {}),
+    prompt,
+    n: 1,
+    ...(imageSize ? { size: imageSize } : {}),
+    ...(imageInputs.length
+      ? {
+          input_references: imageInputs.map((url) => ({
+            type: 'image_url',
+            image_url: { url },
+          })),
+        }
+      : {}),
   };
+}
+
+function normalizeOpenRouterImageSize(value: string | undefined) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+
+  const normalized = raw.toLowerCase().replace(/\s+/g, '');
+  if (normalized === '0.5k' || normalized === '.5k') return '512';
+  if (/^\d+k$/.test(normalized)) return normalized.toUpperCase();
+  return raw;
 }
 
 function buildXAIImageGenerationPayload(
@@ -981,47 +998,6 @@ function buildXAIImageEditPayload(
     image: imagePayload.length === 1 ? imagePayload[0] : imagePayload,
     ...(size || config.size ? { size: size || config.size } : {}),
   };
-}
-
-function extractOpenRouterImageUrls(result: unknown) {
-  const urls: string[] = [];
-  const choices = Array.isArray((result as any)?.choices)
-    ? (result as any).choices
-    : [];
-
-  for (const choice of choices) {
-    const message = choice?.message || {};
-    const images = Array.isArray(message.images) ? message.images : [];
-
-    for (const image of images) {
-      const url =
-        image?.image_url?.url ||
-        image?.imageUrl?.url ||
-        image?.url ||
-        image?.image_url ||
-        image?.imageUrl;
-      if (typeof url === 'string' && url.trim()) {
-        urls.push(url.trim());
-      }
-    }
-
-    if (typeof message.content === 'string') {
-      urls.push(...extractImageUrlsFromText(message.content));
-      urls.push(...extractDataImageUrlsFromText(message.content));
-    }
-  }
-
-  return Array.from(new Set(urls));
-}
-
-function isLikelyOpenRouterImageOnlyModel(model: string) {
-  const normalized = model.trim().toLowerCase();
-
-  return (
-    normalized.includes('grok-imagine') ||
-    normalized.includes('/flux') ||
-    normalized.includes('sourceful/')
-  );
 }
 
 function normalizeImageGenerationResponse(result: any) {

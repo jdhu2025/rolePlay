@@ -1,10 +1,11 @@
 export const ROLEPLAY_HOME_SEO = {
-  title: 'AI Character Chat & AI Roleplay | RolePlay',
+  title: 'Keepsay | AI Character Chat & AI Roleplay',
   subtitle:
     'Crush-style companions, anime personas, and immersive stories for late-night company.',
   description:
-    'Meet AI roleplay characters for crush-style stories, anime personas, and immersive AI character chat. A Character.AI alternative with voice, photos, and memory.',
+    'Keepsay is an AI character chat and AI roleplay app for crush-style stories, anime personas, and immersive companion chats. Create characters with voice, photos, memory, and clear story boundaries as a Character.AI alternative.',
   keywords: [
+    'Keepsay',
     'AI Character Chat',
     'AI Roleplay',
     'AI roleplay characters',
@@ -52,7 +53,7 @@ export function buildCharacterSeoCopy(character: CharacterSeoInput) {
   const role = compactText(character.role);
   const location = compactText(character.location);
   const context = [role, location].filter(Boolean).join(' in ');
-  const title = `${name} AI Character Chat | AI Roleplay`;
+  const title = `${name} AI Character Chat | AI Roleplay | Keepsay`;
   const description = [
     `AI Character Chat with ${name}:`,
     intro || 'start an immersive companion story',
