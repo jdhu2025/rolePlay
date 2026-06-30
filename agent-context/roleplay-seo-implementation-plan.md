@@ -4,11 +4,11 @@ Last updated: 2026-06-30 Asia/Shanghai
 
 ## Remaining Todo
 
-- [ ] In Google Search Console, inspect the canonical URL
-  `https://keepsay.dpdns.org/en` and record Google's selected canonical,
-  crawl date, crawl user agent, and any page quality notes. The current GSC
-  bucket is `Crawled - currently not indexed`, so this is a quality/canonical
-  confidence problem unless URL Inspection shows a new technical blocker.
+- [x] In Google Search Console, inspect the canonical URL
+  `https://keepsay.dpdns.org/en` and request indexing after the live URL test
+  passes. First live test briefly returned `server error (5xx)` during the
+  deployment window, but the follow-up live test at 2026-06-30 09:45 reported
+  that the URL can be indexed and indexing was requested.
 - [ ] Use root variants only as discovery/redirect variants:
   `http://keepsay.dpdns.org/` and `https://keepsay.dpdns.org/` should point
   users and crawlers to the localized canonical entry, while offsite links
@@ -55,8 +55,10 @@ Last updated: 2026-06-30 Asia/Shanghai
 - [x] Deploy and verify the homepage brand-consistency follow-up for
   `og:site_name` and `WebSite.name`, so production no longer depends on the
   old `NEXT_PUBLIC_APP_NAME` value.
-- [ ] Re-run GSC URL Inspection for `https://keepsay.dpdns.org/en` after the
-  live update is deployed and watch for bucket movement.
+- [x] Re-run GSC URL Inspection for `https://keepsay.dpdns.org/en` after the
+  live update is deployed. Live test passed and indexing was requested.
+- [ ] Recheck GSC URL Inspection in 24-48 hours and watch for the bucket to
+  move from `Crawled - currently not indexed` to indexed or a new diagnostic.
 
 ## Offsite Backlink Execution Plan
 

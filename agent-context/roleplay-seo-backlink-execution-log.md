@@ -36,18 +36,25 @@ Status: indexing-first production release prepared
 - [x] Pushed the brand-consistency patch and verified the second
   GitHub-triggered deployment with `bb-browser`. Production now renders
   `og:site_name` as `Keepsay` and WebSite JSON-LD `name` as `Keepsay`.
+- [x] Ran Google Search Console URL Inspection for
+  `https://keepsay.dpdns.org/en`. The first live test at 2026-06-30 09:19:08
+  showed `server error (5xx)`, likely during deployment/cache stabilization.
+  A follow-up live test at 2026-06-30 09:45 showed `URL can be indexed`, and
+  `Request indexing` completed successfully. GSC reports the URL was added to
+  the priority crawl queue.
 
 ### Current Status
 
 - The GitHub-triggered deployments are live and verified for the
   indexing-first changes and the homepage brand-consistency follow-up.
-- Next SEO action is Google Search Console URL Inspection for the canonical
-  homepage, then continued offsite backlink prospecting/submissions.
+- Google Search Console indexing request for the canonical homepage is
+  complete. Next SEO action is to recheck URL Inspection in 24-48 hours and
+  continue offsite backlink prospecting/submissions.
 
 ### Next Actions
 
-- Request URL Inspection for
-  `https://keepsay.dpdns.org/en` in Google Search Console.
+- Recheck URL Inspection for `https://keepsay.dpdns.org/en` in 24-48 hours.
+- Check `site:keepsay.dpdns.org` after 3 days.
 - Continue building the backlink tracker toward the first 50 qualified
   prospects and submit only where account/CAPTCHA/paid-placement decisions are
   cleared.
