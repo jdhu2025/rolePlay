@@ -16,6 +16,7 @@ export const generateMetadata = getMetadata({
   description: ROLEPLAY_HOME_SEO.description,
   keywords: ROLEPLAY_HOME_SEO.keywords.join(', '),
   canonicalUrl: '/',
+  appName: ROLEPLAY_HOME_SEO.brandName,
 });
 
 export default async function LandingPage({
@@ -43,7 +44,7 @@ export default async function LandingPage({
         '@type': 'WebSite',
         '@id': `${canonicalUrl}#website`,
         url: canonicalUrl,
-        name: envConfigs.app_name || 'RolePlay',
+        name: ROLEPLAY_HOME_SEO.brandName,
         description: ROLEPLAY_HOME_SEO.description,
         inLanguage: locale,
       },

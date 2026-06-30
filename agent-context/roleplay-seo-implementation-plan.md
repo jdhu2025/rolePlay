@@ -48,11 +48,13 @@ Last updated: 2026-06-30 Asia/Shanghai
 - [x] Add server-rendered `FAQPage` JSON-LD on the home page.
 - [x] Align homepage SEO copy to the Keepsay brand while keeping the core
   discovery terms.
-- [ ] Deploy the current SEO hardening changes through the normal GitHub to
-  Vercel auto-deploy flow. Pre-deploy checks pass locally; live `bb-browser`
-  verification still shows the old `RolePlay` title/description and no
-  homepage overview or FAQ content until the GitHub-triggered deployment
-  finishes.
+- [x] Deploy the main SEO hardening changes through the normal GitHub to
+  Vercel auto-deploy flow. `bb-browser` verified the live Keepsay title,
+  description, canonical URL, visible overview copy, visible FAQ copy, and
+  `FAQPage` JSON-LD.
+- [ ] Deploy and verify the homepage brand-consistency follow-up for
+  `og:site_name` and `WebSite.name`, so production no longer depends on the
+  old `NEXT_PUBLIC_APP_NAME` value.
 - [ ] Re-run GSC URL Inspection for `https://keepsay.dpdns.org/en` after the
   live update is deployed and watch for bucket movement.
 

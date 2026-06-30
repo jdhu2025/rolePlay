@@ -24,20 +24,30 @@ Status: indexing-first production release prepared
   project workflow and also failed during upload with a TLS/network abort.
   Deployment should proceed through GitHub push, which triggers Vercel
   automatically.
+- [x] Verified the GitHub-triggered production deploy with `bb-browser`.
+  `https://keepsay.dpdns.org/en` now returns the new Keepsay title,
+  description, canonical URL, visible overview copy, visible FAQ copy, and
+  `FAQPage` JSON-LD.
+- [x] Found one remaining brand-consistency issue after deployment:
+  production still rendered `RolePlay` for `og:site_name` and `WebSite.name`,
+  likely because the Vercel environment still has an old
+  `NEXT_PUBLIC_APP_NAME`. Patched the homepage SEO metadata and WebSite JSON-LD
+  to use the explicit Keepsay brand name for the homepage.
 
 ### Current Status
 
-- Current code is ready to push to GitHub for the normal Vercel auto-deploy
-  flow.
-- Live verification is still pending until the GitHub-triggered Vercel
-  deployment finishes.
+- The first GitHub-triggered deployment is live and verified for the major
+  indexing-first changes.
+- One follow-up brand-consistency patch is ready for a second GitHub-triggered
+  auto-deploy.
 
 ### Next Actions
 
-- Push the prepared commit to `origin/main`.
+- Push the brand-consistency patch to `origin/main`.
 - After Vercel completes, rerun `bb-browser` checks for
-  `https://keepsay.dpdns.org/en`: title, description, canonical, overview
-  copy, FAQ copy, and FAQ JSON-LD.
+  `https://keepsay.dpdns.org/en`: title, description, canonical,
+  `og:site_name`, WebSite JSON-LD name, overview copy, FAQ copy, and FAQ
+  JSON-LD.
 - If live verification passes, request URL Inspection for
   `https://keepsay.dpdns.org/en` in Google Search Console.
 

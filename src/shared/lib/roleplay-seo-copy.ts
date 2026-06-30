@@ -1,4 +1,5 @@
 export const ROLEPLAY_HOME_SEO = {
+  brandName: 'Keepsay',
   title: 'Keepsay | AI Character Chat & AI Roleplay',
   subtitle:
     'Crush-style companions, anime personas, and immersive stories for late-night company.',
