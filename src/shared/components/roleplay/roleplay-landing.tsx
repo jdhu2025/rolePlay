@@ -22,6 +22,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowRight, BadgeDollarSign, MessageCircle, Sparkles } from 'lucide-react';
+import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Link } from '@/core/i18n/navigation';
@@ -263,14 +264,14 @@ export function RoleplayLanding({ initialData }: Props) {
 
   return (
     <main className="min-h-dvh overflow-hidden bg-[#0d0d10] text-white">
-      <FirstExperienceDirector
-        onSelected={refreshRecommendationsForExperience}
-      />
-      <SeoSceneRail />
       <ForYouSection
         characters={recommendedCharacters}
         loading={recommendationsLoading}
       />
+      <FirstExperienceDirector
+        onSelected={refreshRecommendationsForExperience}
+      />
+      <SeoSceneRail />
       <FirstMomentPreference />
       <HomeSeoSignals />
       <HomeFaqSection />
@@ -348,25 +349,25 @@ function SeoSceneRail() {
   const isZh = locale.startsWith('zh');
   const scenes = [
     {
+      href: '/ai-character-chat-with-memory',
+      labelEn: 'AI character chat with memory',
+      labelZh: '带记忆的 AI 角色聊天',
+      descriptionEn: 'Chat with characters who remember your story and details.',
+      descriptionZh: '和会记住故事与细节的角色聊天。',
+    },
+    {
+      href: '/create-ai-character-with-memory',
+      labelEn: 'Create AI character with memory',
+      labelZh: '创建带记忆的 AI 角色',
+      descriptionEn: 'Use a scene, personality, and memory seeds to start fast.',
+      descriptionZh: '用场景、性格和记忆种子快速开始。',
+    },
+    {
       href: '/ai-character-collections',
       labelEn: 'Browse character collections',
       labelZh: '浏览角色集合',
       descriptionEn: 'Find memory, anime, comfort, free chat, and creator paths.',
       descriptionZh: '找到记忆、动漫、治愈、免费聊天和创建路径。',
-    },
-    {
-      href: '/ai-character-chat-with-memory',
-      labelEn: 'AI friend chat with memory',
-      labelZh: '带记忆的 AI friend 聊天',
-      descriptionEn: 'A character who remembers your story and the small stuff.',
-      descriptionZh: '角色会记住你的故事和那些小细节。',
-    },
-    {
-      href: '/create-ai-character-with-memory',
-      labelEn: 'Create your own character',
-      labelZh: '创建自己的角色',
-      descriptionEn: 'Start from a scene, then keep the character private.',
-      descriptionZh: '先选场景，再保存成私有角色。',
     },
     {
       href: '/free-ai-character-chat',
@@ -399,35 +400,36 @@ function SeoSceneRail() {
   ];
 
   return (
-    <section className="border-b border-white/6 bg-[#101114]">
-      <div className="mx-auto max-w-6xl px-4 py-5 md:px-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-          {isZh ? '按场景开始' : 'Start by scene'}
-        </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    <section className="border-b border-white/6 bg-[#0f1012]">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:px-6 md:py-5 lg:flex-row lg:items-center">
+        <div className="min-w-0 lg:w-56">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            {isZh ? '快速入口' : 'Quick starts'}
+          </p>
+          <h2 className="mt-1 text-base font-semibold tracking-tight text-white">
+            {isZh ? '创建、聊天和角色集合' : 'Create, chat, and explore'}
+          </h2>
+        </div>
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:-mx-6 md:px-6 lg:mx-0 lg:flex-1 lg:px-0">
           {scenes.map((scene) => (
-            <Link
+            <TrackedRoleplayLink
               key={scene.href}
               href={scene.href}
-              onClick={() =>
-                recordRoleplayMomentEvent({
-                  eventType: 'seo_scene_link_clicked',
-                  metadata: {
-                    surface: 'home_scene_rail',
-                    href: scene.href,
-                    label: isZh ? scene.labelZh : scene.labelEn,
-                  },
-                })
-              }
-              className="min-h-24 rounded-[18px] border border-white/10 bg-white/[0.035] p-3 transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07]"
+              eventType="seo_scene_link_clicked"
+              eventMetadata={{
+                surface: 'home_scene_rail',
+                label: isZh ? scene.labelZh : scene.labelEn,
+              }}
+              className="group flex min-w-[220px] flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.035] px-3 py-3 transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07] sm:min-w-[240px] lg:min-w-0 lg:flex-1"
             >
-              <span className="block text-sm font-semibold text-white">
-                {isZh ? scene.labelZh : scene.labelEn}
+              <span className="flex items-center justify-between gap-3 text-sm font-semibold text-white">
+                <span>{isZh ? scene.labelZh : scene.labelEn}</span>
+                <ArrowRight className="size-4 shrink-0 text-zinc-500 transition group-hover:translate-x-0.5 group-hover:text-zinc-200" />
               </span>
               <span className="mt-1 block text-xs leading-snug text-zinc-500">
                 {isZh ? scene.descriptionZh : scene.descriptionEn}
               </span>
-            </Link>
+            </TrackedRoleplayLink>
           ))}
         </div>
       </div>
@@ -652,15 +654,17 @@ function ForYouSection({
   loading: boolean;
 }) {
   const t = useTranslations('roleplay.home');
+  const locale = useLocale();
+  const isZh = locale.startsWith('zh');
   const proofPoints = t.raw('proof_points') as string[];
 
   return (
-    <section className="relative border-b border-white/5 bg-[radial-gradient(circle_at_18%_8%,rgba(236,72,153,0.15),transparent_28%),linear-gradient(112deg,#111113_0%,#0e1012_58%,#0b1513_100%)]">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 pb-5 pt-6 md:px-6 md:pb-8 md:pt-8">
-        <header className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] lg:items-end">
+    <section className="relative border-b border-white/5 bg-[linear-gradient(132deg,#111113_0%,#151016_48%,#0d1714_100%)]">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 pb-5 pt-6 md:px-6 md:pb-8 md:pt-8">
+        <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] lg:items-center">
           <div className="flex min-w-0 flex-col gap-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              {t('for_you')}
+              {isZh ? '快速创建 · 记住故事' : 'Quick create · memory chat'}
             </p>
             <h1 className="max-w-3xl text-4xl font-black leading-none tracking-tight md:text-5xl lg:text-6xl">
               {t('seo_title')}
@@ -678,25 +682,28 @@ function ForYouSection({
                 </span>
               ))}
             </div>
-          </div>
-          <div className="flex flex-col gap-3 lg:items-stretch">
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
-              <a
-                href="#for-you-characters"
+              <TrackedRoleplayLink
+                href="/create/quick"
+                eventType="seo_scene_link_clicked"
+                eventMetadata={{
+                  surface: 'home_hero_primary_cta',
+                  label: t('primary_cta'),
+                }}
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
-                <MessageCircle size={17} aria-hidden="true" />
+                <Sparkles size={17} aria-hidden="true" />
                 {t('primary_cta')}
-              </a>
-              <Link
-                href="/create"
+              </TrackedRoleplayLink>
+              <a
+                href="#for-you-characters"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-sm font-bold text-zinc-100 transition hover:border-white/30 hover:bg-white/[0.08] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
               >
-                <Sparkles size={17} aria-hidden="true" />
+                <MessageCircle size={17} aria-hidden="true" />
                 {t('secondary_cta')}
-              </Link>
+              </a>
             </div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs leading-relaxed text-zinc-500 lg:justify-end lg:text-right">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs leading-relaxed text-zinc-500">
               <Link
                 href="/pricing"
                 className="inline-flex items-center gap-1.5 font-semibold text-emerald-100 underline decoration-emerald-200/25 underline-offset-4 transition hover:text-emerald-50 hover:decoration-emerald-100/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
@@ -707,6 +714,7 @@ function ForYouSection({
               <span className="max-w-[24rem]">{t('pricing_note')}</span>
             </div>
           </div>
+          <QuickCreatePreview isZh={isZh} />
         </header>
 
         <div
@@ -747,6 +755,99 @@ function ForYouSection({
         </div>
       </div>
     </section>
+  );
+}
+
+function QuickCreatePreview({ isZh }: { isZh: boolean }) {
+  const fields = isZh
+    ? [
+        ['场景', '雨夜书店重逢'],
+        ['性格', '温柔、会反问、记细节'],
+        ['记忆', '昵称、上次约定、喜欢的饮料'],
+      ]
+    : [
+        ['Scene', 'Rainy bookstore reunion'],
+        ['Personality', 'Warm, curious, detail-aware'],
+        ['Memory', 'Nickname, last promise, favorite drink'],
+      ];
+  const userLine = isZh
+    ? '还记得我们上次说好的那杯咖啡吗？'
+    : 'Do you remember the coffee we promised last time?';
+  const characterLine = isZh
+    ? '记得。还是靠窗那张桌子，我会把你的拿铁也点好。'
+    : 'I do. Same window table, and I already know your latte order.';
+
+  return (
+    <aside className="relative overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.045] p-4 shadow-[0_22px_60px_rgba(0,0,0,0.28)]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100/80">
+            {isZh ? '快速创建预览' : 'Quick create preview'}
+          </p>
+          <h2 className="mt-1 text-xl font-bold tracking-tight text-white">
+            {isZh ? '一分钟内生成你的角色' : 'Build your character in under a minute'}
+          </h2>
+        </div>
+        <div className="flex shrink-0 -space-x-2">
+          {[
+            '/roleplay/characters/rp-anime-001-elira.png',
+            '/roleplay/characters/chloe-4.png',
+          ].map((src) => (
+            <Image
+              key={src}
+              src={src}
+              alt=""
+              width={44}
+              height={44}
+              className="h-11 w-11 rounded-full border-2 border-[#181218] object-cover"
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-2">
+        {fields.map(([label, value]) => (
+          <div
+            key={label}
+            className="grid grid-cols-[72px_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-white/10 bg-black/18 px-3 py-2.5"
+          >
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+              {label}
+            </span>
+            <span className="truncate text-sm font-medium text-zinc-100">
+              {value}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-emerald-200/15 bg-emerald-200/[0.055] p-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-100/80">
+          {isZh ? '记忆聊天' : 'Memory chat'}
+        </p>
+        <div className="mt-3 flex flex-col gap-2">
+          <p className="ml-auto max-w-[86%] rounded-2xl rounded-br-sm bg-white px-3 py-2 text-sm font-medium leading-snug text-zinc-950">
+            {userLine}
+          </p>
+          <p className="max-w-[88%] rounded-2xl rounded-bl-sm border border-white/10 bg-white/[0.07] px-3 py-2 text-sm font-medium leading-snug text-zinc-100">
+            {characterLine}
+          </p>
+        </div>
+      </div>
+
+      <TrackedRoleplayLink
+        href="/create/quick"
+        eventType="seo_scene_link_clicked"
+        eventMetadata={{
+          surface: 'home_quick_create_preview',
+          label: isZh ? '快速创建自定义角色' : 'Quick custom character',
+        }}
+        className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-emerald-100 px-4 text-sm font-bold text-emerald-950 transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
+      >
+        <Sparkles size={16} aria-hidden="true" />
+        {isZh ? '快速创建自定义角色' : 'Quick create a custom character'}
+      </TrackedRoleplayLink>
+    </aside>
   );
 }
 
