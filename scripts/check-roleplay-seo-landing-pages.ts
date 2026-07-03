@@ -67,6 +67,37 @@ function main() {
     'landing component must track CTA and related-link clicks'
   );
 
+  const collectionPage = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      'src/app/[locale]/(landing)/ai-character-collections/page.tsx'
+    ),
+    'utf8'
+  );
+  assert(
+    collectionPage.includes('canonicalUrl: CANONICAL_PATH'),
+    'collections page must set its canonical URL'
+  );
+  for (const schemaType of [
+    'CollectionPage',
+    'BreadcrumbList',
+    'ItemList',
+    'FAQPage',
+  ]) {
+    assert(
+      collectionPage.includes(`'@type': '${schemaType}'`),
+      `collections page must emit ${schemaType} JSON-LD`
+    );
+  }
+  assert(
+    collectionPage.includes('getLocalRoleplayCharacterCardsByIds'),
+    'collections page must link categories to real local character cards'
+  );
+  assert(
+    collectionPage.includes('TrackedRoleplayLink'),
+    'collections page must track category and CTA clicks'
+  );
+
   console.log('Roleplay SEO landing page checks OK');
 }
 

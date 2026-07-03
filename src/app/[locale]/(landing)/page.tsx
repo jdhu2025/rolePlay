@@ -6,10 +6,9 @@ import { RoleplayLanding } from '@/shared/components/roleplay/roleplay-landing';
 import { ROLEPLAY_HOME_SEO } from '@/shared/lib/roleplay-seo-copy';
 import { getMetadata } from '@/shared/lib/seo';
 import { buildLocalizedUrl } from '@/shared/lib/seo-url';
-import { getRoleplayHomeInitialData } from '@/shared/lib/server/roleplay-home-data';
+import { getPublicRoleplayHomeInitialData } from '@/shared/lib/server/roleplay-home-data';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 3600;
 
 export const generateMetadata = getMetadata({
   title: ROLEPLAY_HOME_SEO.title,
@@ -28,7 +27,7 @@ export default async function LandingPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const tHome = await getTranslations({ locale, namespace: 'roleplay.home' });
-  const initialData = await getRoleplayHomeInitialData();
+  const initialData = await getPublicRoleplayHomeInitialData();
   const canonicalUrl = buildLocalizedUrl('/', locale, {
     appUrl: envConfigs.app_url,
     defaultLocale,

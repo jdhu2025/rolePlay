@@ -1,9 +1,9 @@
+import { notFound } from 'next/navigation';
 import moment from 'moment';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
 import { envConfigs } from '@/config';
-import { Empty } from '@/shared/blocks/common';
 import {
   PostType as DBPostType,
   getPosts,
@@ -40,6 +40,10 @@ export async function generateMetadata({
           ? `${envConfigs.app_url}/${locale}/blog/category/${slug}`
           : `${envConfigs.app_url}/blog/category/${slug}`,
     },
+    robots: {
+      index: false,
+      follow: true,
+    },
   };
 }
 
@@ -66,7 +70,7 @@ export default async function CategoryBlogPage({
     status: TaxonomyStatus.PUBLISHED,
   });
   if (!categoryData) {
-    return <Empty message={`category not found`} />;
+    notFound();
   }
 
   // get posts data

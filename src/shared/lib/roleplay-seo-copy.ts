@@ -4,7 +4,7 @@ export const ROLEPLAY_HOME_SEO = {
   subtitle:
     'Free AI character chat for anime friends, comfort companions, fantasy stories, and private characters that remember your story.',
   description:
-    'Keepsay is an AI character chat app with memory for anime roleplay, comfort companions, fantasy adventure, and private character creation. Start free chat or create an AI character that remembers your story as a Character.AI alternative with memory.',
+    'Keepsay is an AI character chat app with memory for anime roleplay, comfort companions, fantasy stories, and private characters that remember you.',
   keywords: [
     'Keepsay',
     'AI character chat',
@@ -43,17 +43,16 @@ export function buildCharacterSeoCopy(character: CharacterSeoInput) {
   const name = compactText(character.name, 'AI character');
   const intro = truncateText(
     character.intro || character.tagline || character.opening || '',
-    72
+    58
   );
   const role = compactText(character.role);
   const location = compactText(character.location);
   const context = [role, location].filter(Boolean).join(' in ');
   const title = `${name} AI Character Chat | AI Roleplay | Keepsay`;
-  const description = [
-    `AI Character Chat with ${name}:`,
-    intro || 'start an immersive companion story',
-    'Explore AI roleplay with memory, story continuity, voice previews, safe character images, and Character.AI alternative discovery.',
-  ].join(' ');
+  const description = truncateText(
+    `Chat with ${name}, ${intro || 'an AI roleplay character'}, on Keepsay. Build a private story with memory and scene continuity.`,
+    155
+  );
 
   return {
     title,

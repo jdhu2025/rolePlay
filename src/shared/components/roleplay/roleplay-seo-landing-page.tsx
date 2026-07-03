@@ -1,9 +1,6 @@
 import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 
-import { ROLEPLAY_ANIME_CHARACTERS } from '@/data/roleplay-anime-characters';
-import { ROLEPLAY_OFFICIAL_CHARACTERS } from '@/data/roleplay-characters';
 import {
-  getRoleplayCharacterSeoScenes,
   ROLEPLAY_SEO_SCENES,
   type RoleplaySeoSceneSlug,
 } from '@/data/roleplay-seo-scenes';
@@ -11,6 +8,7 @@ import { envConfigs } from '@/config';
 import { RoleplayCharacterCard } from '@/shared/components/roleplay/roleplay-character-card';
 import { TrackedRoleplayLink } from '@/shared/components/roleplay/tracked-roleplay-link';
 import { JsonLd } from '@/shared/components/seo/json-ld';
+import { getLocalRoleplayCharacterCardsByIds } from '@/shared/lib/roleplay-local-character-cards';
 import type { RoleplayCharacterClient } from '@/shared/lib/roleplay-client';
 
 type SeoLandingPageConfig = {
@@ -59,102 +57,6 @@ type SeoLandingPageConfig = {
 type Props = {
   config: SeoLandingPageConfig;
 };
-
-function toSiteImageUrl(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return '';
-  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/')) {
-    return trimmed;
-  }
-  return `/roleplay/characters/${trimmed}`;
-}
-
-const LOCAL_CHARACTER_CARDS: RoleplayCharacterClient[] = [
-  ...ROLEPLAY_OFFICIAL_CHARACTERS.map((character) => {
-    const gallery = character.images.map(toSiteImageUrl).filter(Boolean);
-    return {
-      id: character.id,
-      name: character.name,
-      age: character.age,
-      author: 'Roleplay System',
-      tagline: character.intro,
-      intro: character.bio,
-      opening: character.openingLine,
-      avatar: toSiteImageUrl(character.avatar),
-      cover: gallery[0] ?? toSiteImageUrl(character.avatar),
-      gallery,
-      tags: character.tags,
-      tagSlugs: character.tagSlugs,
-      seoScenes: getRoleplayCharacterSeoScenes(character.id),
-      stats: '0',
-      follows: 'Public',
-      style: character.occupation,
-      relationship: 'new companion with room for slow-burn closeness',
-      scene: character.location,
-      personality: character.personality,
-      voice: '',
-      gender: character.gender,
-      settings: JSON.stringify({
-        occupation: character.occupation,
-        location: character.location,
-        sortOrder: character.sortOrder,
-      }),
-      visualIdentity: {},
-      model: '',
-      premium: false,
-      live: false,
-      source: 'local',
-      visibility: character.visibility,
-    } satisfies RoleplayCharacterClient;
-  }),
-  ...ROLEPLAY_ANIME_CHARACTERS.map((character) => {
-    const gallery = character.images.map(toSiteImageUrl).filter(Boolean);
-    return {
-      id: character.id,
-      name: character.name,
-      age: character.age,
-      author: 'Roleplay System',
-      tagline: character.tagline,
-      intro: character.intro,
-      opening: character.opening,
-      avatar: toSiteImageUrl(character.avatar),
-      cover: gallery[0] ?? toSiteImageUrl(character.avatar),
-      gallery,
-      tags: character.tags,
-      tagSlugs: character.tagSlugs,
-      seoScenes: getRoleplayCharacterSeoScenes(character.id),
-      stats: '0',
-      follows: 'Public',
-      style: character.style,
-      relationship: character.relationship,
-      scene: character.scene,
-      personality: character.personality,
-      voice: '',
-      voicePreset: character.voicePreset,
-      gender: character.gender,
-      settings: JSON.stringify({
-        occupation: character.occupation,
-        location: character.location,
-        sortOrder: character.sortOrder,
-      }),
-      personalityCard: character.personalityCard,
-      formatStyle: character.formatStyle,
-      styleExamples: character.styleExamples,
-      visualIdentity: character.visualIdentity,
-      imageStyleSuffix: character.imageStyleSuffix,
-      model: '',
-      premium: false,
-      live: false,
-      source: 'local',
-      visibility: 'public',
-    } satisfies RoleplayCharacterClient;
-  }),
-];
-
-function getCharacters(ids: string[]) {
-  const idSet = new Set(ids);
-  return LOCAL_CHARACTER_CARDS.filter((character) => idSet.has(character.id));
-}
 
 function absoluteUrl(path: string) {
   if (/^https?:\/\//i.test(path)) return path;
@@ -234,7 +136,7 @@ function buildLandingJsonLd({
 }
 
 export function RoleplaySeoLandingPage({ config }: Props) {
-  const characters = getCharacters(config.characterIds);
+  const characters = getLocalRoleplayCharacterCardsByIds(config.characterIds);
   const isZh = config.locale === 'zh';
   const ui = {
     bestFor: isZh ? '适合场景' : 'Best for',

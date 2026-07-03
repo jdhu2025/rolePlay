@@ -83,6 +83,10 @@
     "seo_links_label": "Guides",
     "seo_links": [
       {
+        "label": "AI character collections",
+        "href": "/ai-character-collections"
+      },
+      {
         "label": "AI character chat with memory",
         "href": "/ai-character-chat-with-memory"
       },

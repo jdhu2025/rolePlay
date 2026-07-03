@@ -1,9 +1,59 @@
 # RolePlay SEO Implementation Plan
 
-Last updated: 2026-06-30 17:44 Asia/Shanghai
+Last updated: 2026-07-03 16:49 Asia/Shanghai
 
 ## Remaining Todo
 
+- [x] Fix the 2026-07-03 audit's sitemap soft-404 risk: sitemap character
+  URLs must not return `200` pages with `Character not found | RolePlay`.
+  If `getMetadataCharacter(id)` cannot resolve an ID, use a true `404`
+  (`notFound()`) or remove/noindex that URL before it enters the sitemap.
+  Local implementation now maps `ROLEPLAY_ANIME_CHARACTERS` into the shared
+  local character resolver, uses `notFound()` for unresolved character pages,
+  and extends the URL-rule smoke test so every local sitemap character ID must
+  resolve on detail pages.
+- [x] Make public SEO surfaces cacheable where possible. The live `/en`
+  response was `private, no-cache, no-store`, `x-vercel-cache: MISS`, and
+  `cf-cache-status: DYNAMIC`; the homepage source currently forces dynamic
+  rendering with `dynamic = 'force-dynamic'` and `revalidate = 0`.
+  Local implementation removed homepage `force-dynamic` / `revalidate = 0`,
+  switched initial homepage data to a public non-personalized loader, restored
+  `revalidate = 3600`, and verified local `Cache-Control`,
+  `CDN-Cache-Control`, and `Cloudflare-CDN-Cache-Control` headers.
+- [x] Trim primary meta descriptions after the 2026-07-03 audit. Homepage
+  description was 249 characters and an observed character description was
+  231 characters; target roughly 140-155 English characters for predictable
+  snippets. Local homepage description is now 146 characters, and the
+  character description builder caps output at 155 characters.
+- [x] Expand indexable character profile pages with more server-rendered,
+  unique copy. The successful `/en/character/rp-012` crawl showed roughly 90
+  visible words, which is too thin for a scalable character-profile sitemap
+  layer. Local implementation now preloads full public character data on the
+  server, renders a 300+ word profile-specific `Character guide` block with
+  memory hooks and internal links, and adds profile-specific FAQ content plus
+  FAQPage JSON-LD.
+- [x] Resolve blog thinness before treating `/blog` as an SEO asset. The
+  successful `/zh/blog` crawl showed about 31 visible words and no schema; add
+  real posts/schema or temporarily noindex/remove empty blog listings. Local
+  implementation temporarily removes `/blog` from the sitemap, sets blog
+  listings/categories to noindex, and returns true 404s for missing posts and
+  categories.
+- [x] Normalize `x-default` hreflang policy across HTML, HTTP `Link` headers,
+  redirects, and sitemap inclusion. The audit saw HTML x-default point to
+  `/en`, while the HTTP `Link` header pointed to `/`. Local implementation
+  disables next-intl's automatic HTTP alternate `Link` header so HTML
+  alternates, root redirect, and sitemap remain aligned around `/en`.
+- [x] Add baseline security headers for public pages: CSP,
+  `x-content-type-options`, `x-frame-options`, `referrer-policy`,
+  `permissions-policy`, COOP, and CORP, while preserving HSTS. Local smoke
+  verified these headers on `/en` and character pages.
+- [x] Decide the AI-search policy. Current robots allows search/reference use
+  but blocks GPTBot, ClaudeBot, Google-Extended, CCBot, and other AI crawlers;
+  no `llms.txt` exists. If GEO visibility is a goal, add `/llms.txt` and
+  selectively allow answer-engine crawlers. Local implementation adds
+  `/llms.txt`, explicitly allows `ChatGPT-User` and `PerplexityBot` for public
+  pages, and blocks training-oriented crawlers (`GPTBot`, `ClaudeBot`,
+  `Google-Extended`, `CCBot`, and `Bytespider`).
 - [x] In Google Search Console, inspect the canonical URL
   `https://keepsay.dpdns.org/en` and request indexing after the live URL test
   passes. First live test briefly returned `server error (5xx)` during the
@@ -48,13 +98,14 @@ Last updated: 2026-06-30 17:44 Asia/Shanghai
   homepage `ItemList` toward memory/create-with-memory pages, and gives
   homepage character cards more descriptive image alt/title/aria labels. Recheck
   the live AITDK extension after deployment.
-- [ ] Apply Talkie competitor lessons without copying its technical debt:
+- [x] Apply Talkie competitor lessons without copying its technical debt:
   strengthen character-card internal links, add clean collection/category
   pages, expand footer discovery links, and make the Talkie alternative angle
-  clearly about memory and private story continuity. First local pass is done:
-  footer discovery links, character-card anchor semantics, and Talkie
-  alternative copy now emphasize memory and private continuity. Clean
-  collection/category pages remain pending.
+  clearly about memory and private story continuity. Local implementation now
+  adds `/ai-character-collections` as a clean collection/category index,
+  links it from the homepage guide rail, homepage guide list, footer discovery
+  links, and sitemap, and connects each collection to real character cards plus
+  `CollectionPage`, `ItemList`, and `FAQPage` JSON-LD.
 - [x] Refresh homepage and landing-page copy with a more grounded user
   vocabulary layer: AI friend, fictional crush, roommate, classmate, comfort
   chat, fantasy adventure, anime school story, free chat, create character,
@@ -86,6 +137,83 @@ Last updated: 2026-06-30 17:44 Asia/Shanghai
 This section is for external backlink acquisition only. Do not turn site edits
 into a day-by-day plan. Site edits are supporting prerequisites: fix them in
 batches when needed, then return to offsite execution.
+
+## 2026-07-03 Full Site Audit Follow-up
+
+Source artifact:
+
+- `../keepsay.dpdns.org-audit/FULL-AUDIT-REPORT.md`
+- `../keepsay.dpdns.org-audit/ACTION-PLAN.md`
+- `../keepsay.dpdns.org-audit/audit-data.json`
+
+Audit summary:
+
+- Overall health score: 72/100.
+- Detected business type: bilingual AI character chat / AI roleplay SaaS.
+- Sitemap count: 108 URLs, split into 54 English URLs, 54 Chinese URLs, and
+  68 character URLs.
+- Homepage live snapshot: 443,708 bytes of HTML, about 1,050 visible words,
+  18 images, 0 missing image alt attributes, 42 script tags, title length 39,
+  description length 249, canonical `https://keepsay.dpdns.org/en`, and
+  `WebSite`, `ItemList`, plus `FAQPage` JSON-LD.
+- Robots allows generic search/reference crawling but blocks several AI
+  crawlers; sitemap and robots were both reachable.
+- Local SEO validation passed with `pnpm check:roleplay-seo`.
+- Limitation: a full second crawl rerun could not be completed because the
+  approval service returned a `502`; conclusions combine the successful live
+  homepage, robots, sitemap, partial crawl subset, and local source checks.
+
+### P0 / P1 Issues To Merge Into Implementation
+
+1. Soft-404 character sitemap risk:
+   - Observed successful-crawl examples:
+     `https://keepsay.dpdns.org/zh/character/rp-anime-004`,
+     `https://keepsay.dpdns.org/zh/character/rp-anime-006`, and
+     `https://keepsay.dpdns.org/zh/character/rp-anime-015`.
+   - These returned `200` with `Character not found | RolePlay`, no H1, no
+     schema, and almost no visible copy.
+   - Root cause hypothesis: sitemap includes local character IDs, but live
+     route/data resolution can still fall through. The server page returns
+     noindex metadata when lookup fails, but the page can still render the
+     client detail shell instead of a true HTTP 404.
+   - Implementation direction: use `notFound()` on unresolved server lookup,
+     or exclude unresolved/noindex character URLs from the sitemap. Add a
+     sitemap smoke test that fails on `200` pages containing
+     `Character not found`.
+
+2. Homepage cacheability/performance:
+   - Live headers showed no-store and dynamic cache behavior:
+     `cache-control: private, no-cache, no-store`, `x-vercel-cache: MISS`,
+     and `cf-cache-status: DYNAMIC`.
+   - Source currently sets `dynamic = 'force-dynamic'` and `revalidate = 0`
+     on the public homepage.
+   - Implementation direction: separate public cached content from volatile
+     character/session data, then move the homepage toward ISR or cached
+     fetches.
+
+3. Overlong SERP snippets:
+   - Homepage meta description: 249 characters.
+   - Observed character meta description: 231 characters.
+   - Implementation direction: rewrite homepage and character-description
+     builder around the primary intent in about 140-155 English characters.
+
+4. Thin scalable pages:
+   - Observed character page `/en/character/rp-012` had about 90 visible
+     words.
+   - Observed `/zh/blog` had about 31 visible words and no schema.
+   - Implementation direction: character pages need 300-500 unique
+     server-rendered words per indexable profile; blog needs real posts/schema
+     or temporary noindex/removal from sitemap.
+
+5. Technical trust and AI-search policy:
+   - Missing security headers: CSP, `x-content-type-options`,
+     `x-frame-options`, `referrer-policy`, `permissions-policy`, COOP, and
+     CORP.
+   - No `llms.txt`; robots blocks GPTBot, ClaudeBot, Google-Extended, CCBot,
+     and other AI crawlers.
+   - Implementation direction: add conservative security headers and make a
+     product decision on whether GEO/AI-answer visibility is worth selected
+     crawler access plus `/llms.txt`.
 
 ## 2026-06-30 Keyword Refresh
 
@@ -900,23 +1028,75 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | SEO-G4 | Build `/character-ai-alternative` localized landing pages and add them to sitemap/tests | ⏳ pending | P1 | Broader competitor-alternative page; keep safety/no-filter wording careful and boundary-aware. |
 | SEO-G5 | Build `/polybuzz-alternative` localized landing pages and add them to sitemap/tests | ⏳ pending | P2 | Optional competitor page after Talkie and Character.AI alternatives are live. |
 | SEO-G6 | Add homepage and SEO-page internal links to the primary and growth landing pages | ✅ done | P0 | Added homepage guide links plus related-guide sections across the primary and growth SEO landing pages to concentrate authority around memory, anime roleplay, creation, and alternatives. |
-| SEO-G7 | Add character detail page cross-links to relevant SEO pages | ⏳ pending | P1 | Link anime characters toward anime chat intent and memory-oriented profiles toward memory pages. |
+| SEO-G7 | Add character detail page cross-links to relevant SEO pages | ✅ done | P1 | Character detail pages now render a related-guides block with scene-specific landing links plus memory, create-with-memory, and free-chat links. Clicks keep using `seo_scene_link_clicked` with `character_detail_related_guides` metadata. |
 | SEO-G8 | Run final-domain PageSpeed Insights for core SEO pages and record results | ⏳ pending | P1 | Re-run against `https://keepsay.dpdns.org` after new pages ship. |
 | SEO-G9 | Run Google Search Console URL Inspection for homepage, primary SEO pages, and new growth pages | ⏳ pending | P1 | Track indexing status, canonical selected by Google, and crawl issues. |
 | SEO-G10 | SERP-validate each new page target before or immediately after publishing | ⏳ pending | P1 | Follow the SERP validation workflow above; prioritize terms where forums, Reddit, Quora, or thin pages rank. |
 | SEO-G11 | Execute offsite backlink campaign and maintain backlink tracker/log | ▶ in progress | P0 | Daily cadence applies only to external submissions, outreach, community answers, and follow-ups. Tracker target rotation was refreshed toward memory/create-with-memory pages. Actual submissions/outreach remain blocked by login, CAPTCHA, paid-placement decisions, backlink requirements, or outreach identity approval. |
 | SEO-G12 | Refresh creator-page copy around private chat-character creation with memory | ✅ done | P1 | Refreshed `/custom-ai-character-creator` metadata and page copy around `private AI character creator`, `create AI character with memory`, chat-first creation, memory seeds, and story continuity instead of broad image-generator SERPs. |
 | SEO-G13 | Fix AITDK live-homepage audit issues | ✅ done | P0 | Local implementation replaces the ShipAny homepage social preview with a Keepsay character image, shortens homepage meta keywords, reorders homepage `ItemList` toward memory/create-with-memory pages, and adds more useful character-card alt/title/aria text. Requires post-deploy AITDK recheck to confirm live extension output. |
-| SEO-G14 | Apply Talkie competitor lessons to IA, internal links, and comparison copy | ▶ in progress | P1 | First pass done: strengthened character-card anchor semantics, added restrained footer discovery links, and refreshed `/talkie-ai-alternative` around memory/private continuity. Clean collection/category pages remain pending. |
+| SEO-G14 | Apply Talkie competitor lessons to IA, internal links, and comparison copy | ✅ done | P1 | Strengthened character-card anchor semantics, added restrained footer discovery links, refreshed `/talkie-ai-alternative` around memory/private continuity, and added `/ai-character-collections` as a clean collection/category index that groups memory, anime, comfort, free-chat, creator, and alternative paths around real character cards. |
 | SEO-G15 | Refresh copy with grounded user vocabulary | ✅ done | P0 | Added everyday scene terms to homepage, scene rail, creator page, and Talkie alternative page: AI friend, fictional crush, roommate, classmate, comfort chat, fantasy adventure, anime school story, free chat, create character, and remembers-your-story examples. Avoided AI girlfriend/boyfriend and NSFW positioning. |
+| SEO-G16 | Fix sitemap soft-404 character URLs | ✅ done | P0 | Local implementation maps anime seed characters into the shared local resolver, calls `notFound()` when server lookup cannot resolve a character, and extends `scripts/check-seo-url-rules.ts` so every local sitemap character ID must resolve. Local smoke verified `/en/character/rp-anime-004` returns 200 and `/en/character/not-a-real-character` returns 404. |
+| SEO-G17 | Make public homepage/SEO pages cacheable | ✅ done | P0 | Removed homepage `force-dynamic` / `revalidate = 0`, switched initial homepage data to a public non-personalized loader, restored `revalidate = 3600`, and verified local public cache headers on `/en`. Production header recheck remains a deployment verification item. |
+| SEO-G18 | Trim homepage and character meta descriptions | ✅ done | P0 | Homepage meta description is now 146 characters, and character meta descriptions are generated with a 155-character cap while preserving the memory-led intent. `scripts/check-seo-copy.ts` now enforces the length cap. |
+| SEO-G19 | Expand character profile SEO content | ✅ done | P1 | Character pages now server-preload full public character data, render a 300+ word profile-specific `Character guide` block, expose memory hooks / quick-fit facts / related internal links, and add profile-specific FAQ content plus FAQPage JSON-LD. `scripts/check-roleplay-character-seo-profile.ts` enforces the local character profile word-count and link floor. |
+| SEO-G20 | Resolve blog thinness or noindex empty blog listings | ✅ done | P1 | Temporarily removed `/blog` from the sitemap, set blog listing/category metadata to noindex, and changed missing blog posts/categories to true `notFound()` responses. Real posts plus Blog/CollectionPage/BreadcrumbList schema remain a future re-indexing prerequisite. |
+| SEO-G21 | Normalize x-default hreflang behavior | ✅ done | P1 | Disabled next-intl's automatic HTTP alternate `Link` header because it generated x-default `/`; HTML alternates, root redirect, and sitemap now stay aligned around `/en`. |
+| SEO-G22 | Add public-page security headers | ✅ done | P2 | Added CSP, HSTS, `x-content-type-options`, `x-frame-options`, `referrer-policy`, `permissions-policy`, COOP, and CORP in `next.config.mjs`; local HTTP smoke verified them on public pages. |
+| SEO-G23 | Decide and implement AI-search / GEO policy | ✅ done | P2 | Added `/llms.txt`; robots now explicitly allows answer/reference crawlers `ChatGPT-User` and `PerplexityBot` on public pages while blocking training-oriented crawlers `GPTBot`, `ClaudeBot`, `Google-Extended`, `CCBot`, and `Bytespider`. |
 
 ## Verification Log
 
+- 2026-07-03 audit merge verification: merged the full-site audit issues from
+  `../keepsay.dpdns.org-audit/` into this implementation plan as top-level
+  remaining todos, a dedicated audit follow-up section, and SEO-G16 through
+  SEO-G23 backlog rows. No app code changed in this pass.
+- 2026-07-03 16:05 local implementation verification for SEO-G16 through
+  SEO-G23: `pnpm check:roleplay-seo`, `node --import tsx
+  scripts/check-seo-url-rules.ts`, `node --import tsx
+  scripts/check-seo-copy.ts`, `pnpm lint`, and `pnpm build:fast` passed.
+  `pnpm lint` reported 0 errors and 11 existing warnings. `pnpm
+  format:check` still reports the repository's pre-existing formatting drift,
+  so only the files touched in this pass were formatted with Prettier. Local
+  production HTTP smoke on port 3010 verified `/en/character/rp-anime-004`
+  returns 200, `/en/character/not-a-real-character` returns 404, `/en` returns
+  public cache headers plus the new security headers, and `/robots.txt` plus
+  `/llms.txt` expose the selected AI-search policy. Local build/smoke still
+  logs `DATABASE_URL is not set` where DB-backed optional data is unavailable,
+  then falls back successfully.
+- 2026-07-03 16:33 local implementation verification for SEO-G7 and SEO-G19:
+  added `scripts/check-roleplay-character-seo-profile.ts` and wired it into
+  `pnpm check:roleplay-seo`. `node --import tsx
+  scripts/check-roleplay-character-seo-profile.ts`, `node --import tsx
+  scripts/check-seo-url-rules.ts`, `node --import tsx
+  scripts/check-seo-copy.ts`, `pnpm check:roleplay-seo`, `pnpm lint`, and
+  `pnpm build:fast` passed. The first sandboxed `pnpm check:roleplay-seo`
+  attempt failed before business checks because `tsx` could not create an IPC
+  pipe under `/var/folders/...`; rerunning the same command outside the
+  sandbox passed. Local production HTML smoke on `/en/character/rp-anime-004`
+  verified that `Character guide`, `memory story guide`, `Profile FAQ`, and
+  `AI character chat with memory` appear in the returned HTML.
+- 2026-07-03 16:49 local implementation verification for SEO-G14: added
+  `/ai-character-collections`, extracted a reusable local-character-card helper,
+  added the new path to sitemap/homepage/footer links, and extended SEO landing
+  checks for collection-page JSON-LD. `node --import tsx
+  scripts/check-roleplay-seo-landing-pages.ts`, `node --import tsx
+  scripts/check-seo-url-rules.ts`, `node --import tsx scripts/check-seo-copy.ts`,
+  `pnpm check:roleplay-seo`, `pnpm lint`, and `pnpm build:fast` passed. The
+  first sandboxed `pnpm check:roleplay-seo` attempt failed before business
+  checks because `tsx` could not create an IPC pipe under `/var/folders/...`;
+  the escalated rerun passed. The first build caught a missing type-only import
+  after the helper extraction; the import was restored and the rerun passed.
+  Local production smoke on port 3011 verified `/en/ai-character-collections`
+  returns 200 with public cache/security headers, contains `CollectionPage`,
+  `ItemList`, and `FAQPage` JSON-LD, and that `/sitemap.xml` includes both
+  `/en/ai-character-collections` and `/zh/ai-character-collections`.
 - `node --import tsx scripts/check-seo-url-rules.ts`: passed. Confirms `/en`, `/zh`, localized character URLs, the `keepsay.dpdns.org` canonical host, and primary SEO landing sitemap URLs follow `localePrefix = always`.
 - `node --import tsx scripts/check-seo-copy.ts`: passed. Confirms title,
-  description, and keywords cover `AI Character Chat`, `AI Roleplay`,
-  `Character.AI alternative`, `Best Character AI alternatives`, `Talkie AI
-alternative`, and `PolyBuzz alternative`.
+  description, keywords, and description-length rules cover `AI Character
+  Chat`, memory-led positioning, private-character language, and predictable
+  homepage / character snippets.
 - `pnpm exec fumadocs-mdx`: passed. Regenerated MDX source after adding primary SEO landing pages.
 - `pnpm lint`: passed with 0 errors and 10 existing warnings unrelated to this SEO change.
 - `pnpm exec tsc --noEmit`: passed.
@@ -1060,3 +1240,37 @@ alternative`, and `PolyBuzz alternative`.
   no offsite submissions or outreach were performed because they require
   account/login/CAPTCHA, paid-placement decisions, backlink placement approval,
   or outreach identity.
+- 2026-07-03 11:45: Merged the full-site audit issues from
+  `../keepsay.dpdns.org-audit/` into this implementation plan. Added P0/P1
+  follow-ups for character soft-404 sitemap risk, homepage no-store dynamic
+  rendering, overlong descriptions, thin character/blog content, x-default
+  hreflang consistency, security headers, and AI-search policy. Added
+  SEO-G16 through SEO-G23 to the growth backlog.
+- 2026-07-03 16:05: Implemented the site-edit items from the 2026-07-03 audit
+  that were locally actionable without third-party accounts or production
+  traffic data. Completed SEO-G16 by resolving local anime sitemap characters
+  and returning true 404s for unresolved character IDs. Completed SEO-G17 by
+  removing forced dynamic rendering from the homepage and using a public
+  cacheable initial-data loader. Completed SEO-G18 by trimming homepage and
+  character meta descriptions. Started SEO-G19 with a visible character
+  `Memory and story` section. Completed SEO-G20 by temporarily noindexing blog
+  listing/category surfaces, removing `/blog` from the sitemap, and returning
+  true 404s for missing blog posts/categories. Completed SEO-G21 by disabling
+  the conflicting next-intl HTTP alternate `Link` header. Completed SEO-G22 by
+  adding baseline security headers. Completed SEO-G23 by adding `/llms.txt`
+  and setting an AI-search policy that allows answer/reference crawlers while
+  blocking training-oriented crawlers.
+- 2026-07-03 16:33: Continued the local SEO implementation by completing
+  SEO-G7 and SEO-G19. Character pages now use server-preloaded public
+  character data instead of relying on a client-only fetch, render a
+  profile-specific 300+ word `Character guide`, expose quick-fit memory hooks,
+  show related SEO guide links, and include profile-specific FAQ content in
+  both visible HTML and FAQPage JSON-LD. Added a reusable
+  `buildRoleplayCharacterSeoProfile` helper plus a dedicated profile-depth
+  check script, then wired the check into `pnpm check:roleplay-seo`.
+- 2026-07-03 16:49: Completed SEO-G14 by adding a clean
+  `/ai-character-collections` category index. The page groups memory, anime,
+  comfort, free-chat, private-creator, and alternative discovery paths; links
+  each path to real local character cards; emits `CollectionPage`, `ItemList`,
+  `BreadcrumbList`, and `FAQPage` JSON-LD; and is linked from homepage guide
+  surfaces, footer discovery links, and the XML sitemap.

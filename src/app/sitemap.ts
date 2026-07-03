@@ -28,12 +28,6 @@ const STATIC_PUBLIC_PATHS: SitemapInput[] = [
     priority: 1,
   },
   {
-    path: '/blog',
-    locales,
-    changeFrequency: 'weekly',
-    priority: 0.6,
-  },
-  {
     path: '/pricing',
     locales,
     changeFrequency: 'weekly',
@@ -44,6 +38,12 @@ const STATIC_PUBLIC_PATHS: SitemapInput[] = [
     locales,
     changeFrequency: 'weekly',
     priority: 0.9,
+  },
+  {
+    path: '/ai-character-collections',
+    locales,
+    changeFrequency: 'weekly',
+    priority: 0.89,
   },
   {
     path: '/ai-character-chat-with-memory',
@@ -191,10 +191,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries = canShowHighRiskSeoPages()
     ? STATIC_PUBLIC_PATHS
     : STATIC_PUBLIC_PATHS.filter((entry) => !isHighRiskSeoPath(entry.path));
-  const entries = [
-    ...staticEntries,
-    ...(await getPublicCharacterEntries()),
-  ];
+  const entries = [...staticEntries, ...(await getPublicCharacterEntries())];
 
   return normalizeSitemapEntries(entries, {
     appUrl: envConfigs.app_url,

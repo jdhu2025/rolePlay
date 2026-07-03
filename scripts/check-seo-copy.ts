@@ -7,17 +7,20 @@ import {
 
 assert.match(ROLEPLAY_HOME_SEO.title, /AI Character Chat/i);
 assert.match(ROLEPLAY_HOME_SEO.title, /memory/i);
-assert.match(ROLEPLAY_HOME_SEO.description, /Character\.AI alternative/i);
-assert.match(ROLEPLAY_HOME_SEO.description, /create an AI character/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /AI character chat/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /memory/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /private characters/i);
+assert.ok(
+  ROLEPLAY_HOME_SEO.description.length <= 155,
+  'homepage meta description should fit predictable snippets'
+);
 assert.match(ROLEPLAY_HOME_SEO.subtitle, /free AI character chat/i);
 assert.match(ROLEPLAY_HOME_SEO.subtitle, /remember/i);
 assert.ok(
   ROLEPLAY_HOME_SEO.keywords.join(', ').length <= 260,
   'homepage meta keywords should stay shorter than the old AITDK-flagged list'
 );
-assert.ok(
-  ROLEPLAY_HOME_SEO.keywords.includes('AI character chat with memory')
-);
+assert.ok(ROLEPLAY_HOME_SEO.keywords.includes('AI character chat with memory'));
 assert.ok(
   ROLEPLAY_HOME_SEO.keywords.includes('Talkie AI alternative with memory')
 );
@@ -33,8 +36,12 @@ const characterSeo = buildCharacterSeoCopy({
 assert.match(characterSeo.title, /Elira Frost/i);
 assert.match(characterSeo.title, /AI Character Chat/i);
 assert.match(characterSeo.title, /AI Roleplay/i);
-assert.match(characterSeo.description, /Character\.AI alternative/i);
-assert.ok(characterSeo.description.includes('story continuity'));
+assert.match(characterSeo.description, /memory/i);
+assert.match(characterSeo.description, /scene continuity/i);
+assert.ok(
+  characterSeo.description.length <= 155,
+  'character meta description should fit predictable snippets'
+);
 assert.ok(characterSeo.keywords.includes('AI character chat with memory'));
 
 console.log('SEO copy rules OK');

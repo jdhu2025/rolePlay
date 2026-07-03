@@ -83,6 +83,10 @@
     "seo_links_label": "指南",
     "seo_links": [
       {
+        "label": "AI 角色集合",
+        "href": "/ai-character-collections"
+      },
+      {
         "label": "带记忆的 AI 角色聊天",
         "href": "/ai-character-chat-with-memory"
       },

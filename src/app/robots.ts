@@ -6,17 +6,34 @@ export default function robots(): MetadataRoute.Robots {
   const appUrl = envConfigs.app_url;
 
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: [
-        '/*?*q=',
-        '/settings/*',
-        '/activity/*',
-        '/admin/*',
-        '/api/*',
-      ],
-    },
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: [
+          '/*?*q=',
+          '/settings/*',
+          '/activity/*',
+          '/admin/*',
+          '/api/*',
+        ],
+      },
+      {
+        userAgent: ['ChatGPT-User', 'PerplexityBot'],
+        allow: '/',
+        disallow: ['/settings/*', '/activity/*', '/admin/*', '/api/*'],
+      },
+      {
+        userAgent: [
+          'GPTBot',
+          'ClaudeBot',
+          'Google-Extended',
+          'CCBot',
+          'Bytespider',
+        ],
+        disallow: '/',
+      },
+    ],
     sitemap: `${appUrl}/sitemap.xml`,
   };
 }

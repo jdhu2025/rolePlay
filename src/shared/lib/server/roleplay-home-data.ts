@@ -1,19 +1,19 @@
 import type { RoleplayTagItem } from '@/shared/components/roleplay/tag-chips';
 import {
-  buildCharacterImageUrl,
-  buildCharacterImageUrls,
-} from '@/shared/lib/roleplay-assets';
-import {
   getVisiblePublicGallery,
   isComplianceMode,
 } from '@/shared/lib/compliance';
+import {
+  buildCharacterImageUrl,
+  buildCharacterImageUrls,
+} from '@/shared/lib/roleplay-assets';
 import type { RoleplayCharacterClient } from '@/shared/lib/roleplay-client';
+import { parseFormatStyle } from '@/shared/lib/roleplay-format-style';
+import { parsePersonalityCard } from '@/shared/lib/roleplay-personality';
 import {
   fillWithReviewSafeCharacters,
   filterReviewSafeCharacters,
 } from '@/shared/lib/roleplay-review-safe-characters';
-import { parseFormatStyle } from '@/shared/lib/roleplay-format-style';
-import { parsePersonalityCard } from '@/shared/lib/roleplay-personality';
 import { parseStyleExamples } from '@/shared/lib/roleplay-style-examples';
 import {
   getCharacterTagSlugsMap,
@@ -259,7 +259,9 @@ async function buildRecommendations({
       limit: RECENT_CONVERSATION_LIMIT,
     }).catch(() => [] as Awaited<ReturnType<typeof getRoleplayConversations>>),
   ]);
-  const byId = new Map(visibleCandidates.map((character) => [character.id, character]));
+  const byId = new Map(
+    visibleCandidates.map((character) => [character.id, character])
+  );
   const recentCharacters = conversations
     .map((conversation) =>
       conversation.characterId ? byId.get(conversation.characterId) : null
@@ -357,10 +359,7 @@ export async function getRoleplayHomeInitialData(): Promise<RoleplayHomeInitialD
       toClientCharacters(recommendationPlan.characters),
     ]);
     const characters = publicOnly
-      ? fillWithReviewSafeCharacters(
-          rawCharacters,
-          ROLEPLAY_HOME_EXPLORE_LIMIT
-        )
+      ? fillWithReviewSafeCharacters(rawCharacters, ROLEPLAY_HOME_EXPLORE_LIMIT)
       : rawCharacters;
     const recommendedCharacters = publicOnly
       ? fillWithReviewSafeCharacters(
@@ -392,6 +391,86 @@ export async function getRoleplayHomeInitialData(): Promise<RoleplayHomeInitialD
       };
     }
     console.log('load roleplay home initial data failed:', error);
+    return {
+      authenticated: false,
+      characters: [],
+      recommendedCharacters: [],
+      tags: [],
+      buckets: emptyBuckets(),
+    };
+  }
+}
+
+export async function getPublicRoleplayHomeInitialData(): Promise<RoleplayHomeInitialData> {
+  try {
+    const reviewSafeMode = isComplianceMode();
+    const candidateLimit = Math.max(
+      ROLEPLAY_HOME_EXPLORE_LIMIT,
+      ROLEPLAY_HOME_RECOMMENDATION_LIMIT * RECOMMENDATION_CANDIDATE_MULTIPLIER,
+      MIN_RECOMMENDATION_CANDIDATES
+    );
+    const [allPublic, tags] = await Promise.all([
+      getRoleplayCharacters({
+        includePublic: true,
+        ownerStatuses: [RoleplayStatus.PUBLISHED],
+        limit: candidateLimit,
+      }),
+      getRoleplayTags().catch(() => []),
+    ]);
+    const visibleCharacters = reviewSafeMode
+      ? filterReviewSafeCharacters(allPublic)
+      : allPublic.filter(
+          (character: RoleplayCharacter) =>
+            character.status === RoleplayStatus.PUBLISHED &&
+            character.visibility === RoleplayVisibility.PUBLIC
+        );
+    const exploreCharacters = visibleCharacters.slice(
+      0,
+      ROLEPLAY_HOME_EXPLORE_LIMIT
+    );
+    const recommendationPlan = await buildRecommendations({
+      user: undefined,
+      allVisible: visibleCharacters,
+      limit: ROLEPLAY_HOME_RECOMMENDATION_LIMIT,
+      reviewSafeMode,
+    });
+    const [rawCharacters, rawRecommendedCharacters] = await Promise.all([
+      toClientCharacters(exploreCharacters),
+      toClientCharacters(recommendationPlan.characters),
+    ]);
+    const characters = reviewSafeMode
+      ? fillWithReviewSafeCharacters(rawCharacters, ROLEPLAY_HOME_EXPLORE_LIMIT)
+      : rawCharacters;
+    const recommendedCharacters = reviewSafeMode
+      ? fillWithReviewSafeCharacters(
+          rawRecommendedCharacters,
+          ROLEPLAY_HOME_RECOMMENDATION_LIMIT
+        )
+      : rawRecommendedCharacters;
+
+    return {
+      authenticated: false,
+      characters,
+      recommendedCharacters,
+      tags: tags.map((tag) => ({
+        slug: tag.slug,
+        labelEn: tag.labelEn,
+        labelZh: tag.labelZh,
+      })),
+      buckets: recommendationPlan.buckets,
+    };
+  } catch (error) {
+    if (isMissingRoleplayTable(error)) {
+      return {
+        authenticated: false,
+        characters: [],
+        recommendedCharacters: [],
+        tags: [],
+        buckets: emptyBuckets(),
+        migrationRequired: true,
+      };
+    }
+    console.log('load public roleplay home initial data failed:', error);
     return {
       authenticated: false,
       characters: [],

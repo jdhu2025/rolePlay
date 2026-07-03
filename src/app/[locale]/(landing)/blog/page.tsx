@@ -14,6 +14,7 @@ export const revalidate = 3600;
 export const generateMetadata = getMetadata({
   metadataKey: 'pages.blog.metadata',
   canonicalUrl: '/blog',
+  noIndex: true,
 });
 
 export default async function BlogPage({

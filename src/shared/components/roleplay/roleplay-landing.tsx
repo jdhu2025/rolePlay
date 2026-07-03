@@ -348,6 +348,13 @@ function SeoSceneRail() {
   const isZh = locale.startsWith('zh');
   const scenes = [
     {
+      href: '/ai-character-collections',
+      labelEn: 'Browse character collections',
+      labelZh: '浏览角色集合',
+      descriptionEn: 'Find memory, anime, comfort, free chat, and creator paths.',
+      descriptionZh: '找到记忆、动漫、治愈、免费聊天和创建路径。',
+    },
+    {
       href: '/ai-character-chat-with-memory',
       labelEn: 'AI friend chat with memory',
       labelZh: '带记忆的 AI friend 聊天',
@@ -861,6 +868,7 @@ function RoleplayHomeFooter() {
   const supportMailto = getSupportMailto(configs);
   const discoveryItems = isZh
     ? [
+        ['AI 角色集合', '/ai-character-collections'],
         ['带记忆 AI 聊天', '/ai-character-chat-with-memory'],
         ['免费 AI 角色聊天', '/free-ai-character-chat'],
         ['动漫 AI 角色扮演', '/anime-ai-roleplay-characters'],
@@ -869,6 +877,7 @@ function RoleplayHomeFooter() {
         ['Talkie 替代品', '/talkie-ai-alternative'],
       ]
     : [
+        ['AI Character Collections', '/ai-character-collections'],
         ['AI Character Chat With Memory', '/ai-character-chat-with-memory'],
         ['Free AI Character Chat', '/free-ai-character-chat'],
         ['AI Anime Chat', '/anime-ai-roleplay-characters'],

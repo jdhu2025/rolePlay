@@ -1,20 +1,24 @@
+import { ROLEPLAY_ANIME_CHARACTERS } from '@/data/roleplay-anime-characters';
 import { ROLEPLAY_OFFICIAL_CHARACTERS } from '@/data/roleplay-characters';
 import {
   getRoleplayCharacterSeoScenes,
   type RoleplaySeoSceneSlug,
 } from '@/data/roleplay-seo-scenes';
 
-import { getVisiblePublicGallery, isComplianceMode } from '@/shared/lib/compliance';
 import {
-  getReviewSafeCharacterById,
-  REVIEW_SAFE_ROLEPLAY_CHARACTERS,
-} from '@/shared/lib/roleplay-review-safe-characters';
-import type { RoleplayFormatStyle } from '@/shared/lib/roleplay-format-style';
+  getVisiblePublicGallery,
+  isComplianceMode,
+} from '@/shared/lib/compliance';
 import {
   buildFirstExperienceRecommendationQuery,
   type FirstExperienceChoiceId,
 } from '@/shared/lib/roleplay-first-experience';
+import type { RoleplayFormatStyle } from '@/shared/lib/roleplay-format-style';
 import type { PersonalityCard } from '@/shared/lib/roleplay-personality';
+import {
+  getReviewSafeCharacterById,
+  REVIEW_SAFE_ROLEPLAY_CHARACTERS,
+} from '@/shared/lib/roleplay-review-safe-characters';
 import type { RoleplayStyleExample } from '@/shared/lib/roleplay-style-examples';
 
 /**
@@ -195,10 +199,63 @@ const LEGACY_OFFICIAL_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
     };
   });
 
+const LEGACY_ANIME_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
+  ROLEPLAY_ANIME_CHARACTERS.map((character) => {
+    const gallery = getVisiblePublicGallery(
+      character.images.map(toSiteImageUrl).filter(Boolean)
+    );
+    return {
+      id: character.id,
+      name: character.name,
+      age: character.age,
+      author: 'Keepsay Studio',
+      tagline: character.tagline,
+      intro: character.intro,
+      opening: character.opening,
+      avatar: toSiteImageUrl(character.avatar),
+      cover: gallery[0] ?? toSiteImageUrl(character.avatar),
+      gallery,
+      tags: character.tags,
+      tagSlugs: character.tagSlugs,
+      seoScenes: getRoleplayCharacterSeoScenes(character.id),
+      stats: '0',
+      chatCount: 0,
+      likeCount: 0,
+      follows: 'Public',
+      style: character.style,
+      relationship: character.relationship,
+      scene: character.scene,
+      personality: character.personality,
+      voice: '',
+      voicePreset: character.voicePreset,
+      gender: character.gender,
+      settings: JSON.stringify({
+        occupation: character.occupation,
+        location: character.location,
+        sortOrder: character.sortOrder,
+      }),
+      personalityCard: character.personalityCard,
+      formatStyle: character.formatStyle,
+      styleExamples: character.styleExamples,
+      visualIdentity: character.visualIdentity,
+      imageStyleSuffix: character.imageStyleSuffix,
+      model: '',
+      premium: false,
+      live: false,
+      source: 'local',
+      visibility: 'public',
+    };
+  });
+
+const LEGACY_PUBLIC_ROLEPLAY_CHARACTERS = [
+  ...LEGACY_OFFICIAL_ROLEPLAY_CHARACTERS,
+  ...LEGACY_ANIME_ROLEPLAY_CHARACTERS,
+];
+
 export const OFFICIAL_ROLEPLAY_CHARACTERS: RoleplayCharacterClient[] =
   isComplianceMode()
     ? REVIEW_SAFE_ROLEPLAY_CHARACTERS
-    : LEGACY_OFFICIAL_ROLEPLAY_CHARACTERS;
+    : LEGACY_PUBLIC_ROLEPLAY_CHARACTERS;
 
 export function getLocalRoleplayCharacter(id: string) {
   const reviewSafeCharacter = getReviewSafeCharacterById(id);
@@ -207,10 +264,9 @@ export function getLocalRoleplayCharacter(id: string) {
   return (
     (isComplianceMode()
       ? null
-      : LEGACY_OFFICIAL_ROLEPLAY_CHARACTERS.find(
+      : LEGACY_PUBLIC_ROLEPLAY_CHARACTERS.find(
           (character) => character.id === id
-        )) ??
-    null
+        )) ?? null
   );
 }
 

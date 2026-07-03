@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
+import { ROLEPLAY_ANIME_CHARACTERS } from '../src/data/roleplay-anime-characters';
+import { ROLEPLAY_OFFICIAL_CHARACTERS } from '../src/data/roleplay-characters';
+import { getLocalRoleplayCharacter } from '../src/shared/lib/roleplay-client';
 import {
   buildLocalizedPath,
   buildLocalizedUrl,
@@ -86,16 +89,36 @@ const dynamicLandingPage = readFileSync(
 assert.match(dynamicLandingPage, /openGraph:\s*{/);
 assert.match(dynamicLandingPage, /url:\s*canonicalUrl/);
 
+for (const id of [
+  ...ROLEPLAY_OFFICIAL_CHARACTERS.map((character) => character.id),
+  ...ROLEPLAY_ANIME_CHARACTERS.map((character) => character.id),
+]) {
+  assert.ok(
+    getLocalRoleplayCharacter(id),
+    `local sitemap character ${id} must resolve on character detail pages`
+  );
+}
+
 async function main() {
   process.env.NEXT_PUBLIC_APP_URL = appUrl;
 
   const { default: sitemap } = await import('../src/app/sitemap');
   const urls = (await sitemap()).map((entry) => entry.url);
 
+  assert.ok(
+    !urls.includes(`${appUrl}/en/blog`),
+    '/en/blog is temporarily noindex'
+  );
+  assert.ok(
+    !urls.includes(`${appUrl}/zh/blog`),
+    '/zh/blog is temporarily noindex'
+  );
+
   for (const path of [
     '/privacy-policy',
     '/terms-of-service',
     '/acceptable-use-policy',
+    '/ai-character-collections',
     '/ai-companion-that-remembers-you',
     '/ai-roleplay-secret-memory',
     '/ai-roleplay-shared-memory',

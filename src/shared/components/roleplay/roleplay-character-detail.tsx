@@ -36,17 +36,27 @@ import {
   readCharacterSettings,
   type RoleplayCharacterClient,
 } from '@/shared/lib/roleplay-client';
+import {
+  buildRoleplayCharacterSeoProfile,
+  type RoleplayCharacterSeoProfile,
+} from '@/shared/lib/roleplay-character-seo-profile';
 
 type Props = {
   characterId: string;
+  initialCharacter?: RoleplayCharacterClient | null;
+  initialSeoProfile?: RoleplayCharacterSeoProfile;
 };
 
-export function RoleplayCharacterDetail({ characterId }: Props) {
+export function RoleplayCharacterDetail({
+  characterId,
+  initialCharacter,
+  initialSeoProfile,
+}: Props) {
   const t = useTranslations('roleplay.detail');
   const tPicker = useTranslations('roleplay.picker');
   const locale = useLocale();
   const isZh = locale.startsWith('zh');
-  const localCharacter = getLocalRoleplayCharacter(characterId);
+  const localCharacter = initialCharacter ?? getLocalRoleplayCharacter(characterId);
   const [character, setCharacter] = useState<RoleplayCharacterClient | null>(
     localCharacter
   );
@@ -56,13 +66,13 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
     const controller = new AbortController();
     fetchRoleplayCharacter(characterId, { signal: controller.signal })
       .then((data) => {
-        setCharacter(data.character ?? localCharacter);
+        setCharacter(data.character ?? initialCharacter ?? localCharacter);
       })
       .finally(() => {
         setLoading(false);
       });
     return () => controller.abort();
-  }, [characterId, localCharacter]);
+  }, [characterId, initialCharacter, localCharacter]);
 
   if (loading) {
     return <DetailSkeleton />;
@@ -106,6 +116,15 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
         : false
     )
     .filter(Boolean) as Array<{ slug: string; label: string; href: string }>;
+  const seoProfile =
+    initialSeoProfile ??
+    buildRoleplayCharacterSeoProfile({
+      character,
+      occupation,
+      location,
+      sceneLinks,
+      isZh,
+    });
 
   return (
     <main className="min-h-dvh bg-[#0d0d10] text-white">
@@ -204,6 +223,12 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
           </div>
         </div>
 
+        <CharacterSeoStory
+          profile={seoProfile}
+          characterId={character.id}
+          isZh={isZh}
+        />
+
         {/* Comments live below the carousel + info on every breakpoint.
             Talkie's three-layer pattern is: chat (separate route) → profile
             (this page top half) → comments (this section). Keeping comments
@@ -211,6 +236,93 @@ export function RoleplayCharacterDetail({ characterId }: Props) {
         <CommentBoard characterId={character.id} />
       </div>
     </main>
+  );
+}
+
+function CharacterSeoStory({
+  profile,
+  characterId,
+  isZh,
+}: {
+  profile: RoleplayCharacterSeoProfile;
+  characterId: string;
+  isZh: boolean;
+}) {
+  return (
+    <section className="border-t border-white/10 pt-6">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+            {isZh ? '角色资料' : 'Character guide'}
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">
+            {profile.title}
+          </h2>
+          <div className="mt-4 space-y-4 text-sm leading-7 text-zinc-300">
+            {profile.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        </div>
+
+        <aside className="flex flex-col gap-5">
+          <section className="border-t border-white/10 pt-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+              {isZh ? '快速判断' : 'Quick fit'}
+            </h3>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-zinc-300">
+              {profile.bullets.map((item) => (
+                <li key={item} className="border-l border-white/10 pl-3">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="border-t border-white/10 pt-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+              {isZh ? '相关入口' : 'Related guides'}
+            </h3>
+            <ul className="mt-3 flex flex-col">
+              {profile.relatedLinks.map((link) => (
+                <li key={link.href} className="border-b border-white/10">
+                  <TrackedRoleplayLink
+                    href={link.href}
+                    eventType="seo_scene_link_clicked"
+                    eventMetadata={{
+                      surface: 'character_detail_related_guides',
+                      characterId,
+                      href: link.href,
+                    }}
+                    className="block py-2 text-sm font-medium text-zinc-300 transition hover:text-white"
+                  >
+                    {link.label}
+                  </TrackedRoleplayLink>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="border-t border-white/10 pt-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+              {isZh ? '常见问题' : 'Profile FAQ'}
+            </h3>
+            <div className="mt-3 space-y-3">
+              {profile.faqs.map((faq) => (
+                <div key={faq.question}>
+                  <h4 className="text-sm font-semibold text-zinc-100">
+                    {faq.question}
+                  </h4>
+                  <p className="mt-1 text-xs leading-6 text-zinc-400">
+                    {faq.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
   );
 }
 

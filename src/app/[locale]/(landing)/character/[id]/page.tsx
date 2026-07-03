@@ -1,26 +1,31 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import {
+  ROLEPLAY_CHARACTER_SEO_SCENES,
+  ROLEPLAY_SEO_SCENES,
+} from '@/data/roleplay-seo-scenes';
 import { setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
 import { defaultLocale, localePrefix, locales } from '@/config/locale';
 import { RoleplayCharacterDetail } from '@/shared/components/roleplay/roleplay-character-detail';
-import {
-  ROLEPLAY_CHARACTER_SEO_SCENES,
-  ROLEPLAY_SEO_SCENES,
-} from '@/data/roleplay-seo-scenes';
 import { JsonLd } from '@/shared/components/seo/json-ld';
-import { buildCharacterImageUrl } from '@/shared/lib/roleplay-assets';
 import {
-  getLocalRoleplayCharacter,
+  canShowHighRiskSeoPages,
+  isHighRiskSeoPath,
+} from '@/shared/lib/compliance';
+import {
+  buildRoleplayCharacterSeoProfile,
+  type RoleplayCharacterSeoLink,
+  type RoleplayCharacterSeoProfile,
+} from '@/shared/lib/roleplay-character-seo-profile';
+import {
   readCharacterSettings,
+  type RoleplayCharacterClient,
 } from '@/shared/lib/roleplay-client';
 import { buildCharacterSeoCopy } from '@/shared/lib/roleplay-seo-copy';
 import { buildLocalizedUrl } from '@/shared/lib/seo-url';
-import {
-  findRoleplayCharacterById,
-  RoleplayStatus,
-  RoleplayVisibility,
-} from '@/shared/models/roleplay';
+import { getPublicRoleplayCharacterForPage } from '@/shared/lib/server/roleplay-character-page-data';
 
 export const revalidate = 3600;
 
@@ -36,57 +41,16 @@ function absoluteImageUrl(value: string) {
   return `${envConfigs.app_url}${value.startsWith('/') ? '' : '/'}${value}`;
 }
 
-async function getMetadataCharacter(id: string) {
-  try {
-    const character = await findRoleplayCharacterById(id);
-    if (
-      character &&
-      character.status === RoleplayStatus.PUBLISHED &&
-      character.visibility === RoleplayVisibility.PUBLIC
-    ) {
-      return {
-        name: character.name,
-        age: character.age,
-        intro: character.intro,
-        opening: character.opening,
-        tagline: character.tagline,
-        scene: character.scene,
-        style: character.style,
-        image: buildCharacterImageUrl(
-          character.coverUrl || character.avatarUrl || ''
-        ),
-      };
-    }
-  } catch (error) {
-    console.log('load roleplay character metadata failed:', error);
-  }
-
-  const localCharacter = getLocalRoleplayCharacter(id);
-  if (!localCharacter) return null;
-
-  const settings = readCharacterSettings(localCharacter);
-  return {
-    name: localCharacter.name,
-    age: localCharacter.age,
-    intro: localCharacter.intro,
-    opening: localCharacter.opening,
-    tagline: localCharacter.tagline,
-    scene: settings.location || localCharacter.scene,
-    style: settings.occupation || localCharacter.style,
-    image: localCharacter.cover || localCharacter.avatar,
-  };
-}
-
 function buildCharacterJsonLd({
-  id,
   canonical,
   character,
+  seoProfile,
 }: {
-  id: string;
   canonical: string;
-  character: NonNullable<Awaited<ReturnType<typeof getMetadataCharacter>>>;
+  character: RoleplayCharacterClient;
+  seoProfile: RoleplayCharacterSeoProfile;
 }) {
-  const image = absoluteImageUrl(character.image);
+  const image = absoluteImageUrl(character.cover || character.avatar);
   const description = compactText(
     character.intro || character.tagline || character.opening,
     `${character.name} AI roleplay character`
@@ -135,77 +99,70 @@ function buildCharacterJsonLd({
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: [
-        {
-          '@type': 'Question',
-          name: `Can I chat with ${character.name}?`,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: `Yes. ${character.name} is available as an AI character chat and roleplay profile on ${envConfigs.app_name}.`,
-          },
+      mainEntity: seoProfile.faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: faq.answer,
         },
-        {
-          '@type': 'Question',
-          name: `What kind of roleplay is ${character.name} best for?`,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: compactText(
-              [character.style, character.scene, character.tagline]
-                .filter(Boolean)
-                .join('. '),
-              `${character.name} is designed for AI roleplay and character chat.`
-            ),
-          },
-        },
-      ],
+      })),
     },
   ];
 }
 
-function getCharacterSeoSceneLabels(id: string, locale: string) {
-  return (ROLEPLAY_CHARACTER_SEO_SCENES[id] ?? []).map((slug) =>
-    locale.startsWith('zh')
-      ? ROLEPLAY_SEO_SCENES[slug].labelZh
-      : ROLEPLAY_SEO_SCENES[slug].labelEn
-  );
+function getCharacterSeoSceneLinks(
+  id: string,
+  locale: string
+): RoleplayCharacterSeoLink[] {
+  return (ROLEPLAY_CHARACTER_SEO_SCENES[id] ?? [])
+    .map((slug) => {
+      const scene = ROLEPLAY_SEO_SCENES[slug];
+      if (!scene) return null;
+      const href = `/${scene.landingSlug}`;
+      if (!canShowHighRiskSeoPages() && isHighRiskSeoPath(href)) return null;
+      return {
+        slug,
+        href,
+        label: locale.startsWith('zh') ? scene.labelZh : scene.labelEn,
+      };
+    })
+    .filter(Boolean) as RoleplayCharacterSeoLink[];
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string; id: string }>;
-}): Promise<Metadata> {
-  const { locale, id } = await params;
-  setRequestLocale(locale);
+function buildSeoProfileForCharacter(
+  character: RoleplayCharacterClient,
+  locale: string,
+  sceneLinks: RoleplayCharacterSeoLink[]
+) {
+  const settings = readCharacterSettings(character);
+  return buildRoleplayCharacterSeoProfile({
+    character,
+    occupation: settings.occupation || character.style,
+    location: settings.location || character.scene,
+    sceneLinks,
+    isZh: locale.startsWith('zh'),
+  });
+}
 
-  const character = await getMetadataCharacter(id);
-  const canonical = buildLocalizedUrl(`/character/${id}`, locale, {
+function buildMetadataForMissingCharacter(canonical: string): Metadata {
+  return {
+    title: 'Character not found | RolePlay',
+    alternates: { canonical },
+    robots: { index: false, follow: false },
+  };
+}
+
+function buildPageCanonical(id: string, locale: string) {
+  return buildLocalizedUrl(`/character/${id}`, locale, {
     appUrl: envConfigs.app_url,
     defaultLocale,
     localePrefix,
   });
+}
 
-  if (!character) {
-    return {
-      title: 'Character not found | RolePlay',
-      alternates: { canonical },
-      robots: { index: false, follow: false },
-    };
-  }
-
-  const location = compactText(character.scene);
-  const role = compactText(character.style);
-  const seoCopy = buildCharacterSeoCopy({
-    name: character.name,
-    intro: character.intro,
-    tagline: character.tagline,
-    opening: character.opening,
-    role,
-    location,
-  });
-  const { title, description } = seoCopy;
-  const image = absoluteImageUrl(character.image);
-  const languages = Object.fromEntries(
+function buildLanguages(id: string) {
+  return Object.fromEntries(
     locales.map((loc) => [
       loc,
       buildLocalizedUrl(`/character/${id}`, loc, {
@@ -215,6 +172,41 @@ export async function generateMetadata({
       }),
     ])
   );
+}
+
+function getCharacterSeoRole(character: RoleplayCharacterClient) {
+  const settings = readCharacterSettings(character);
+  return {
+    role: compactText(settings.occupation || character.style),
+    location: compactText(settings.location || character.scene),
+  };
+}
+
+function getCharacterSeoImage(character: RoleplayCharacterClient) {
+  return absoluteImageUrl(character.cover || character.avatar);
+}
+
+function buildProfilePageMetadata({
+  id,
+  locale,
+  character,
+}: {
+  id: string;
+  locale: string;
+  character: RoleplayCharacterClient;
+}): Metadata {
+  const canonical = buildPageCanonical(id, locale);
+  const { role, location } = getCharacterSeoRole(character);
+  const seoCopy = buildCharacterSeoCopy({
+    name: character.name,
+    intro: character.intro,
+    tagline: character.tagline,
+    opening: character.opening,
+    role,
+    location,
+  });
+  const { title, description } = seoCopy;
+  const image = getCharacterSeoImage(character);
 
   return {
     title,
@@ -222,7 +214,7 @@ export async function generateMetadata({
     keywords: seoCopy.keywords.join(', '),
     alternates: {
       canonical,
-      languages,
+      languages: buildLanguages(id),
     },
     openGraph: {
       type: 'website',
@@ -245,6 +237,23 @@ export async function generateMetadata({
   };
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
+  setRequestLocale(locale);
+
+  const canonical = buildPageCanonical(id, locale);
+  const character = await getPublicRoleplayCharacterForPage(id);
+  if (!character) {
+    return buildMetadataForMissingCharacter(canonical);
+  }
+
+  return buildProfilePageMetadata({ id, locale, character });
+}
+
 export default async function CharacterProfilePage({
   params,
 }: {
@@ -252,19 +261,31 @@ export default async function CharacterProfilePage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const canonical = buildLocalizedUrl(`/character/${id}`, locale, {
-    appUrl: envConfigs.app_url,
-    defaultLocale,
-    localePrefix,
-  });
-  const character = await getMetadataCharacter(id);
+
+  const canonical = buildPageCanonical(id, locale);
+  const character = await getPublicRoleplayCharacterForPage(id);
+
+  if (!character) {
+    notFound();
+  }
+
+  const sceneLinks = getCharacterSeoSceneLinks(id, locale);
+  const seoProfile = buildSeoProfileForCharacter(character, locale, sceneLinks);
 
   return (
     <>
-      {character ? (
-        <JsonLd data={buildCharacterJsonLd({ id, canonical, character })} />
-      ) : null}
-      <RoleplayCharacterDetail characterId={id} />
+      <JsonLd
+        data={buildCharacterJsonLd({
+          canonical,
+          character,
+          seoProfile,
+        })}
+      />
+      <RoleplayCharacterDetail
+        characterId={id}
+        initialCharacter={character}
+        initialSeoProfile={seoProfile}
+      />
     </>
   );
 }

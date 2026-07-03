@@ -12,4 +12,7 @@ export const routing = defineRouting({
   defaultLocale,
   localePrefix,
   localeDetection,
+  // HTML metadata already emits localized alternates with x-default -> /en.
+  // Disable next-intl's HTTP Link header so it cannot drift to x-default -> /.
+  alternateLinks: false,
 });
