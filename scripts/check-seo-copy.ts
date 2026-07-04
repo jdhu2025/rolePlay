@@ -5,21 +5,25 @@ import {
   ROLEPLAY_HOME_SEO,
 } from '../src/shared/lib/roleplay-seo-copy';
 
-assert.match(ROLEPLAY_HOME_SEO.title, /AI Character Chat/i);
-assert.match(ROLEPLAY_HOME_SEO.title, /memory/i);
+assert.match(ROLEPLAY_HOME_SEO.title, /AI Character Chat Free/i);
+assert.match(ROLEPLAY_HOME_SEO.title, /Without Login/i);
 assert.match(ROLEPLAY_HOME_SEO.description, /AI character chat/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /free/i);
 assert.match(ROLEPLAY_HOME_SEO.description, /memory/i);
 assert.match(ROLEPLAY_HOME_SEO.description, /private characters/i);
 assert.ok(
   ROLEPLAY_HOME_SEO.description.length <= 155,
   'homepage meta description should fit predictable snippets'
 );
-assert.match(ROLEPLAY_HOME_SEO.subtitle, /free AI character chat/i);
+assert.match(ROLEPLAY_HOME_SEO.subtitle, /AI character chat free/i);
+assert.match(ROLEPLAY_HOME_SEO.subtitle, /first guest replies/i);
 assert.match(ROLEPLAY_HOME_SEO.subtitle, /remember/i);
 assert.ok(
   ROLEPLAY_HOME_SEO.keywords.join(', ').length <= 260,
   'homepage meta keywords should stay shorter than the old AITDK-flagged list'
 );
+assert.ok(ROLEPLAY_HOME_SEO.keywords.includes('AI character chat free'));
+assert.ok(ROLEPLAY_HOME_SEO.keywords.includes('AI character chat without login'));
 assert.ok(ROLEPLAY_HOME_SEO.keywords.includes('AI character chat with memory'));
 assert.ok(
   ROLEPLAY_HOME_SEO.keywords.includes('Talkie AI alternative with memory')

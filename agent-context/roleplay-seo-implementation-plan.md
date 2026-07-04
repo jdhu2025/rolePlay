@@ -253,7 +253,7 @@ AITDK supplemental output:
 | `create AI character with memory` / `custom AI character with memory` | Very low exact Trends signal. | Low-medium: Reddit, OpenAI community, GitHub, YouTube, technical guides, and fewer polished commercial pages. | Make this the preferred creation-intent long-tail over `custom AI character creator`. |
 | `AI companion that remembers you` | Directional only after Trends rate limit. | Medium: Reddit, Nomi, Dearest, Replika, Questie, and smaller memory-app guides. | Keep as a P0/P1 emotional memory page and outreach angle. |
 | `character ai alternative with memory` | Directional only after Trends rate limit. | Medium-high: Reddit plus 2026 alternative listicles and competitor blogs. | Keep as a P1 comparison page; useful for switching intent, but harder than memory-only long tails. |
-| `free AI character chat` | Directional only after Trends rate limit. | High: Talkie, Character.AI, SeaArt, Saylo, Perchance, Emochi, PolyBuzz. | Keep for directories and low-friction discovery, but avoid making it the main SEO bet for a new domain. |
+| `ai character chat free` / `ai character chat without login` | KGR update on 2026-07-04 changed this from a support term into the current P0 sprint. User-provided KGR data: `ai character chat free` = 591 intitle / 14,800 monthly searches = 0.0399; `ai character chat without login` = 3 intitle / 6,600 monthly searches = 0.00045. Treat `free AI character chat` only as a supporting variant, not the main phrase. | Broad free-chat SERPs are still competitive, but exact `intitle` competition for the two measured phrases is low enough to justify focused execution. | Promote `/free-ai-character-chat` to the current P0 KGR target. Keep memory and quick-create as the differentiator in copy, but do not let unverified memory long-tails distract the current KGR sprint. |
 | `anime character AI chat` / `anime AI roleplay` | Directional only after Trends rate limit. | High: app stores, Character.AI, Talkie, Talefy, Reddit, PolyBuzz. | Keep as a supporting growth page because it matches user intent, but it needs internal links and character assets to compete. |
 | `talkie ai alternative` | Directional only after Trends rate limit. | Medium-high: Reddit plus several 2026 alternative/listicle pages. | Keep as P2/P1 depending on outreach fit; use memory and continuity as the differentiator. |
 
@@ -277,6 +277,60 @@ for Keepsay pages.
 5. For new copy, prefer natural product-fit anchors over exact-match bulk
    anchors: `an AI character chat app with memory`, `a private AI character
    creator`, `create an AI character that remembers the story`.
+
+### 2026-07-04 KGR Focus Update
+
+New user-provided KGR data changes the near-term SEO priority:
+
+| Keyword | Google `intitle` count | Avg. monthly searches | KGR | Decision |
+| --- | ---: | ---: | ---: | --- |
+| `ai character chat free` | 591 | 14,800 | 0.0399 | Confirmed treasure keyword; active P0. |
+| `ai character chat without login` | 3 | 6,600 | 0.00045 | Confirmed treasure keyword; active P0, but copy must be honest about guest limits. |
+
+What is already done:
+
+- `/free-ai-character-chat` exists as a localized landing page with canonical
+  metadata, FAQPage JSON-LD through the shared landing-page component, sitemap
+  inclusion, homepage guide links, related links from other SEO pages, and
+  backlink tracker entries.
+- The page already covered `AI character chat free` in metadata / visible copy;
+  `free AI character chat` remains a supporting variant only.
+- Product code supports no-login guest chat for a limited first session:
+  `/api/roleplay/chat` allows guest replies up to `GUEST_REPLY_LIMIT = 6` before
+  returning `auth_required`.
+- 2026-07-04 implementation retargeted `/free-ai-character-chat` so the English
+  title, description, H1, sections, and FAQ now explicitly include
+  `AI character chat free` and `AI character chat without login`.
+- 2026-07-04 follow-up retargeted the homepage first viewport and homepage SEO
+  meta: the H1 now starts with `AI character chat free`, the subtitle mentions
+  `without login` and `first guest replies`, the primary CTA starts free chat,
+  and quick create is preserved as the secondary conversion path.
+- `scripts/check-roleplay-seo-landing-pages.ts` now guards both exact KGR
+  phrases and requires the no-login wording to stay framed as limited guest
+  replies / guest identity.
+  `scripts/check-home-positioning.ts` and `scripts/check-seo-copy.ts` now guard
+  the homepage KGR positioning.
+
+Problems found during the audit:
+
+- Before the 2026-07-04 implementation, `/free-ai-character-chat` did not
+  explicitly target `ai character chat without login`.
+- Before the 2026-07-04 plan update, this document still treated free-chat
+  phrases as supporting terms instead of the active KGR sprint.
+- Backlink estimates still need KD from Ahrefs/DataForSEO/Semrush; KGR alone
+  does not produce the referring-domain count.
+
+Current decision:
+
+- Main SEO sprint: `/free-ai-character-chat`.
+- Primary keywords: `ai character chat free` and
+  `ai character chat without login`.
+- Supporting language: `free AI character chat`, memory, private character,
+  quick create, story continuity, and guest-first chat.
+- Park unverified no-volume keywords for now. Use them only as natural copy,
+  FAQ wording, internal anchors, or later validation candidates.
+- Do not claim unlimited no-login chat. Use language such as "start without
+  login", "first guest replies", or "try public characters as a guest".
 
 ## 2026-06-30 Talkie Competitor Notes
 
@@ -458,12 +512,12 @@ context, referral traffic, and stronger discovery signals.
 
 | Priority | URL | Use Case |
 | --- | --- | --- |
-| P0 | `https://keepsay.dpdns.org/en/ai-character-chat-with-memory` | Memory-based AI character chat listings, reviews, and comparisons. |
-| P0 | `https://keepsay.dpdns.org/en/create-ai-character-with-memory` | Creation intent with memory; better product fit than exact `custom AI character creator`. |
-| P0 | `https://keepsay.dpdns.org/en/ai-companion-that-remembers-you` | Emotional memory and companion-content references. |
+| P0 | `https://keepsay.dpdns.org/en/free-ai-character-chat` | Current KGR sprint target for `ai character chat free` and `ai character chat without login`; emphasize limited guest-first chat, then memory/private creation. |
+| P1 | `https://keepsay.dpdns.org/en/ai-character-chat-with-memory` | Supporting differentiator for free-chat visitors who want story continuity. |
+| P1 | `https://keepsay.dpdns.org/en/create-ai-character-with-memory` | Supporting conversion path after free/no-login exploration. |
+| P1 | `https://keepsay.dpdns.org/en/ai-companion-that-remembers-you` | Emotional memory and companion-content references; keep for future validation. |
 | P1 | `https://keepsay.dpdns.org/en/ai-roleplay-secret-memory` | Private memory, secrets, promises, and story-continuity outreach. |
 | P1 | `https://keepsay.dpdns.org/en/character-ai-alternative-with-memory` | Character.AI / Talkie alternative pages and comparison mentions. |
-| P1 | `https://keepsay.dpdns.org/en/free-ai-character-chat` | Free AI chat directories and low-friction product listings; high competition. |
 | P1 | `https://keepsay.dpdns.org/en/anime-ai-roleplay-characters` | Anime roleplay, character chat, and fandom-adjacent discovery pages. |
 | P2 | `https://keepsay.dpdns.org/en/custom-ai-character-creator` | Keep for private creator-tool context; exact SERP skews toward image generators. |
 | P2 | `https://keepsay.dpdns.org/en/talkie-ai-alternative` | Talkie alternative discussions and listicles. |
@@ -756,6 +810,7 @@ These are lower competition and closer to RolePlay's actual product strengths.
 
 | Landing Page | Primary Intent Cluster |
 | --- | --- |
+| `/free-ai-character-chat` | `ai character chat free`, `ai character chat without login`, `free AI character chat` |
 | `/ai-companion-that-remembers-you` | `ai companion that remembers you`, `ai companion with memory`, `chat with ai character who knows you` |
 | `/ai-character-chat-with-memory` | `AI character chat with memory`, `AI roleplay with memory`, `AI roleplay app with good memory` |
 | `/create-ai-character-with-memory` | `create AI character with memory`, `custom AI character with memory`, `create an AI character that remembers the story` |
@@ -1045,6 +1100,7 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | SEO-G21 | Normalize x-default hreflang behavior | ✅ done | P1 | Disabled next-intl's automatic HTTP alternate `Link` header because it generated x-default `/`; HTML alternates, root redirect, and sitemap now stay aligned around `/en`. |
 | SEO-G22 | Add public-page security headers | ✅ done | P2 | Added CSP, HSTS, `x-content-type-options`, `x-frame-options`, `referrer-policy`, `permissions-policy`, COOP, and CORP in `next.config.mjs`; local HTTP smoke verified them on public pages. |
 | SEO-G23 | Decide and implement AI-search / GEO policy | ✅ done | P2 | Added `/llms.txt`; robots now explicitly allows answer/reference crawlers `ChatGPT-User` and `PerplexityBot` on public pages while blocking training-oriented crawlers `GPTBot`, `ClaudeBot`, `Google-Extended`, `CCBot`, and `Bytespider`. |
+| SEO-G24 | Retarget homepage and `/free-ai-character-chat` around confirmed KGR winners | ✅ done | P0 | 2026-07-04 KGR data promoted exact `ai character chat free` and `ai character chat without login` to the active sprint. Updated the homepage first viewport, free-chat landing page, plan notes, backlink rotation, and SEO checks while keeping no-login claims limited to guest replies. |
 
 ## Verification Log
 

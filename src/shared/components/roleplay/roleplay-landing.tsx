@@ -664,7 +664,7 @@ function ForYouSection({
         <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] lg:items-center">
           <div className="flex min-w-0 flex-col gap-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              {isZh ? '快速创建 · 记住故事' : 'Quick create · memory chat'}
+              {isZh ? '免费试聊 · 记住故事' : 'AI character chat free'}
             </p>
             <h1 className="max-w-3xl text-4xl font-black leading-none tracking-tight md:text-5xl lg:text-6xl">
               {t('seo_title')}
@@ -684,7 +684,7 @@ function ForYouSection({
             </div>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
               <TrackedRoleplayLink
-                href="/create/quick"
+                href="#for-you-characters"
                 eventType="seo_scene_link_clicked"
                 eventMetadata={{
                   surface: 'home_hero_primary_cta',
@@ -692,16 +692,21 @@ function ForYouSection({
                 }}
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-bold text-zinc-950 transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
-                <Sparkles size={17} aria-hidden="true" />
+                <MessageCircle size={17} aria-hidden="true" />
                 {t('primary_cta')}
               </TrackedRoleplayLink>
-              <a
-                href="#for-you-characters"
+              <TrackedRoleplayLink
+                href="/create/quick"
+                eventType="seo_scene_link_clicked"
+                eventMetadata={{
+                  surface: 'home_hero_secondary_cta',
+                  label: t('secondary_cta'),
+                }}
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-sm font-bold text-zinc-100 transition hover:border-white/30 hover:bg-white/[0.08] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
               >
-                <MessageCircle size={17} aria-hidden="true" />
+                <Sparkles size={17} aria-hidden="true" />
                 {t('secondary_cta')}
-              </a>
+              </TrackedRoleplayLink>
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs leading-relaxed text-zinc-500">
               <Link
@@ -782,10 +787,12 @@ function QuickCreatePreview({ isZh }: { isZh: boolean }) {
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100/80">
-            {isZh ? '快速创建预览' : 'Quick create preview'}
+            {isZh ? '先试聊 · 再创建' : 'Free chat first'}
           </p>
           <h2 className="mt-1 text-xl font-bold tracking-tight text-white">
-            {isZh ? '一分钟内生成你的角色' : 'Build your character in under a minute'}
+            {isZh
+              ? '免登录先聊几轮，再创建你的角色'
+              : 'Try AI character chat free, then create your character'}
           </h2>
         </div>
         <div className="flex shrink-0 -space-x-2">
@@ -836,16 +843,16 @@ function QuickCreatePreview({ isZh }: { isZh: boolean }) {
       </div>
 
       <TrackedRoleplayLink
-        href="/create/quick"
+        href="/free-ai-character-chat"
         eventType="seo_scene_link_clicked"
         eventMetadata={{
           surface: 'home_quick_create_preview',
-          label: isZh ? '快速创建自定义角色' : 'Quick custom character',
+          label: isZh ? '开始免费角色聊天' : 'AI character chat free',
         }}
         className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-emerald-100 px-4 text-sm font-bold text-emerald-950 transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
       >
-        <Sparkles size={16} aria-hidden="true" />
-        {isZh ? '快速创建自定义角色' : 'Quick create a custom character'}
+        <MessageCircle size={16} aria-hidden="true" />
+        {isZh ? '开始免费角色聊天' : 'Start AI character chat free'}
       </TrackedRoleplayLink>
     </aside>
   );

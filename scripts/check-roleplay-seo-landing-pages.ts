@@ -98,6 +98,26 @@ function main() {
     'collections page must track category and CTA clicks'
   );
 
+  const freeChatPage = fs.readFileSync(
+    path.join(
+      process.cwd(),
+      'src/app/[locale]/(landing)/free-ai-character-chat/page.tsx'
+    ),
+    'utf8'
+  );
+  assert(
+    /AI character chat free/i.test(freeChatPage),
+    'free chat page must preserve the AI character chat free KGR variant'
+  );
+  assert(
+    /AI character chat without login/i.test(freeChatPage),
+    'free chat page must preserve the AI character chat without login KGR variant'
+  );
+  assert(
+    /guest replies|访客身份/.test(freeChatPage),
+    'free chat page must frame without-login access as limited guest replies'
+  );
+
   console.log('Roleplay SEO landing page checks OK');
 }
 
