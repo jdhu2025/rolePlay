@@ -34,8 +34,8 @@
     "hero_title": "Create fictional characters and continue their stories.",
     "hero_subtitle": "Build original characters with memory, voice previews, and safe visual moments.",
     "hero_note": "Start a story scene in Keepsay.",
-    "seo_intro_title": "AI character chat that starts from real scenes",
-    "seo_intro_body": "Keepsay is a free AI character chat home for people who want an AI friend, a fictional crush story, an adult campus classmate, a roommate character chat, a comfort companion, or a fantasy adventure that can continue tomorrow. The memory layer keeps concrete details like your favorite drink, the last scene, a nickname, or a small promise, while Quick Create lets you make your own private character from that starting point.",
+    "seo_intro_title": "AI character chat free that starts from real scenes",
+    "seo_intro_body": "Keepsay is an AI character chat free home for people who want to try AI character chat without login for the first guest replies. Start with an AI friend, a fictional crush story, an adult campus classmate, a roommate character chat, a comfort companion, or a fantasy adventure that can continue tomorrow. The memory layer keeps concrete details like your favorite drink, the last scene, a nickname, or a small promise, while Quick Create lets you make your own private character from that starting point.",
     "seo_intro_points": [
       "Free chat, anime school stories, and fantasy roleplay from one canonical home",
       "Characters can remember your story, nickname, favorite drink, and last scene",
@@ -47,6 +47,10 @@
       {
         "question": "What is Keepsay?",
         "answer": "Keepsay is an AI character chat and roleplay app for people who want free chat, story continuity, memory, and fast private character creation."
+      },
+      {
+        "question": "Is this free AI character chat without login?",
+        "answer": "Yes. You can try public characters as a guest for the first replies, then sign in when you want to continue longer, save memory, or create a private character."
       },
       {
         "question": "What should I open first?",
@@ -69,8 +73,8 @@
     "claw_channels": "Discord · Telegram · Character agents",
     "view_all": "View all",
     "for_you": "For You",
-    "seo_title": "AI character chat free, then keep the story.",
-    "seo_subtitle": "Start AI character chat free without login for your first guest replies. Try anime, fantasy, roommate, comfort, or fictional crush characters, then create a private AI character with memory.",
+    "seo_title": "AI character chat free without login.",
+    "seo_subtitle": "Start AI character chat free. Try AI character chat without login for your first guest replies with anime, fantasy, roommate, comfort, or fictional crush characters, then create a private AI character with memory.",
     "primary_cta": "Start AI character chat free",
     "secondary_cta": "Create your character",
     "pricing_cta": "View pricing",

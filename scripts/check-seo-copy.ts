@@ -7,6 +7,10 @@ import {
 
 assert.match(ROLEPLAY_HOME_SEO.title, /AI Character Chat Free/i);
 assert.match(ROLEPLAY_HOME_SEO.title, /Without Login/i);
+assert.ok(
+  ROLEPLAY_HOME_SEO.title.startsWith('AI Character Chat Free'),
+  'homepage meta title should start with the primary KGR phrase'
+);
 assert.match(ROLEPLAY_HOME_SEO.description, /AI character chat/i);
 assert.match(ROLEPLAY_HOME_SEO.description, /free/i);
 assert.match(ROLEPLAY_HOME_SEO.description, /memory/i);

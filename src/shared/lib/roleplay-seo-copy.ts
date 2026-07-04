@@ -1,6 +1,6 @@
 export const ROLEPLAY_HOME_SEO = {
   brandName: 'Keepsay',
-  title: 'Keepsay | AI Character Chat Free Without Login',
+  title: 'AI Character Chat Free Without Login | Keepsay',
   subtitle:
     'AI character chat free for first guest replies, with anime friends, comfort companions, fantasy stories, and private characters that remember your story.',
   description:

@@ -371,9 +371,9 @@ function SeoSceneRail() {
     },
     {
       href: '/free-ai-character-chat',
-      labelEn: 'Free AI character chat',
+      labelEn: 'AI character chat free',
       labelZh: '免费 AI 角色聊天',
-      descriptionEn: 'Try anime, comfort, roommate, and fantasy scenes first.',
+      descriptionEn: 'Try without login for first guest replies.',
       descriptionZh: '先体验动漫、治愈、室友和幻想场景。',
     },
     {
@@ -792,7 +792,7 @@ function QuickCreatePreview({ isZh }: { isZh: boolean }) {
           <h2 className="mt-1 text-xl font-bold tracking-tight text-white">
             {isZh
               ? '免登录先聊几轮，再创建你的角色'
-              : 'Try AI character chat free, then create your character'}
+              : 'Try free AI character chat without login, then create your character'}
           </h2>
         </div>
         <div className="flex shrink-0 -space-x-2">

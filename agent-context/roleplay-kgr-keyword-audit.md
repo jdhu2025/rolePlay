@@ -89,6 +89,14 @@ Already done:
   the H1 starts with `AI character chat free`, the subtitle includes
   `without login` and `first guest replies`, primary CTA starts free chat, and
   create-character remains as the secondary path.
+- 2026-07-05 field-weight refinement moved the homepage meta title to keyword
+  first order, kept exact `AI character chat free` in the H1, added exact
+  `AI character chat without login` to subtitle / FAQ / right-card H2, and kept
+  anime, fantasy, roommate, comfort, and fictional crush as natural scene terms.
+- 2026-07-05 follow-up added `free AI character chat without login` as a
+  secondary exact-order variant in H2/FAQ positions. Treat it as support for the
+  no-login intent, not as a reason to duplicate the same target across many
+  pages.
 - `scripts/check-roleplay-seo-landing-pages.ts` now guards both KGR phrases and
   requires the no-login claim to stay framed as guest replies / guest identity.
 - `scripts/check-home-positioning.ts` and `scripts/check-seo-copy.ts` now guard

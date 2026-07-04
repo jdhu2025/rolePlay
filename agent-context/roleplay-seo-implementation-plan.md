@@ -305,6 +305,15 @@ What is already done:
   meta: the H1 now starts with `AI character chat free`, the subtitle mentions
   `without login` and `first guest replies`, the primary CTA starts free chat,
   and quick create is preserved as the secondary conversion path.
+- 2026-07-05 field-weight refinement moved the homepage meta title to keyword
+  first order (`AI Character Chat Free Without Login | Keepsay`), kept the H1
+  on `AI character chat free`, placed exact `AI character chat without login`
+  in subtitle / FAQ / right-card H2, and preserved scene terms such as anime,
+  fantasy, roommate, comfort, and fictional crush for natural distribution.
+- 2026-07-05 follow-up added `free AI character chat without login` as a
+  secondary exact-order variant in high-value H2/FAQ positions. Do not repeat it
+  across every page; use it to support the no-login intent while keeping
+  `ai character chat free` as the primary phrase.
 - `scripts/check-roleplay-seo-landing-pages.ts` now guards both exact KGR
   phrases and requires the no-login wording to stay framed as limited guest
   replies / guest identity.
@@ -1100,7 +1109,7 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | SEO-G21 | Normalize x-default hreflang behavior | ✅ done | P1 | Disabled next-intl's automatic HTTP alternate `Link` header because it generated x-default `/`; HTML alternates, root redirect, and sitemap now stay aligned around `/en`. |
 | SEO-G22 | Add public-page security headers | ✅ done | P2 | Added CSP, HSTS, `x-content-type-options`, `x-frame-options`, `referrer-policy`, `permissions-policy`, COOP, and CORP in `next.config.mjs`; local HTTP smoke verified them on public pages. |
 | SEO-G23 | Decide and implement AI-search / GEO policy | ✅ done | P2 | Added `/llms.txt`; robots now explicitly allows answer/reference crawlers `ChatGPT-User` and `PerplexityBot` on public pages while blocking training-oriented crawlers `GPTBot`, `ClaudeBot`, `Google-Extended`, `CCBot`, and `Bytespider`. |
-| SEO-G24 | Retarget homepage and `/free-ai-character-chat` around confirmed KGR winners | ✅ done | P0 | 2026-07-04 KGR data promoted exact `ai character chat free` and `ai character chat without login` to the active sprint. Updated the homepage first viewport, free-chat landing page, plan notes, backlink rotation, and SEO checks while keeping no-login claims limited to guest replies. |
+| SEO-G24 | Retarget homepage and `/free-ai-character-chat` around confirmed KGR winners | ✅ done | P0 | 2026-07-04 KGR data promoted exact `ai character chat free` and `ai character chat without login` to the active sprint. Updated the homepage first viewport, free-chat landing page, plan notes, backlink rotation, and SEO checks while keeping no-login claims limited to guest replies. 2026-07-05 refinement moved the homepage title to keyword-first order and added exact secondary phrase coverage in H2/FAQ positions. |
 
 ## Verification Log
 

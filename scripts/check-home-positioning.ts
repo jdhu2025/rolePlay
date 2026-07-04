@@ -37,8 +37,15 @@ assert.ok(zh, 'Chinese roleplay.home messages are required');
 
 assert.match(en.seo_title || '', /AI character chat free/i);
 assert.match(en.seo_subtitle || '', /AI character chat free/i);
+assert.match(en.seo_intro_title || '', /AI character chat free/i);
 assert.match(en.seo_subtitle || '', /without login/i);
 assert.match(en.seo_subtitle || '', /first guest replies/i);
+assert.ok(
+  en.seo_faqs?.some((faq) =>
+    /free AI character chat without login/i.test(faq.question)
+  ),
+  'English homepage FAQ should include the free AI character chat without login variant'
+);
 assert.match(en.seo_subtitle || '', /anime/i);
 assert.match(en.seo_subtitle || '', /roommate|classmate|comfort|fantasy/i);
 assert.match(en.seo_intro_body || '', /favorite drink|nickname|last scene/i);
