@@ -795,7 +795,7 @@ function QuickCreatePreview({ isZh }: { isZh: boolean }) {
               : 'Try free AI character chat without login, then create your character'}
           </h2>
         </div>
-        <div className="flex shrink-0 -space-x-2">
+        <div className="flex shrink-0 -space-x-2" aria-hidden="true">
           {[
             '/roleplay/characters/rp-anime-001-elira.png',
             '/roleplay/characters/chloe-4.png',

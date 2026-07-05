@@ -6,7 +6,12 @@ type LocaleMessages = {
   home?: {
     seo_title?: string;
     seo_subtitle?: string;
+    seo_intro_title?: string;
     seo_intro_body?: string;
+    seo_faqs?: Array<{
+      question: string;
+      answer: string;
+    }>;
     primary_cta?: string;
     secondary_cta?: string;
     pricing_cta?: string;

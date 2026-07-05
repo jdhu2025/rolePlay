@@ -126,10 +126,20 @@ async function main() {
     '/character-ai-alternative-with-memory',
     '/anime-character-ai-chat',
     '/talkie-ai-alternative',
+    '/comfort-ai-companion',
   ]) {
     assert.ok(urls.includes(`${appUrl}/en${path}`), `${path} missing for en`);
     assert.ok(urls.includes(`${appUrl}/zh${path}`), `${path} missing for zh`);
   }
+
+  assert.ok(
+    !urls.includes(`${appUrl}/en/updates`),
+    '/en/updates is noindex until it has SEO depth/schema'
+  );
+  assert.ok(
+    !urls.includes(`${appUrl}/zh/updates`),
+    '/zh/updates is noindex until it has SEO depth/schema'
+  );
 
   assert.ok(
     urls.every(

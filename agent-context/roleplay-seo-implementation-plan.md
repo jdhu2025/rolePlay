@@ -1,6 +1,6 @@
 # RolePlay SEO Implementation Plan
 
-Last updated: 2026-07-03 16:49 Asia/Shanghai
+Last updated: 2026-07-05 10:08 Asia/Shanghai
 
 ## Remaining Todo
 
@@ -12,14 +12,15 @@ Last updated: 2026-07-03 16:49 Asia/Shanghai
   local character resolver, uses `notFound()` for unresolved character pages,
   and extends the URL-rule smoke test so every local sitemap character ID must
   resolve on detail pages.
-- [x] Make public SEO surfaces cacheable where possible. The live `/en`
-  response was `private, no-cache, no-store`, `x-vercel-cache: MISS`, and
-  `cf-cache-status: DYNAMIC`; the homepage source currently forces dynamic
-  rendering with `dynamic = 'force-dynamic'` and `revalidate = 0`.
-  Local implementation removed homepage `force-dynamic` / `revalidate = 0`,
-  switched initial homepage data to a public non-personalized loader, restored
-  `revalidate = 3600`, and verified local `Cache-Control`,
-  `CDN-Cache-Control`, and `Cloudflare-CDN-Cache-Control` headers.
+- [ ] Re-open production homepage cacheability. The 2026-07-03 local
+  implementation removed homepage `force-dynamic` / `revalidate = 0`, switched
+  initial homepage data to a public non-personalized loader, restored
+  `revalidate = 3600`, and verified local public cache headers. However, the
+  2026-07-05 live audit still shows `https://keepsay.dpdns.org/en` returning
+  `cache-control: private, no-cache, no-store, max-age=0, must-revalidate`,
+  `x-vercel-cache: STALE`, and `cf-cache-status: DYNAMIC`. Treat the latest
+  live evidence as authoritative: inspect production route/middleware/session
+  usage until anonymous public pages return truly public cache headers.
 - [x] Trim primary meta descriptions after the 2026-07-03 audit. Homepage
   description was 249 characters and an observed character description was
   231 characters; target roughly 140-155 English characters for predictable
@@ -59,6 +60,39 @@ Last updated: 2026-07-03 16:49 Asia/Shanghai
   passes. First live test briefly returned `server error (5xx)` during the
   deployment window, but the follow-up live test at 2026-06-30 09:45 reported
   that the URL can be indexed and indexing was requested.
+- [x] Add Chinese character-page SEO depth parity. The 2026-07-05 live
+  sitemap check found English character pages now contain the server-rendered
+  `Character guide` profile-depth block on `34/34` URLs, but Chinese character
+  pages contain it on `0/34` URLs while remaining `index, follow` and included
+  in the sitemap. Local implementation now renders the Chinese profile marker
+  as `角色资料 / Character guide`, expands localized Chinese profile-depth copy,
+  keeps localized FAQ content in visible HTML and FAQPage JSON-LD, localizes
+  character ProfilePage/Breadcrumb JSON-LD labels, and extends
+  `scripts/check-roleplay-character-seo-profile.ts` to enforce Chinese content
+  depth plus memory landing links.
+- [x] Fix sitemap/indexability consistency for linked public pages. The
+  2026-07-05 audit found `/en/comfort-ai-companion` and
+  `/zh/comfort-ai-companion` return `200`, `index, follow`, canonical to
+  themselves, and emit JSON-LD, but neither appears in `sitemap.xml`. Add them
+  to the sitemap if they are intended SEO landing pages. Also decide whether
+  `/en/updates` is an SEO asset: it currently returns `200`, `index, follow`,
+  canonical to itself, no JSON-LD, and is absent from sitemap; either enhance and
+  include it or set `noindex`. Local implementation confirmed
+  `/comfort-ai-companion` is already in sitemap generation, added explicit URL
+  rule coverage for both locales, and set `/updates` metadata to `noindex`
+  until it has enough content/schema to become an SEO asset.
+- [x] Clean up homepage decorative/avatar image alt handling. The 2026-07-05
+  homepage parse found 2 small prominent avatar images with `alt=""`. If they
+  identify characters/scenes, add concise alt text; if decorative, keep empty alt
+  but ensure the decorative wrapper is intentionally hidden from assistive tech
+  so AITDK/accessibility checks do not treat them as missing meaningful alt.
+  Local implementation treats the Quick Create preview avatar stack as
+  decorative and marks the wrapper `aria-hidden="true"`.
+- [ ] Re-run PageSpeed/CWV with evidence. The 2026-07-05 audit could not capture
+  PageSpeed because PSI returned `rate limit exceeded` for both mobile and
+  desktop, and local Google API credentials were not configured. Retry later with
+  an API key or local Lighthouse/Unlighthouse for `/en`,
+  `/en/free-ai-character-chat`, and representative character pages.
 - [ ] Use root variants only as discovery/redirect variants:
   `http://keepsay.dpdns.org/` and `https://keepsay.dpdns.org/` should point
   users and crawlers to the localized canonical entry, while offsite links
@@ -214,6 +248,74 @@ Audit summary:
    - Implementation direction: add conservative security headers and make a
      product decision on whether GEO/AI-answer visibility is worth selected
      crawler access plus `/llms.txt`.
+
+## 2026-07-05 Live SEO Audit Follow-up
+
+Source artifact:
+
+- `../keepsay.dpdns.org-audit/SEO-AUDIT-2026-07-05.md`
+- `../keepsay.dpdns.org-audit/character-sitemap-check.json`
+- `../keepsay.dpdns.org-audit/pagespeed.json`
+- `../keepsay.dpdns.org-audit/en-curl.headers`
+
+Audit summary:
+
+- Estimated SEO health score: 78/100.
+- Homepage title and H1 now target the active KGR sprint:
+  `AI character chat free` and `AI character chat without login`.
+- Sitemap count remains 108 URLs, excludes `/blog`, contains no non-localized
+  root URLs, and includes `/free-ai-character-chat` plus
+  `/ai-character-collections` in both locales.
+- Root/canonical/hreflang policy is aligned around `/en`, `/zh`, and
+  `x-default=/en`.
+- Security headers, `robots.txt`, and `/llms.txt` are live.
+- Unresolved character URLs now return true 404 in the tested sample.
+- PageSpeed could not be measured because PSI returned rate-limit errors for
+  both mobile and desktop; Google SEO API credentials remain unconfigured.
+- Limitation: the skill's safe fetcher refused `.dpdns.org` because local DNS
+  resolves it to `198.18.0.63`; direct `curl` succeeded and produced the live
+  evidence files above.
+
+### Issues To Merge Into Implementation
+
+1. Production homepage cacheability is still not fully fixed:
+   - Live `/en` response still showed `cache-control: private, no-cache,
+     no-store, max-age=0, must-revalidate`, `x-vercel-cache: STALE`, and
+     `cf-cache-status: DYNAMIC`.
+   - This conflicts with the 2026-07-03 local verification. Treat the latest
+     production evidence as authoritative and re-open SEO-G17 until live
+     anonymous public pages return public cache headers.
+
+2. Chinese character pages need SEO depth parity:
+   - All 68 sitemap character URLs returned `200`; the fake URL
+     `/en/character/not-a-real-character` returned `404`, so the previous
+     soft-404 class appears fixed.
+   - English character pages contained the server-rendered `Character guide`
+     marker on `34/34` URLs.
+   - Chinese character pages contained the same profile-depth marker on `0/34`
+     URLs while remaining indexable and in the sitemap.
+   - Add localized Chinese guide/FAQ content or temporarily noindex/exclude those
+     URLs until content parity exists.
+
+3. Sitemap/indexability consistency needs cleanup:
+   - `/en/comfort-ai-companion` and `/zh/comfort-ai-companion` are internally
+     linked, return `200`, are `index, follow`, canonicalize to themselves, and
+     emit JSON-LD, but are absent from sitemap.
+   - `/en/updates` returns `200`, is `index, follow`, canonicalizes to itself,
+     lacks JSON-LD, and is absent from sitemap.
+   - Add intended SEO pages to sitemap; noindex utility pages that are not meant
+     to rank.
+
+4. Homepage has two empty-alt small avatar images:
+   - Main character-card image alt text is now healthy, but two 44x44 prominent
+     avatar/thumbnail images still use `alt=""`.
+   - Give them meaningful alt text if they identify characters/scenes, or mark
+     them as intentionally decorative for assistive tech.
+
+5. PageSpeed/CWV remains unmeasured:
+   - PSI returned rate-limit errors during the 2026-07-05 audit.
+   - Re-run with a Google API key or local Lighthouse/Unlighthouse and record INP,
+     LCP, CLS, TTFB, and blocking resources for core SEO pages.
 
 ## 2026-06-30 Keyword Refresh
 
@@ -1102,7 +1204,7 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | SEO-G14 | Apply Talkie competitor lessons to IA, internal links, and comparison copy | ✅ done | P1 | Strengthened character-card anchor semantics, added restrained footer discovery links, refreshed `/talkie-ai-alternative` around memory/private continuity, and added `/ai-character-collections` as a clean collection/category index that groups memory, anime, comfort, free-chat, creator, and alternative paths around real character cards. |
 | SEO-G15 | Refresh copy with grounded user vocabulary | ✅ done | P0 | Added everyday scene terms to homepage, scene rail, creator page, and Talkie alternative page: AI friend, fictional crush, roommate, classmate, comfort chat, fantasy adventure, anime school story, free chat, create character, and remembers-your-story examples. Avoided AI girlfriend/boyfriend and NSFW positioning. |
 | SEO-G16 | Fix sitemap soft-404 character URLs | ✅ done | P0 | Local implementation maps anime seed characters into the shared local resolver, calls `notFound()` when server lookup cannot resolve a character, and extends `scripts/check-seo-url-rules.ts` so every local sitemap character ID must resolve. Local smoke verified `/en/character/rp-anime-004` returns 200 and `/en/character/not-a-real-character` returns 404. |
-| SEO-G17 | Make public homepage/SEO pages cacheable | ✅ done | P0 | Removed homepage `force-dynamic` / `revalidate = 0`, switched initial homepage data to a public non-personalized loader, restored `revalidate = 3600`, and verified local public cache headers on `/en`. Production header recheck remains a deployment verification item. |
+| SEO-G17 | Make public homepage/SEO pages cacheable | ▶ in progress | P0 | Local implementation removed homepage `force-dynamic` / `revalidate = 0`, switched initial homepage data to a public non-personalized loader, restored `revalidate = 3600`, and verified local public cache headers. Re-opened by the 2026-07-05 live audit because production `/en` still returns `private, no-cache, no-store`, `x-vercel-cache: STALE`, and `cf-cache-status: DYNAMIC`. |
 | SEO-G18 | Trim homepage and character meta descriptions | ✅ done | P0 | Homepage meta description is now 146 characters, and character meta descriptions are generated with a 155-character cap while preserving the memory-led intent. `scripts/check-seo-copy.ts` now enforces the length cap. |
 | SEO-G19 | Expand character profile SEO content | ✅ done | P1 | Character pages now server-preload full public character data, render a 300+ word profile-specific `Character guide` block, expose memory hooks / quick-fit facts / related internal links, and add profile-specific FAQ content plus FAQPage JSON-LD. `scripts/check-roleplay-character-seo-profile.ts` enforces the local character profile word-count and link floor. |
 | SEO-G20 | Resolve blog thinness or noindex empty blog listings | ✅ done | P1 | Temporarily removed `/blog` from the sitemap, set blog listing/category metadata to noindex, and changed missing blog posts/categories to true `notFound()` responses. Real posts plus Blog/CollectionPage/BreadcrumbList schema remain a future re-indexing prerequisite. |
@@ -1110,9 +1212,32 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | SEO-G22 | Add public-page security headers | ✅ done | P2 | Added CSP, HSTS, `x-content-type-options`, `x-frame-options`, `referrer-policy`, `permissions-policy`, COOP, and CORP in `next.config.mjs`; local HTTP smoke verified them on public pages. |
 | SEO-G23 | Decide and implement AI-search / GEO policy | ✅ done | P2 | Added `/llms.txt`; robots now explicitly allows answer/reference crawlers `ChatGPT-User` and `PerplexityBot` on public pages while blocking training-oriented crawlers `GPTBot`, `ClaudeBot`, `Google-Extended`, `CCBot`, and `Bytespider`. |
 | SEO-G24 | Retarget homepage and `/free-ai-character-chat` around confirmed KGR winners | ✅ done | P0 | 2026-07-04 KGR data promoted exact `ai character chat free` and `ai character chat without login` to the active sprint. Updated the homepage first viewport, free-chat landing page, plan notes, backlink rotation, and SEO checks while keeping no-login claims limited to guest replies. 2026-07-05 refinement moved the homepage title to keyword-first order and added exact secondary phrase coverage in H2/FAQ positions. |
+| SEO-G25 | Add Chinese character-page SEO depth parity | ✅ done | P1 | Chinese character pages now render a visible `角色资料 / Character guide` marker, expanded localized profile-depth copy, localized FAQ content, and localized ProfilePage/Breadcrumb JSON-LD labels. `scripts/check-roleplay-character-seo-profile.ts` now enforces Chinese content depth and memory landing links. Requires post-deploy live recrawl to confirm `34/34` zh character URLs. |
+| SEO-G26 | Fix sitemap/indexability consistency for linked public pages | ✅ done | P1 | `/comfort-ai-companion` is included in sitemap generation for both locales and now has explicit URL-rule coverage. `/updates` remains outside the sitemap and is now `noindex` until it has SEO-depth content/schema. |
+| SEO-G27 | Clean up homepage small-avatar alt handling | ✅ done | P1 | The Quick Create preview's two 44x44 avatar thumbnails are decorative, so the stack wrapper is now `aria-hidden="true"` while keeping empty `alt` on the images. Recheck AITDK/accessibility output after deployment. |
+| SEO-G28 | Capture PageSpeed and Core Web Vitals evidence | ⏳ pending | P1 | 2026-07-05 PageSpeed attempt hit PSI rate limits for both mobile and desktop. Re-run with an API key or local Lighthouse/Unlighthouse for `/en`, `/en/free-ai-character-chat`, and representative character pages; record INP, LCP, CLS, TTFB, and blocking resources. |
 
 ## Verification Log
 
+- 2026-07-05 10:08 local implementation verification for SEO-G25 through
+  SEO-G27: updated Chinese character profile depth, localized character
+  structured-data labels, `/updates` noindex behavior, sitemap URL-rule
+  coverage for `/comfort-ai-companion` and `/updates`, and decorative
+  semantics for the homepage Quick Create avatar stack. `pnpm
+  check:roleplay-seo`, `pnpm exec tsx scripts/check-seo-url-rules.ts`, and
+  `pnpm exec tsc --noEmit` passed after rerunning the tsx checks outside the
+  sandbox because `tsx` cannot create its IPC pipe in the managed sandbox. The
+  sitemap check still logs
+  `DATABASE_URL is not set`, then uses the intended local character fallback
+  and finishes with `SEO URL rules OK`.
+- 2026-07-05 live SEO audit merge: wrote
+  `../keepsay.dpdns.org-audit/SEO-AUDIT-2026-07-05.md` and evidence files for
+  homepage headers/HTML, robots, sitemap, llms, PageSpeed rate-limit output, and
+  character sitemap checks. Merged latest findings into this plan: re-opened
+  production cacheability (SEO-G17), added Chinese character depth parity
+  (SEO-G25), sitemap/indexability consistency (SEO-G26), homepage small-avatar
+  alt cleanup (SEO-G27), and PageSpeed/CWV measurement (SEO-G28). No app code
+  changed in this pass.
 - 2026-07-03 audit merge verification: merged the full-site audit issues from
   `../keepsay.dpdns.org-audit/` into this implementation plan as top-level
   remaining todos, a dedicated audit follow-up section, and SEO-G16 through
@@ -1339,3 +1464,14 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
   each path to real local character cards; emits `CollectionPage`, `ItemList`,
   `BreadcrumbList`, and `FAQPage` JSON-LD; and is linked from homepage guide
   surfaces, footer discovery links, and the XML sitemap.
+- 2026-07-05 09:50: Merged the live SEO audit from
+  `../keepsay.dpdns.org-audit/SEO-AUDIT-2026-07-05.md`. The latest live evidence
+  overrides the prior local-only cacheability status: production `/en` still
+  returns `private, no-cache, no-store`. Added follow-ups for Chinese character
+  content parity, sitemap/indexability consistency, homepage avatar alt handling,
+  and PageSpeed/CWV measurement after PSI rate limiting.
+- 2026-07-05 10:08: Completed the locally actionable follow-ups from the live
+  audit: SEO-G25 Chinese character-page parity, SEO-G26 sitemap/indexability
+  consistency, and SEO-G27 decorative homepage avatar semantics. SEO-G17 remains
+  in progress pending live anonymous cache-header evidence, and SEO-G28 remains
+  pending until PageSpeed/CWV can be measured.

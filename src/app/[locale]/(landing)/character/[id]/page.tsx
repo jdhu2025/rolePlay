@@ -45,11 +45,14 @@ function buildCharacterJsonLd({
   canonical,
   character,
   seoProfile,
+  locale,
 }: {
   canonical: string;
   character: RoleplayCharacterClient;
   seoProfile: RoleplayCharacterSeoProfile;
+  locale: string;
 }) {
+  const isZh = locale.startsWith('zh');
   const image = absoluteImageUrl(character.cover || character.avatar);
   const description = compactText(
     character.intro || character.tagline || character.opening,
@@ -60,7 +63,9 @@ function buildCharacterJsonLd({
     {
       '@context': 'https://schema.org',
       '@type': 'ProfilePage',
-      name: `${character.name} AI Character Chat`,
+      name: isZh
+        ? `${character.name} AI 角色聊天`
+        : `${character.name} AI Character Chat`,
       description,
       url: canonical,
       image,
@@ -69,7 +74,7 @@ function buildCharacterJsonLd({
         name: character.name,
         image,
         description,
-        additionalType: 'AI roleplay character',
+        additionalType: isZh ? 'AI 角色扮演角色' : 'AI roleplay character',
       },
     },
     {
@@ -79,13 +84,13 @@ function buildCharacterJsonLd({
         {
           '@type': 'ListItem',
           position: 1,
-          name: 'Home',
+          name: isZh ? '首页' : 'Home',
           item: envConfigs.app_url,
         },
         {
           '@type': 'ListItem',
           position: 2,
-          name: 'Characters',
+          name: isZh ? '角色' : 'Characters',
           item: `${envConfigs.app_url}/`,
         },
         {
@@ -279,6 +284,7 @@ export default async function CharacterProfilePage({
           canonical,
           character,
           seoProfile,
+          locale,
         })}
       />
       <RoleplayCharacterDetail

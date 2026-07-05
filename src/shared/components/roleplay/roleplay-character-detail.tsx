@@ -253,7 +253,7 @@ function CharacterSeoStory({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
-            {isZh ? '角色资料' : 'Character guide'}
+            {isZh ? '角色资料 / Character guide' : 'Character guide'}
           </p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">
             {profile.title}

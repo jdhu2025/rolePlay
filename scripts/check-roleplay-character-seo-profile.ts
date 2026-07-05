@@ -10,6 +10,10 @@ import {
   readCharacterSettings,
 } from '@/shared/lib/roleplay-client';
 
+function countCjkCharacters(value: string) {
+  return value.match(/[\u3400-\u9fff]/g)?.length ?? 0;
+}
+
 for (const character of OFFICIAL_ROLEPLAY_CHARACTERS) {
   const settings = readCharacterSettings(character);
   const sceneLinks = (ROLEPLAY_CHARACTER_SEO_SCENES[character.id] ?? []).map(
@@ -49,6 +53,35 @@ for (const character of OFFICIAL_ROLEPLAY_CHARACTERS) {
     profile.faqs.length,
     3,
     `${character.id} SEO profile should expose three profile FAQs`
+  );
+
+  const zhProfile = buildRoleplayCharacterSeoProfile({
+    character,
+    occupation: settings.occupation || character.style,
+    location: settings.location || character.scene,
+    sceneLinks: sceneLinks.map((link) => ({
+      ...link,
+      label: ROLEPLAY_SEO_SCENES[link.slug!].labelZh,
+    })),
+    isZh: true,
+  });
+
+  const zhBody = [
+    zhProfile.title,
+    ...zhProfile.paragraphs,
+    ...zhProfile.bullets,
+    ...zhProfile.faqs.map((faq) => `${faq.question} ${faq.answer}`),
+  ].join(' ');
+
+  assert.ok(
+    countCjkCharacters(zhBody) >= 520,
+    `${character.id} Chinese SEO profile should have localized depth`
+  );
+  assert.ok(
+    zhProfile.relatedLinks.some(
+      (link) => link.href === '/ai-character-chat-with-memory'
+    ),
+    `${character.id} Chinese SEO profile should link to the memory landing page`
   );
 }
 
