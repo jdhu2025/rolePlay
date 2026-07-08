@@ -1,10 +1,10 @@
 export const ROLEPLAY_HOME_SEO = {
   brandName: 'Keepsay',
-  title: 'AI Character Chat Free Without Login | Keepsay',
+  title: 'Keepsay AI Character Chat With Memory',
   subtitle:
-    'AI character chat free for first guest replies, with anime friends, comfort companions, fantasy stories, and private characters that remember your story.',
+    'Discover AI characters for anime, comfort, fantasy, and private stories that remember names, scenes, and the small details you bring back.',
   description:
-    'Keepsay is AI character chat free for first guest replies, with anime, comfort, fantasy, and private characters that remember your story.',
+    'Keepsay is an AI character chat app for memory-led roleplay, anime stories, comfort companions, fantasy scenes, and private characters.',
   keywords: [
     'Keepsay',
     'AI character chat',
@@ -12,8 +12,6 @@ export const ROLEPLAY_HOME_SEO = {
     'AI character chat with memory',
     'create AI character with memory',
     'private AI character creator',
-    'AI character chat free',
-    'AI character chat without login',
     'Character.AI alternative with memory',
     'Talkie AI alternative with memory',
   ],

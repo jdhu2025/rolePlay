@@ -366,14 +366,14 @@ function SeoSceneRail() {
       href: '/ai-character-collections',
       labelEn: 'Browse character collections',
       labelZh: '浏览角色集合',
-      descriptionEn: 'Find memory, anime, comfort, free chat, and creator paths.',
-      descriptionZh: '找到记忆、动漫、治愈、免费聊天和创建路径。',
+      descriptionEn: 'Find memory, anime, comfort, guide, and creator paths.',
+      descriptionZh: '找到记忆、动漫、治愈、指南和创建路径。',
     },
     {
       href: '/free-ai-character-chat',
-      labelEn: 'AI character chat free',
-      labelZh: '免费 AI 角色聊天',
-      descriptionEn: 'Try without login for first guest replies.',
+      labelEn: 'Free chat guide',
+      labelZh: '免费聊天指南',
+      descriptionEn: 'Use the dedicated low-friction trial page.',
       descriptionZh: '先体验动漫、治愈、室友和幻想场景。',
     },
     {
@@ -664,7 +664,7 @@ function ForYouSection({
         <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] lg:items-center">
           <div className="flex min-w-0 flex-col gap-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-              {isZh ? '免费试聊 · 记住故事' : 'AI character chat free'}
+              {isZh ? '角色发现 · 记住故事' : 'Keepsay character discovery'}
             </p>
             <h1 className="max-w-3xl text-4xl font-black leading-none tracking-tight md:text-5xl lg:text-6xl">
               {t('seo_title')}
@@ -787,12 +787,12 @@ function QuickCreatePreview({ isZh }: { isZh: boolean }) {
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100/80">
-            {isZh ? '先试聊 · 再创建' : 'Free chat first'}
+            {isZh ? '先浏览 · 再创建' : 'Browse first'}
           </p>
           <h2 className="mt-1 text-xl font-bold tracking-tight text-white">
             {isZh
-              ? '免登录先聊几轮，再创建你的角色'
-              : 'Try free AI character chat without login, then create your character'}
+              ? '找到合适场景，再创建你的角色'
+              : 'Find the right scene, then create your character'}
           </h2>
         </div>
         <div className="flex shrink-0 -space-x-2" aria-hidden="true">
@@ -847,12 +847,12 @@ function QuickCreatePreview({ isZh }: { isZh: boolean }) {
         eventType="seo_scene_link_clicked"
         eventMetadata={{
           surface: 'home_quick_create_preview',
-          label: isZh ? '开始免费角色聊天' : 'AI character chat free',
+          label: isZh ? '打开免费角色聊天指南' : 'Free character chat guide',
         }}
         className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-emerald-100 px-4 text-sm font-bold text-emerald-950 transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-100/70"
       >
         <MessageCircle size={16} aria-hidden="true" />
-        {isZh ? '开始免费角色聊天' : 'Start AI character chat free'}
+        {isZh ? '打开免费角色聊天指南' : 'Open free chat guide'}
       </TrackedRoleplayLink>
     </aside>
   );
@@ -978,7 +978,7 @@ function RoleplayHomeFooter() {
     ? [
         ['AI 角色集合', '/ai-character-collections'],
         ['带记忆 AI 聊天', '/ai-character-chat-with-memory'],
-        ['免费 AI 角色聊天', '/free-ai-character-chat'],
+        ['免费聊天指南', '/free-ai-character-chat'],
         ['动漫 AI 角色扮演', '/anime-ai-roleplay-characters'],
         ['创建带记忆角色', '/create-ai-character-with-memory'],
         ['Character.AI 替代品', '/character-ai-alternative-with-memory'],

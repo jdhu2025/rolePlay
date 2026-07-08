@@ -165,18 +165,21 @@ export function RoleplayCharacterCard({
           </div>
         )}
 
-        <Link
-          href={chatHref}
+        <button
+          type="button"
           className={cn(
             'absolute inset-x-4 bottom-3 z-[3] inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white/92 px-4 text-sm font-semibold text-zinc-950 shadow-[0_12px_28px_rgba(0,0,0,0.35)] backdrop-blur transition-all duration-200',
             'hover:-translate-y-0.5 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70',
             'md:opacity-0 md:translate-y-2 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100'
           )}
+          onClick={() => router.push(chatHref)}
+          onMouseEnter={prefetchRoutes}
+          onFocus={prefetchRoutes}
           aria-label={`Chat with ${cardAnchorText}`}
         >
           <MessageCircle size={17} aria-hidden="true" />
           {tHome('chat_now')}
-        </Link>
+        </button>
       </div>
 
       <Link

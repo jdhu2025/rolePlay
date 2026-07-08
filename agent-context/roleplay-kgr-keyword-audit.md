@@ -48,7 +48,7 @@ provided volume:
 
 | Keyword | Target page / cluster | Google intitle count | Avg. monthly searches | KGR | KD | Referring domains | Decision |
 | --- | --- | ---: | ---: | ---: | --- | --- | --- |
-| `ai character chat free` | exact-order free chat intent / homepage-first free chat intent | 591 | 14,800 | 0.0399 | Pending Ahrefs KD | Pending KD | Treasure keyword confirmed by KGR; build/strengthen `/free-ai-character-chat` around the exact `ai character chat free` order without losing memory positioning. |
+| `ai character chat free` | exact-order free chat intent / homepage-first free chat intent | 591 | 14,800 | 0.0399 | Hard; user-provided estimate 50-70 | At least 80+ | Treasure keyword confirmed by KGR, but SERP competitors are strong despite imprecise titles. Build/strengthen `/free-ai-character-chat` around the exact `ai character chat free` order without losing memory positioning, and treat backlink acquisition as required. |
 | `ai character chat without login` | no-login / low-friction free chat intent | 3 | 6,600 | 0.00045 | Pending Ahrefs KD | Pending KD | Treasure keyword confirmed by KGR; only use exact "without login" positioning if the product truly supports a no-login first chat experience. |
 
 ## Batch CSV Input Format
@@ -71,7 +71,7 @@ FAQ language, and future validation.
 
 | Priority | Keyword | Target page / cluster | Intent | Data status | Notes |
 | --- | --- | --- | --- | --- | --- |
-| P0 | `ai character chat free` | `/free-ai-character-chat` or homepage free-chat section | Exact-order free chat | KGR calculated | Confirmed treasure keyword: 591 / 14,800 = 0.0399. This exact word order is the primary target. |
+| P0 | `ai character chat free` | `/free-ai-character-chat` or homepage free-chat section | Exact-order free chat | KGR calculated; KD user-estimated as Hard | Confirmed treasure keyword: 591 / 14,800 = 0.0399. This exact word order is the primary target. User note: KD is Hard, likely around 50-70, because first-page competitors are strong even though their titles are not precise; plan for at least 80+ referring domains. |
 | P0 | `ai character chat without login` | `/free-ai-character-chat` or no-login entry section | Free/no-login chat | KGR calculated | Confirmed treasure keyword: 3 / 6,600 = 0.00045. Use exact claim only if no-login chat is actually supported. |
 
 ## Implementation Status
@@ -104,8 +104,12 @@ Already done:
 
 Still needed:
 
-- Ahrefs/DataForSEO/Semrush KD for each of the two active keywords.
-- Backlink/referring-domain estimate after KD is known.
+- Tool-verified Ahrefs/DataForSEO/Semrush KD for each of the two active
+  keywords. User-provided estimate for `ai character chat free`: Hard, likely
+  KD 50-70.
+- Backlink/referring-domain estimate after KD is tool-verified. Until then,
+  use at least 80+ referring domains as the working target for
+  `ai character chat free`.
 - Post-deploy check that Google sees the updated title, description, FAQ, and
   canonical page.
 
@@ -113,7 +117,7 @@ Still needed:
 
 | Keyword | Why it qualifies | Next action |
 | --- | --- | --- |
-| `ai character chat free` | KGR is 0.0399, far below 0.25. It also matches the product's free chat entry point. | Keep this exact order as the primary phrase for `/free-ai-character-chat`; use `free AI character chat` only as a supporting variant. Confirm Ahrefs KD for backlink estimates. |
+| `ai character chat free` | KGR is 0.0399, far below 0.25. It also matches the product's free chat entry point. User-provided KD read is Hard, likely 50-70, so the low KGR does not mean the homepage SERP will be easy. | Keep this exact order as the primary phrase for `/free-ai-character-chat`; use `free AI character chat` only as a supporting variant. Confirm Ahrefs KD, but plan execution around at least 80+ referring domains. |
 | `ai character chat without login` | KGR is 0.00045, far below 0.25, with extremely low `intitle` competition. | Confirm whether the product can honestly offer no-login first chat. If yes, make this a dedicated section/page angle; if no, keep it as a future product/SEO opportunity rather than an exact title claim. |
 
 ## Parked Keywords

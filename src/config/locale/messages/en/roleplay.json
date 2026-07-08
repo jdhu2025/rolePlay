@@ -34,10 +34,10 @@
     "hero_title": "Create fictional characters and continue their stories.",
     "hero_subtitle": "Build original characters with memory, voice previews, and safe visual moments.",
     "hero_note": "Start a story scene in Keepsay.",
-    "seo_intro_title": "AI character chat free that starts from real scenes",
-    "seo_intro_body": "Keepsay is an AI character chat free home for people who want to try AI character chat without login for the first guest replies. Start with an AI friend, a fictional crush story, an adult campus classmate, a roommate character chat, a comfort companion, or a fantasy adventure that can continue tomorrow. The memory layer keeps concrete details like your favorite drink, the last scene, a nickname, or a small promise, while Quick Create lets you make your own private character from that starting point.",
+    "seo_intro_title": "Keepsay character chat starts from real scenes",
+    "seo_intro_body": "Keepsay is a memory-led AI character chat home for people who want original characters, story continuity, and quick private creation. Start with an AI friend, a fictional crush story, an adult campus classmate, a roommate character chat, a comfort companion, or a fantasy adventure that can continue tomorrow. The memory layer keeps concrete details like your favorite drink, the last scene, a nickname, or a small promise, while Quick Create lets you make your own private character from that starting point.",
     "seo_intro_points": [
-      "Free chat, anime school stories, and fantasy roleplay from one canonical home",
+      "AI friends, anime school stories, and fantasy roleplay from one canonical home",
       "Characters can remember your story, nickname, favorite drink, and last scene",
       "Create a private AI character instead of starting from a blank prompt"
     ],
@@ -46,11 +46,11 @@
     "seo_faqs": [
       {
         "question": "What is Keepsay?",
-        "answer": "Keepsay is an AI character chat and roleplay app for people who want free chat, story continuity, memory, and fast private character creation."
+        "answer": "Keepsay is an AI character chat and roleplay app for people who want story continuity, memory, original characters, and fast private character creation."
       },
       {
-        "question": "Is this free AI character chat without login?",
-        "answer": "Yes. You can try public characters as a guest for the first replies, then sign in when you want to continue longer, save memory, or create a private character."
+        "question": "Where should I start if I only want to try it first?",
+        "answer": "Use the free character chat guide for the low-friction guest path. The homepage is the broad Keepsay entry for discovering characters, memory, and private creation."
       },
       {
         "question": "What should I open first?",
@@ -73,14 +73,14 @@
     "claw_channels": "Discord · Telegram · Character agents",
     "view_all": "View all",
     "for_you": "For You",
-    "seo_title": "AI character chat free without login.",
-    "seo_subtitle": "Start AI character chat free. Try AI character chat without login for your first guest replies with anime, fantasy, roommate, comfort, or fictional crush characters, then create a private AI character with memory.",
-    "primary_cta": "Start AI character chat free",
+    "seo_title": "Keepsay AI character chat with memory.",
+    "seo_subtitle": "Discover AI friends, anime stories, fantasy companions, roommate scenes, comfort chats, and fictional crush characters that remember your story.",
+    "primary_cta": "Browse AI characters",
     "secondary_cta": "Create your character",
     "pricing_cta": "View pricing",
     "pricing_note": "Plans, credits, renewal terms, and cancellation options are easy to review before purchase or checkout.",
     "proof_points": [
-      "AI character chat without login for first guest replies",
+      "Original AI characters for story scenes",
       "Chat with characters who remember your story",
       "Anime, comfort, roommate, and fantasy scenes"
     ],

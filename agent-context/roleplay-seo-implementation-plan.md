@@ -1,6 +1,6 @@
 # RolePlay SEO Implementation Plan
 
-Last updated: 2026-07-05 10:08 Asia/Shanghai
+Last updated: 2026-07-08 11:57 Asia/Shanghai
 
 ## Remaining Todo
 
@@ -19,8 +19,25 @@ Last updated: 2026-07-05 10:08 Asia/Shanghai
   2026-07-05 live audit still shows `https://keepsay.dpdns.org/en` returning
   `cache-control: private, no-cache, no-store, max-age=0, must-revalidate`,
   `x-vercel-cache: STALE`, and `cf-cache-status: DYNAMIC`. Treat the latest
-  live evidence as authoritative: inspect production route/middleware/session
-  usage until anonymous public pages return truly public cache headers.
+  live evidence as authoritative. The 2026-07-08 local fix now verifies `/`,
+  `/en`, `/zh`, and `/en/free-ai-character-chat` with public cache headers and
+  `/en` as prerendered ISR; keep this item open only for post-deploy live header
+  confirmation on `keepsay.dpdns.org`.
+- [ ] 2026-07-08 GSC follow-up: inspect
+  `https://keepsay.dpdns.org/en/chat/profile/rp-005` in URL Inspection and
+  record whether it is also `Crawled - currently not indexed`, whether
+  Google-selected canonical points to `/en`, and whether it is shown as a thin
+  duplicate/alternate page. Also inspect `https://keepsay.dpdns.org/en` and
+  record whether Google's selected canonical is `/en` itself.
+- [x] Remove SEO pressure from `/chat/profile/*` utility chat pages. They are
+  not sitemap SEO assets and should not compete with homepage or character
+  detail pages. Implement `noindex, follow`, consolidate canonical signals to
+  matching `/character/*` pages where appropriate, and reduce crawlable homepage
+  links directly into `/chat/profile/*`.
+- [x] Separate homepage and free-chat keyword ownership. Keep `/en` as a
+  Keepsay brand / broad product entry, and let `/free-ai-character-chat` own the
+  exact `AI character chat free` and `AI character chat without login` sprint
+  terms.
 - [x] Trim primary meta descriptions after the 2026-07-03 audit. Homepage
   description was 249 characters and an observed character description was
   231 characters; target roughly 140-155 English characters for predictable
@@ -316,6 +333,88 @@ Audit summary:
    - PSI returned rate-limit errors during the 2026-07-05 audit.
    - Re-run with a Google API key or local Lighthouse/Unlighthouse and record INP,
      LCP, CLS, TTFB, and blocking resources for core SEO pages.
+
+## 2026-07-08 GSC Index Recovery Follow-up
+
+Trigger:
+
+- GSC screenshot shows the validation state for `Crawled - currently not
+  indexed`: validation started on 2026-07-06, source is sitemap / all known
+  pages, `2` examples are still pending, and `0` have failed.
+- The two visible pending examples are:
+  `https://keepsay.dpdns.org/en` with last crawl on 2026-06-30, and
+  `https://keepsay.dpdns.org/` with last crawl on 2026-06-09.
+- User concern: the status has lasted for about a month, and the GSC wording
+  looks like Google crawled the homepage but declined to index it.
+
+Current evidence:
+
+- DNS/domain: Google Public DNS resolves `keepsay.dpdns.org` to Cloudflare A
+  records `172.67.128.149` and `104.21.2.18` with TTL 300. This means the
+  `.dpdns.org` domain is not a hard DNS blocker for Google. The free/shared
+  subdomain still carries weaker trust/brand signals than a paid custom domain,
+  but current evidence points more strongly at page-level signals.
+- Local execution environment note: direct `curl` to
+  `https://keepsay.dpdns.org/en` timed out from the current sandbox after DNS
+  verification, so do not treat this local timeout as a Google crawl failure.
+  Use GSC live test and deployed header checks as the authoritative production
+  verification.
+- Prior live/source evidence shows `/en/chat/profile/rp-005` is a utility chat
+  page that returns `200`, is absent from sitemap, has very thin visible copy,
+  uses generic metadata, and canonicalized to `https://keepsay.dpdns.org/en`.
+- `/en/character/rp-005` is the intended SEO page for the same character and
+  already has self-canonical metadata plus richer character profile content.
+- The homepage links many character cards and currently exposes direct
+  crawlable `/chat/profile/*` links beside the intended `/character/*` detail
+  links.
+- The homepage and `/free-ai-character-chat` currently overlap too strongly on
+  exact `AI character chat free` / `AI character chat without login` ownership.
+- Production public pages have repeatedly shown
+  `cache-control: private, no-cache, no-store, max-age=0, must-revalidate`,
+  which is a trust/performance issue for anonymous SEO pages even if Google can
+  still crawl them.
+
+Working diagnosis:
+
+Google likely has enough crawl access to see the site, but the homepage's
+indexability signals are noisy: thin utility chat URLs point their canonical
+signals back to `/en`, homepage/free-chat intent is duplicated, and anonymous
+public pages still look private/no-store in production headers. The `.dpdns.org`
+domain is a secondary trust risk, not the strongest known root cause.
+
+Manual GSC checks before/after deployment:
+
+1. Inspect `https://keepsay.dpdns.org/en/chat/profile/rp-005`.
+   - Record coverage state.
+   - Record user-declared canonical.
+   - Record Google-selected canonical.
+   - Expected before fix: may show `Crawled - currently not indexed` or may
+     select `/en` as canonical.
+   - Expected after fix: user-declared canonical should consolidate to the
+     matching character page, and robots should be `noindex, follow`.
+2. Inspect `https://keepsay.dpdns.org/en`.
+   - Record whether Google-selected canonical is `/en` itself.
+   - If Google-selected canonical is not `/en`, record the selected URL and
+     investigate that URL as a stronger duplicate/canonical conflict.
+3. After fixes deploy, use Live Test on `/en`, `/en/free-ai-character-chat`,
+   `/en/character/rp-005`, and `/en/chat/profile/rp-005`.
+   - Do not repeatedly request indexing until the live test shows the intended
+     canonical, robots, and cache headers.
+
+Implementation order:
+
+1. P0: Make `/chat/profile/*` and `/chat/profile/*/history` non-SEO utility
+   pages with server-rendered `noindex, follow` and canonical consolidation to
+   matching `/character/*` pages where useful.
+2. P0: Reduce homepage crawlable direct links into `/chat/profile/*`; keep
+   crawlable character-card links focused on `/character/*`.
+3. P1: Reassign exact free/no-login keyword ownership to
+   `/free-ai-character-chat`, while homepage returns to Keepsay brand,
+   character discovery, memory, and broad product positioning.
+4. P0/P1: Fix public SEO page cache-control so anonymous landing pages no
+   longer ship `private, no-cache, no-store`.
+5. P1: Re-run URL/header/local SEO checks, deploy, then use GSC Live Test
+   before requesting re-indexing.
 
 ## 2026-06-30 Keyword Refresh
 
@@ -1204,7 +1303,7 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | SEO-G14 | Apply Talkie competitor lessons to IA, internal links, and comparison copy | ✅ done | P1 | Strengthened character-card anchor semantics, added restrained footer discovery links, refreshed `/talkie-ai-alternative` around memory/private continuity, and added `/ai-character-collections` as a clean collection/category index that groups memory, anime, comfort, free-chat, creator, and alternative paths around real character cards. |
 | SEO-G15 | Refresh copy with grounded user vocabulary | ✅ done | P0 | Added everyday scene terms to homepage, scene rail, creator page, and Talkie alternative page: AI friend, fictional crush, roommate, classmate, comfort chat, fantasy adventure, anime school story, free chat, create character, and remembers-your-story examples. Avoided AI girlfriend/boyfriend and NSFW positioning. |
 | SEO-G16 | Fix sitemap soft-404 character URLs | ✅ done | P0 | Local implementation maps anime seed characters into the shared local resolver, calls `notFound()` when server lookup cannot resolve a character, and extends `scripts/check-seo-url-rules.ts` so every local sitemap character ID must resolve. Local smoke verified `/en/character/rp-anime-004` returns 200 and `/en/character/not-a-real-character` returns 404. |
-| SEO-G17 | Make public homepage/SEO pages cacheable | ▶ in progress | P0 | Local implementation removed homepage `force-dynamic` / `revalidate = 0`, switched initial homepage data to a public non-personalized loader, restored `revalidate = 3600`, and verified local public cache headers. Re-opened by the 2026-07-05 live audit because production `/en` still returns `private, no-cache, no-store`, `x-vercel-cache: STALE`, and `cf-cache-status: DYNAMIC`. |
+| SEO-G17 | Make public homepage/SEO pages cacheable | ▶ in progress | P0 | 2026-07-08 local verification passes for the static/ISR public path: `/en` returns `200`, public cache headers, `x-nextjs-cache: HIT`, and `x-nextjs-prerender: 1` after reverting the failed rootParams experiment. Earlier local checks also covered `/`, `/zh`, `/en/free-ai-character-chat`, `/en/character/rp-005`, and `/en/chat/profile/rp-005` cache headers. Keep open until the deployed `keepsay.dpdns.org` headers no longer show `private, no-cache, no-store`. |
 | SEO-G18 | Trim homepage and character meta descriptions | ✅ done | P0 | Homepage meta description is now 146 characters, and character meta descriptions are generated with a 155-character cap while preserving the memory-led intent. `scripts/check-seo-copy.ts` now enforces the length cap. |
 | SEO-G19 | Expand character profile SEO content | ✅ done | P1 | Character pages now server-preload full public character data, render a 300+ word profile-specific `Character guide` block, expose memory hooks / quick-fit facts / related internal links, and add profile-specific FAQ content plus FAQPage JSON-LD. `scripts/check-roleplay-character-seo-profile.ts` enforces the local character profile word-count and link floor. |
 | SEO-G20 | Resolve blog thinness or noindex empty blog listings | ✅ done | P1 | Temporarily removed `/blog` from the sitemap, set blog listing/category metadata to noindex, and changed missing blog posts/categories to true `notFound()` responses. Real posts plus Blog/CollectionPage/BreadcrumbList schema remain a future re-indexing prerequisite. |
@@ -1216,9 +1315,74 @@ Status markers: `⏳ pending` / `▶ in progress` / `✅ done` / `⚠ blocked`.
 | SEO-G26 | Fix sitemap/indexability consistency for linked public pages | ✅ done | P1 | `/comfort-ai-companion` is included in sitemap generation for both locales and now has explicit URL-rule coverage. `/updates` remains outside the sitemap and is now `noindex` until it has SEO-depth content/schema. |
 | SEO-G27 | Clean up homepage small-avatar alt handling | ✅ done | P1 | The Quick Create preview's two 44x44 avatar thumbnails are decorative, so the stack wrapper is now `aria-hidden="true"` while keeping empty `alt` on the images. Recheck AITDK/accessibility output after deployment. |
 | SEO-G28 | Capture PageSpeed and Core Web Vitals evidence | ⏳ pending | P1 | 2026-07-05 PageSpeed attempt hit PSI rate limits for both mobile and desktop. Re-run with an API key or local Lighthouse/Unlighthouse for `/en`, `/en/free-ai-character-chat`, and representative character pages; record INP, LCP, CLS, TTFB, and blocking resources. |
+| SEO-G29 | Remove `/chat/profile/*` from SEO indexation signals | ✅ done | P0 | 2026-07-08 implementation and build-artifact verification complete: `/chat/profile/*` and `/chat/profile/*/history` emit `noindex, follow`, canonicalize to matching `/character/*`, and homepage HTML has `0` `/en/chat/profile/` links while keeping `18` `/en/character/` links. Post-deploy GSC URL Inspection should confirm Google sees the new robots/canonical. |
+| SEO-G30 | Separate homepage brand intent from `/free-ai-character-chat` KGR intent | ✅ done | P1 | 2026-07-08 local implementation and checks complete: homepage metadata/visible copy now target Keepsay brand, AI character discovery, memory, private creation, anime/comfort/fantasy scenes, and story continuity; exact `AI character chat free` / `AI character chat without login` ownership remains on `/free-ai-character-chat`. Guard scripts enforce the split. |
+| SEO-G31 | Verify and fix production public cache headers | ✅ done | P0 | 2026-07-08 local implementation and verification complete: removed request-level `getLocale()` from root layout, added `[locale]` `generateStaticParams()`, and isolated non-SEO app/tool sections (`/chat`, `/create`, `/activity`, `/settings`) as dynamic. Local production headers now show public cache for core public pages. Production deployment still needs a live header recheck under SEO-G17. |
 
 ## Verification Log
 
+- 2026-07-08 11:14 indexing recovery started: merged the GSC screenshot
+  follow-up into this plan, added manual URL Inspection checks for
+  `/en/chat/profile/rp-005` and `/en`, recorded Google Public DNS evidence for
+  `keepsay.dpdns.org`, and opened SEO-G29 through SEO-G31. No app code changed
+  before this log entry.
+- 2026-07-08 11:20 SEO-G29 implementation pass: added metadata to chat profile
+  and chat history routes so they emit `noindex, follow` and canonicalize to
+  matching character detail pages; changed the character-card chat CTA from a
+  crawlable `Link` into button navigation while keeping user click behavior.
+  Verification still pending.
+- 2026-07-08 11:28 SEO-G30 implementation pass: retargeted homepage metadata,
+  English/Chinese visible homepage copy, hero CTA, guide rail labels, and
+  Quick Create preview wording away from exact free/no-login KGR phrases.
+  Updated `scripts/check-seo-copy.ts` and `scripts/check-home-positioning.ts`
+  so homepage must stay brand/memory/discovery-focused while
+  `/free-ai-character-chat` remains the exact KGR owner. Targeted copy checks
+  passed locally.
+- 2026-07-08 11:37 SEO-G31 implementation pass: removed root-layout
+  `getLocale()` usage that forced request-header locale reads across all
+  pages, and added `[locale]` `generateStaticParams()` to keep localized public
+  pages on next-intl's static-rendering path. Build/header verification still
+  pending.
+- 2026-07-08 11:48 build follow-up: enabling localized static params exposed
+  non-SEO app/tool routes (`/chat`, `/create`, `/activity`, `/settings`) that
+  use client-only URL/search/session behavior. Marked these app/tool sections
+  as dynamic so public landing/SEO pages can remain static/ISR candidates
+  without forcing account/chat tools into prerendering.
+- 2026-07-08 11:37 final local verification for SEO-G29 through SEO-G31:
+  `node --import tsx scripts/check-seo-copy.ts`, `node --import tsx
+  scripts/check-home-positioning.ts`, `node --import tsx
+  scripts/check-roleplay-seo-landing-pages.ts`, `node --import tsx
+  scripts/check-seo-url-rules.ts`, `pnpm exec tsc --noEmit`, `pnpm
+  build:fast`, and `pnpm check:roleplay-seo` passed. The full
+  `pnpm check:roleplay-seo` command required sandbox escalation because `tsx`
+  cannot create its IPC pipe inside the managed sandbox. Local production HTTP
+  smoke on port 3011 verified `/` returns `308` to `/en` with public cache,
+  `/en`, `/zh`, and `/en/free-ai-character-chat` return `cache-control: public,
+  s-maxage=3600, stale-while-revalidate=14400`, `/en` and
+  `/en/free-ai-character-chat` show `x-nextjs-cache: HIT` and
+  `x-nextjs-prerender: 1`, homepage HTML has `0` `/en/chat/profile/` links and
+  `18` `/en/character/` links, `/en/chat/profile/rp-005` and
+  `/en/chat/profile/rp-005/history` emit `noindex, follow`, and both canonical
+  to `/en/character/rp-005`. Next post-deploy action: in GSC, live-test
+  `/en/chat/profile/rp-005` and `/en`, record Google-selected canonical, then
+  request indexing for `/en` and `/en/free-ai-character-chat` only after live
+  headers/robots/canonical match this local verification.
+- 2026-07-08 11:57 rootParams cleanup and verification correction: reverted
+  the failed `next/root-params` experiment (`experimental.rootParams` and the
+  `next/root-params` import) because it breaks the Next 16 build. Re-ran
+  `pnpm exec tsc --noEmit`, `pnpm build:fast`, and `pnpm check:roleplay-seo`;
+  all passed. `pnpm check:roleplay-seo` still requires sandbox escalation
+  because `tsx` cannot create its IPC pipe inside the managed sandbox. Local
+  standalone HTTP smoke verified `/en` as `200`, `cache-control: public,
+  s-maxage=3600, stale-while-revalidate=14400`, `x-nextjs-cache: HIT`, and
+  `x-nextjs-prerender: 1`; saved homepage HTML has `0`
+  `/en/chat/profile/` links and `18` `/en/character/` links. Direct
+  standalone HTTP rendering for `/en/chat/profile/rp-005` and history could
+  not complete in this Mac workspace because the standalone bundle is missing
+  optional native package `@libsql/darwin-arm64`; build artifacts still confirm
+  the intended `robots: { index: false, follow: true }` and canonical-to-
+  `/character/${id}` metadata. Treat GSC Live Test after deployment as the
+  authoritative confirmation for the chat utility pages.
 - 2026-07-05 10:08 local implementation verification for SEO-G25 through
   SEO-G27: updated Chinese character profile depth, localized character
   structured-data labels, `/updates` noindex behavior, sitemap URL-rule

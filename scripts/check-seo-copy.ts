@@ -5,32 +5,35 @@ import {
   ROLEPLAY_HOME_SEO,
 } from '../src/shared/lib/roleplay-seo-copy';
 
-assert.match(ROLEPLAY_HOME_SEO.title, /AI Character Chat Free/i);
-assert.match(ROLEPLAY_HOME_SEO.title, /Without Login/i);
+assert.match(ROLEPLAY_HOME_SEO.title, /Keepsay/i);
+assert.match(ROLEPLAY_HOME_SEO.title, /AI Character Chat/i);
+assert.match(ROLEPLAY_HOME_SEO.title, /Memory/i);
 assert.ok(
-  ROLEPLAY_HOME_SEO.title.startsWith('AI Character Chat Free'),
-  'homepage meta title should start with the primary KGR phrase'
+  !/without login|AI Character Chat Free/i.test(ROLEPLAY_HOME_SEO.title),
+  'homepage meta title should not compete with /free-ai-character-chat KGR terms'
 );
 assert.match(ROLEPLAY_HOME_SEO.description, /AI character chat/i);
-assert.match(ROLEPLAY_HOME_SEO.description, /free/i);
-assert.match(ROLEPLAY_HOME_SEO.description, /memory/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /memory|memory-led/i);
 assert.match(ROLEPLAY_HOME_SEO.description, /private characters/i);
 assert.ok(
   ROLEPLAY_HOME_SEO.description.length <= 155,
   'homepage meta description should fit predictable snippets'
 );
-assert.match(ROLEPLAY_HOME_SEO.subtitle, /AI character chat free/i);
-assert.match(ROLEPLAY_HOME_SEO.subtitle, /first guest replies/i);
+assert.match(ROLEPLAY_HOME_SEO.subtitle, /Discover AI characters/i);
 assert.match(ROLEPLAY_HOME_SEO.subtitle, /remember/i);
 assert.ok(
   ROLEPLAY_HOME_SEO.keywords.join(', ').length <= 260,
   'homepage meta keywords should stay shorter than the old AITDK-flagged list'
 );
-assert.ok(ROLEPLAY_HOME_SEO.keywords.includes('AI character chat free'));
-assert.ok(ROLEPLAY_HOME_SEO.keywords.includes('AI character chat without login'));
-assert.ok(ROLEPLAY_HOME_SEO.keywords.includes('AI character chat with memory'));
+const homepageKeywords = [...ROLEPLAY_HOME_SEO.keywords] as string[];
+
+assert.ok(!homepageKeywords.includes('AI character chat free'));
 assert.ok(
-  ROLEPLAY_HOME_SEO.keywords.includes('Talkie AI alternative with memory')
+  !homepageKeywords.includes('AI character chat without login')
+);
+assert.ok(homepageKeywords.includes('AI character chat with memory'));
+assert.ok(
+  homepageKeywords.includes('Talkie AI alternative with memory')
 );
 
 const characterSeo = buildCharacterSeoCopy({
