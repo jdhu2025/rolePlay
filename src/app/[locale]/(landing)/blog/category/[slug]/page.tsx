@@ -21,6 +21,7 @@ import {
 } from '@/shared/types/blocks/blog';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 export async function generateMetadata({
