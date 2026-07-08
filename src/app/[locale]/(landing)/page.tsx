@@ -6,7 +6,6 @@ import { RoleplayLanding } from '@/shared/components/roleplay/roleplay-landing';
 import { ROLEPLAY_HOME_SEO } from '@/shared/lib/roleplay-seo-copy';
 import { getMetadata } from '@/shared/lib/seo';
 import { buildLocalizedUrl } from '@/shared/lib/seo-url';
-import { getPublicRoleplayHomeInitialData } from '@/shared/lib/server/roleplay-home-data';
 
 export const revalidate = 3600;
 
@@ -27,7 +26,6 @@ export default async function LandingPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const tHome = await getTranslations({ locale, namespace: 'roleplay.home' });
-  const initialData = await getPublicRoleplayHomeInitialData();
   const canonicalUrl = buildLocalizedUrl('/', locale, {
     appUrl: envConfigs.app_url,
     defaultLocale,
@@ -92,7 +90,7 @@ export default async function LandingPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <RoleplayLanding initialData={initialData} />
+      <RoleplayLanding />
     </>
   );
 }
