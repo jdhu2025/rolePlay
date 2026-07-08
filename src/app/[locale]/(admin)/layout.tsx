@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ReactNode } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
