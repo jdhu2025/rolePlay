@@ -1,5 +1,22 @@
 # RolePlay SEO Backlink Execution Log
 
+## 2026-07-09
+
+Status: free-chat indexing support prepared
+
+### Completed
+
+- [x] Strengthened homepage internal linking to the current KGR target page by adding `Free AI character chat` / `免费 AI 角色聊天` into the homepage related-guide links, in addition to existing scene rail, Quick Create preview, footer, sitemap, and related-page links.
+- [x] Created `roleplay-free-chat-offsite-drafts.md` with ready-to-use clean external mention drafts for `https://keepsay.dpdns.org/en/free-ai-character-chat`: short social post, helpful community answer, and AI-directory/listing description.
+- [x] Ran local checks: `pnpm exec tsc --noEmit`, `pnpm exec tsx scripts/check-home-positioning.ts`, and `pnpm exec tsx scripts/check-seo-copy.ts` passed.
+
+### Notes
+
+- No external post, directory submission, or community answer was published from this session because posting to third-party sites is outward-facing and requires the user's account/login/community context. Use the prepared drafts manually or provide explicit target channels and posting authorization.
+- GSC request-indexing quota is still the blocker for `https://keepsay.dpdns.org/en/free-ai-character-chat`; keep retrying after quota resets.
+
+---
+
 ## 2026-06-30
 
 Status: local SEO priority pass implemented; offsite execution still gated
