@@ -15,24 +15,24 @@ const appUrl = 'https://keepsay.dpdns.org';
 assert.equal(
   buildLocalizedPath('/', 'en', {
     defaultLocale: 'en',
-    localePrefix: 'always',
+    localePrefix: 'as-needed',
   }),
-  '/en'
+  '/'
 );
 
 assert.equal(
   buildLocalizedPath('/character/rp-anime-001', 'en', {
     defaultLocale: 'en',
-    localePrefix: 'always',
+    localePrefix: 'as-needed',
   }),
-  '/en/character/rp-anime-001'
+  '/character/rp-anime-001'
 );
 
 assert.equal(
   buildLocalizedUrl('/blog', 'zh', {
     appUrl,
     defaultLocale: 'en',
-    localePrefix: 'always',
+    localePrefix: 'as-needed',
   }),
   'https://keepsay.dpdns.org/zh/blog'
 );
@@ -46,13 +46,13 @@ assert.deepEqual(
     {
       appUrl,
       defaultLocale: 'en',
-      localePrefix: 'always',
+      localePrefix: 'as-needed',
     }
   ).map((entry) => entry.url),
   [
-    'https://keepsay.dpdns.org/en',
+    'https://keepsay.dpdns.org/',
     'https://keepsay.dpdns.org/zh',
-    'https://keepsay.dpdns.org/en/character/rp-001',
+    'https://keepsay.dpdns.org/character/rp-001',
   ]
 );
 
@@ -106,8 +106,8 @@ async function main() {
   const urls = (await sitemap()).map((entry) => entry.url);
 
   assert.ok(
-    !urls.includes(`${appUrl}/en/blog`),
-    '/en/blog is temporarily noindex'
+    !urls.includes(`${appUrl}/blog`),
+    '/blog is temporarily noindex'
   );
   assert.ok(
     !urls.includes(`${appUrl}/zh/blog`),
@@ -128,13 +128,13 @@ async function main() {
     '/talkie-ai-alternative',
     '/comfort-ai-companion',
   ]) {
-    assert.ok(urls.includes(`${appUrl}/en${path}`), `${path} missing for en`);
+    assert.ok(urls.includes(`${appUrl}${path}`), `${path} missing for en`);
     assert.ok(urls.includes(`${appUrl}/zh${path}`), `${path} missing for zh`);
   }
 
   assert.ok(
-    !urls.includes(`${appUrl}/en/updates`),
-    '/en/updates is noindex until it has SEO depth/schema'
+    !urls.includes(`${appUrl}/updates`),
+    '/updates is noindex until it has SEO depth/schema'
   );
   assert.ok(
     !urls.includes(`${appUrl}/zh/updates`),

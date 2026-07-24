@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionCookie } from 'better-auth/cookies';
 import createIntlMiddleware from 'next-intl/middleware';
 
+import { defaultLocale } from '@/config/locale';
 import { routing } from '@/core/i18n/config';
 import {
   isHighRiskSeoPath,
@@ -12,6 +13,23 @@ const intlMiddleware = createIntlMiddleware(routing);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const defaultLocaleBase = `/${defaultLocale}`;
+
+  if (
+    pathname === defaultLocaleBase ||
+    pathname.startsWith(`${defaultLocaleBase}/`)
+  ) {
+    const canonicalPath = pathname.slice(defaultLocaleBase.length) || '/';
+    const canonicalUrl = new URL(canonicalPath, request.url);
+    canonicalUrl.search = request.nextUrl.search;
+    const response = NextResponse.redirect(canonicalUrl, 308);
+    const cacheControl =
+      'public, s-maxage=3600, stale-while-revalidate=14400';
+    response.headers.set('Cache-Control', cacheControl);
+    response.headers.set('CDN-Cache-Control', cacheControl);
+    response.headers.set('Cloudflare-CDN-Cache-Control', cacheControl);
+    return response;
+  }
 
   // Handle internationalization first
   const intlResponse = intlMiddleware(request);
@@ -29,15 +47,6 @@ export async function proxy(request: NextRequest) {
   ) {
     const safeUrl = new URL(isValidLocale ? `/${locale}` : '/', request.url);
     return NextResponse.redirect(safeUrl, 307);
-  }
-
-  if (pathname === '/') {
-    const homeUrl = new URL('/en', request.url);
-    const response = NextResponse.redirect(homeUrl, 308);
-    response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=14400');
-    response.headers.set('CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=14400');
-    response.headers.set('Cloudflare-CDN-Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=14400');
-    return response;
   }
 
   // Only check authentication for admin routes

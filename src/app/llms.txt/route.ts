@@ -1,19 +1,26 @@
 import { envConfigs } from '@/config';
+import { defaultLocale, localePrefix } from '@/config/locale';
+import { buildLocalizedPath } from '@/shared/lib/seo-url';
 
 export const revalidate = 3600;
 
 const publicPaths = [
-  '/en',
-  '/en/ai-character-chat-with-memory',
-  '/en/create-ai-character-with-memory',
-  '/en/ai-companion-that-remembers-you',
-  '/en/ai-roleplay-secret-memory',
-  '/en/character-ai-alternative-with-memory',
-  '/en/anime-ai-roleplay-characters',
-  '/en/talkie-ai-alternative',
-  '/en/privacy-policy',
-  '/en/acceptable-use-policy',
-];
+  '/',
+  '/ai-character-chat-with-memory',
+  '/create-ai-character-with-memory',
+  '/ai-companion-that-remembers-you',
+  '/ai-roleplay-secret-memory',
+  '/character-ai-alternative-with-memory',
+  '/anime-ai-roleplay-characters',
+  '/talkie-ai-alternative',
+  '/privacy-policy',
+  '/acceptable-use-policy',
+].map((path) =>
+  buildLocalizedPath(path, defaultLocale, {
+    defaultLocale,
+    localePrefix,
+  })
+);
 
 export function GET() {
   const appUrl = envConfigs.app_url.replace(/\/$/, '');
