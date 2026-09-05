@@ -23,7 +23,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowRight, BadgeDollarSign, MessageCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Link } from '@/core/i18n/navigation';
 import { RoleplayCharacterCard } from '@/shared/components/roleplay/roleplay-character-card';
@@ -273,6 +273,7 @@ export function RoleplayLanding({ initialData }: Props) {
       <ForYouSection
         characters={recommendedCharacters}
         loading={recommendationsLoading}
+        createQuickHref={createQuickHref}
       />
       <FirstExperienceDirector
         onSelected={refreshRecommendationsForExperience}
@@ -655,9 +656,11 @@ function FirstMomentPreference() {
 function ForYouSection({
   characters,
   loading,
+  createQuickHref,
 }: {
   characters: RoleplayCharacterClient[];
   loading: boolean;
+  createQuickHref: string;
 }) {
   const t = useTranslations('roleplay.home');
   const locale = useLocale();
