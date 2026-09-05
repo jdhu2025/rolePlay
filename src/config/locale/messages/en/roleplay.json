@@ -73,16 +73,16 @@
     "claw_channels": "Discord · Telegram · Character agents",
     "view_all": "View all",
     "for_you": "For You",
-    "seo_title": "Keepsay AI character chat with memory.",
-    "seo_subtitle": "Meet characters that remember your story, then create your own with templates and image upload when you are ready.",
-    "primary_cta": "Browse AI characters",
+    "seo_title": "Start from a scene, not a blank prompt.",
+    "seo_subtitle": "Try a character first, save it if it fits, and build your own private version with memory, templates, and images.",
+    "primary_cta": "Try free chat",
     "secondary_cta": "Create with templates",
     "pricing_cta": "View pricing",
     "pricing_note": "Plans, credits, renewal terms, and cancellation options are easy to review before purchase or checkout.",
     "proof_points": [
-      "Original characters for scenes you want to return to",
-      "Chat with characters who remember your story",
-      "Use templates and images when you want your own"
+      "Try a scene without signing up",
+      "Come back to a character that remembers the last chat",
+      "Build your own from a template or image"
     ],
     "seo_links_label": "Guides",
     "seo_links": [
