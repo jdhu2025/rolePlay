@@ -7,18 +7,18 @@ import {
 import { getMetadata } from '@/shared/lib/seo';
 
 export const generateMetadata = getMetadata({
-  title: 'Private AI Character Creator With Memory | Keepsay RolePlay',
+  title: 'AI Character Creator With Templates | Upload Images, Generate More Variations',
   description:
-    'Create a private AI character with memory, relationship setup, voice, first scene, and story-continuity templates for chat-first roleplay.',
+    'Create a character from a template, upload a reference image, and get to a usable profile faster.',
   keywords:
-    'private AI character creator, create AI character with memory, custom chat character creator, AI character creator with memory',
+    'AI character creator with templates, template based AI character creator, AI character creator with image upload, upload image to generate character images, private AI character creator',
   localized: {
     zh: {
-      title: '带记忆的私有 AI 角色创建器 | Keepsay RolePlay',
+      title: '带模板的 AI 角色创建器 | 上传图片，生成更多角色图',
       description:
-        '创建带记忆的私有 AI 角色，支持关系设定、语音、首个场景和故事连续性模板，面向聊天型角色扮演。',
+        '从模板快速创建私有 AI 角色，支持上传图片并生成更多角色图，面向聊天型角色扮演。',
       keywords:
-        '私有 AI 角色创建器, 创建带记忆的 AI 角色, 自定义聊天角色创建器, 带记忆的 AI 角色创建器',
+        '带模板的 AI 角色创建器, 模板 AI 角色创建器, AI 角色创建器图片上传, 上传图片生成角色图, 私有 AI 角色创建器',
     },
   },
   canonicalUrl: '/custom-ai-character-creator',
@@ -48,10 +48,10 @@ const configs: Record<'en' | 'zh', SeoLandingPageConfig> = {
   en: {
     ...sharedConfig,
     locale: 'en',
-    eyebrow: 'Private AI Character Creator',
-    title: 'Create an AI character that remembers the story.',
+    eyebrow: 'AI Character Creator With Templates',
+    title: 'Create an AI character from templates and images.',
     description:
-      'Quick Create is for chat-first characters, not generic avatar generation. Start with an AI friend, anime school story, roommate roleplay, comfort companion, fantasy adventure, or fictional crush story, then save a private character with a memory seed.',
+      'Quick Create helps you get a character ready without starting from a blank page. Begin with a template, add an image, and shape the rest from there.',
     primaryCta: { label: 'Create private character', href: '/create/quick' },
     secondaryCta: { label: 'Browse characters first', href: '/' },
     sceneSlugs: [
@@ -68,57 +68,71 @@ const configs: Record<'en' | 'zh', SeoLandingPageConfig> = {
       'rp-anime-019',
     ],
     proofPoints: [
-      'Built for chat characters, not only visual avatars.',
-      'Templates include memory seeds, scene hooks, and relationship setup.',
-      'New characters save as private drafts before sharing.',
+      'Start from a template instead of a blank page.',
+      'Add an image when you want the character to feel more complete.',
+      'Generate a few more visual versions without slowing down.',
+      'Save it as private first, then share later if you want.',
     ],
     sections: [
       {
-        title: 'Chat character before avatar',
-        body: 'Search results for custom AI character creator often skew toward image makers. Keepsay is different: the character needs a scene, a voice, a relationship start, and memory that can make the next reply feel connected.',
+        title: 'Start with a shape, not a blank page',
+        body: 'Most people already know the vibe they want. A template gives them a place to start instead of making them invent everything at once.',
       },
       {
-        title: 'Private by default',
-        body: 'A personal AI friend, roommate character, fictional crush story, or comfort companion should start private. Public sharing can happen later after the user knows the roleplay works.',
+        title: 'Use an image to match the look',
+        body: 'If you already have a reference image, upload it and keep shaping the character until it feels close.',
       },
       {
-        title: 'Templates with memory hooks',
-        body: 'Every quick-create template includes a relationship start, a scene tension, memory seeds, safety boundaries, and a starter memory mode so the character can remember your story.',
+        title: 'Keep it private first',
+        body: 'Save the character privately while you finish it. You can always decide later whether to share it.',
+      },
+      {
+        title: 'Templates make the first step easier',
+        body: 'Templates help when you know the direction but do not want to write every detail from zero.',
       },
     ],
     inspirations: [
       {
         title: 'Start from a cozy companion',
-        body: 'For comfort chat, daily rituals, favorite-drink memory, and low-pressure return visits.',
+        body: 'For a character that feels easy to return to.',
       },
       {
         title: 'Start from an anime mage',
-        body: 'For original anime roleplay, fantasy adventure, and a vivid scene that can continue.',
+        body: 'For an original roleplay character with a clear mood.',
       },
       {
         title: 'Start from a crush chat template',
-        body: 'For a fictional crush story with slow-burn tension, almost confessions, and romantic memory.',
+        body: 'For a slow-burn character with some tension already built in.',
       },
       {
         title: 'Start from a private memory companion',
-        body: 'For an AI character built around shared history, nicknames, and a story you can resume tomorrow.',
+        body: 'For a character that feels personal from the start.',
+      },
+      {
+        title: 'Start from a template and image',
+        body: 'For when you want to move fast and still make it feel like your own.',
       },
     ],
     faqs: [
       {
         question: 'Can I create a private AI character?',
         answer:
-          'Yes. Quick Create saves characters as private drafts first, so an AI friend, comfort companion, roommate roleplay, or fictional crush story can stay personal.',
+          'Yes. It saves as private first, so you can keep working on it before anyone else sees it.',
       },
       {
         question: 'Can I start from a template?',
         answer:
-          'Yes. The creator is organized around inspiration templates such as anime roleplay, comfort chat, private memory, and story-first character creation.',
+          'Yes. Templates are the easiest way to get started quickly.',
+      },
+      {
+        question: 'Can I upload an image and generate more character images?',
+        answer:
+          'Yes. Upload one image, then generate a few more versions to refine it.',
       },
       {
         question: 'What can I customize?',
         answer:
-          'You can tune the relationship, user role, traits, opening hook, memory seed, image, voice style, and scene instructions.',
+          'You can adjust the character’s role, traits, opening line, image, voice, and scene setup.',
       },
     ],
     related: [
@@ -133,64 +147,77 @@ const configs: Record<'en' | 'zh', SeoLandingPageConfig> = {
   zh: {
     ...sharedConfig,
     locale: 'zh',
-    eyebrow: '私有 AI 角色创建器',
-    title: '创建会记住故事的 AI 角色。',
+    eyebrow: '带模板的 AI 角色创建器',
+    title: '从模板和图片创建 AI 角色。',
     description:
-      '快速创建面向聊天型角色，而不是通用头像生成。可以从 AI friend、动漫校园故事、室友角色扮演、治愈陪伴、幻想冒险或虚构心动故事开始，再保存一个带记忆种子的私有角色。',
+      '不用从空白页开始。先用模板起步，上传一张图片，再慢慢补成你想要的角色。',
     primaryCta: { label: '创建私有角色', href: '/create/quick' },
     secondaryCta: { label: '先浏览角色', href: '/' },
     proofPoints: [
-      '面向聊天角色，而不只是视觉头像。',
-      '模板包含记忆种子、场景钩子和关系设定。',
-      '新角色默认先保存为私有草稿。',
+      '从模板开始，省掉空白页。',
+      '上传图片后，可以继续补几版角色图。',
+      '先私有保存，之后再决定要不要公开。',
     ],
     sections: [
       {
-        title: '先是聊天角色，再是头像',
-        body: 'custom AI character creator 的搜索结果常常偏向图像生成。Keepsay 更重视聊天角色本身：场景、声音、关系起点，以及能让下一句回复接上的记忆。',
+        title: '先有方向，再补细节',
+        body: '很多人已经知道想要什么气质。模板可以先把方向搭起来，再慢慢补细节。',
       },
       {
-        title: '默认私有',
-        body: 'AI friend、室友角色、虚构心动故事或治愈陪伴都应该先保持私有。等用户确认这个角色真的适合角色扮演之后，再考虑公开。',
+        title: '先私有保存',
+        body: '先保存成私有，等你自己满意了再决定怎么用。',
       },
       {
-        title: '带记忆钩子的模板',
-        body: '每个快速创建模板都包含关系起点、场景张力、记忆种子、安全边界和 starter memory mode，让角色能记住你的故事。',
+        title: '图片能帮你对齐感觉',
+        body: '如果你有参考图，可以先上传，再继续补几版，直到接近你要的感觉。',
+      },
+      {
+        title: '模板让开始这一步更轻',
+        body: '模板能把最难的第一步拆开，让你不用从空白页开始想。',
       },
     ],
     inspirations: [
       {
         title: '从温暖陪伴开始',
-        body: '适合治愈聊天、日常仪式、喜欢的饮料记忆和低压力回访。',
+        body: '适合做一个让人愿意常回来聊的角色。',
       },
       {
         title: '从动漫魔法师开始',
-        body: '适合原创动漫角色扮演、幻想冒险和可以继续的鲜明场景。',
+        body: '适合先把角色气质立住。',
       },
       {
         title: '从心动聊天模板开始',
-        body: '适合虚构心动故事、慢热张力、差点说出口的话和浪漫记忆。',
+        body: '适合那种慢慢靠近的角色。',
       },
       {
         title: '从私有记忆陪伴开始',
-        body: '适合围绕共同经历、昵称和明天还能接上的故事构建 AI 角色。',
+        body: '适合想把角色做得更个人化的时候。',
+      },
+      {
+        title: '从模板和图片开始',
+        body: '适合想快一点，又不想太像模板的时候。',
       },
     ],
     faqs: [
       {
         question: '我可以创建私有 AI 角色吗？',
         answer:
-          '可以。快速创建会先把角色保存成私有草稿，让 AI friend、治愈陪伴、室友角色扮演或虚构心动故事保持个人化。',
+          '可以。先保存成私有草稿，再慢慢完善。',
       },
       {
         question: '可以从模板开始吗？',
         answer:
-          '可以。创建器围绕动漫角色扮演、治愈聊天、私有记忆和故事型角色创建等灵感模板组织，而不是强迫用户从空白开始。',
+          '可以。模板就是让你少走几步。',
+      },
+      {
+        question: '可以上传图片并生成更多角色图吗？',
+        answer:
+          '可以。上传一张图，再补几版看看哪一版最像你想要的。',
       },
       {
         question: '我能自定义什么？',
         answer:
-          '你可以调整关系、用户身份、性格、开场钩子、记忆种子、图片、语音风格和场景说明。',
+          '你可以改角色设定、开场、图片、声音和场景。',
       },
     ],
     related: [

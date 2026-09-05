@@ -34,31 +34,31 @@
     "hero_title": "Create fictional characters and continue their stories.",
     "hero_subtitle": "Build original characters with memory, voice previews, and safe visual moments.",
     "hero_note": "Start a story scene in Keepsay.",
-    "seo_intro_title": "Keepsay character chat starts from real scenes",
-    "seo_intro_body": "Keepsay is a memory-led AI character chat home for people who want original characters, story continuity, and quick private creation. Start with an AI friend, a fictional crush story, an adult campus classmate, a roommate character chat, a comfort companion, or a fantasy adventure that can continue tomorrow. The memory layer keeps concrete details like your favorite drink, the last scene, a nickname, or a small promise, while Quick Create lets you make your own private character from that starting point.",
+    "seo_intro_title": "Start from a scene, not a blank prompt",
+    "seo_intro_body": "Keepsay is for people who want a character that feels familiar on the second chat, not one that resets every time. Pick a scene, try it once, then save it or turn it into your own private character when it fits.",
     "seo_intro_points": [
-      "AI friends, anime school stories, and fantasy roleplay from one canonical home",
-      "Characters can remember your story, nickname, favorite drink, and last scene",
-      "Create a private AI character instead of starting from a blank prompt"
+      "Try a scene first, then decide if it deserves a place in your story",
+      "Characters can remember a nickname, a drink, or the last thing you talked about",
+      "Create a private character when the fit feels right"
     ],
     "seo_faq_label": "FAQ",
     "seo_faq_title": "Questions people usually ask before trying Keepsay",
     "seo_faqs": [
       {
         "question": "What is Keepsay?",
-        "answer": "Keepsay is an AI character chat and roleplay app for people who want story continuity, memory, original characters, and fast private character creation."
+        "answer": "Keepsay is an AI character chat and roleplay app for people who want a scene that continues, a character that remembers details, and a quick way to make it their own."
       },
       {
         "question": "Where should I start if I only want to try it first?",
-        "answer": "Use the free character chat guide for the low-friction guest path. The homepage is the broad Keepsay entry for discovering characters, memory, and private creation."
+        "answer": "Start with the free character chat guide. It gives you a guest path so you can try a character before deciding whether to save it."
       },
       {
         "question": "What should I open first?",
-        "answer": "Start with the English home page, then choose AI friend chat, anime school story, roommate roleplay, fictional crush chat, fantasy adventure, comfort companion, or create your own character."
+        "answer": "Start with the home page, then choose the scene that sounds easiest to step into: roleplay, crush chat, comfort companion, or your own character."
       },
       {
         "question": "What does memory change in character chat?",
-        "answer": "Memory lets a character pick up the last scene, keep a nickname, remember a favorite drink, and continue a story instead of starting every chat from zero."
+        "answer": "Memory lets a character remember the last scene, a nickname, or a small habit so the next chat feels like a continuation."
       }
     ],
     "seo_related_label": "Explore these pages",
@@ -74,15 +74,15 @@
     "view_all": "View all",
     "for_you": "For You",
     "seo_title": "Keepsay AI character chat with memory.",
-    "seo_subtitle": "Discover AI friends, anime stories, fantasy companions, roommate scenes, comfort chats, and fictional crush characters that remember your story.",
+    "seo_subtitle": "Meet characters that remember your story, then create your own with templates and image upload when you are ready.",
     "primary_cta": "Browse AI characters",
-    "secondary_cta": "Create your character",
+    "secondary_cta": "Create with templates",
     "pricing_cta": "View pricing",
     "pricing_note": "Plans, credits, renewal terms, and cancellation options are easy to review before purchase or checkout.",
     "proof_points": [
-      "Original AI characters for story scenes",
+      "Original characters for scenes you want to return to",
       "Chat with characters who remember your story",
-      "Anime, comfort, roommate, and fantasy scenes"
+      "Use templates and images when you want your own"
     ],
     "seo_links_label": "Guides",
     "seo_links": [
@@ -99,8 +99,8 @@
         "href": "/free-ai-character-chat"
       },
       {
-        "label": "Create an AI character with memory",
-        "href": "/create-ai-character-with-memory"
+        "label": "AI character creator with templates",
+        "href": "/custom-ai-character-creator"
       },
       {
         "label": "AI companion that remembers you",

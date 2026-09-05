@@ -250,30 +250,30 @@ const PAGE_COPY: Record<
     eyebrow: 'AI Character Collections',
     title: 'Browse AI characters by the story you want to continue.',
     description:
-      'Use this index as the clean collection layer for Keepsay: memory chat, anime roleplay, comfort companions, free chat, private creation, and comparison paths all point to real character cards.',
+      'Use this page when you do not want to guess where to start. It groups the main story paths, so you can move from a scene to the right characters without digging through the whole gallery.',
     primaryCta: 'Start from characters',
     secondaryCta: 'Create a private character',
     mapTitle: 'Collection map',
     mapHeading: 'Choose the right starting path.',
     mapDescription:
-      'Each collection links a search intent to specific characters, the best-fit guide page, and a next action. That gives crawlers and users a clearer path than a single undifferentiated gallery.',
+      'Each collection points to a different reason someone opens Keepsay: they want to keep a story going, try a free chat, build a private character, or find a softer companion.',
     characterLabel: 'Featured characters',
     faqTitle: 'How to use the collection map',
     faqs: [
       {
         question: 'How is this different from the homepage?',
         answer:
-          'The homepage is a browse-first picker. This page is an indexable category map that explains why each character group exists and links those groups to the most relevant SEO guide.',
+          'The homepage is the broad entry point. This page narrows the choice into a few clear paths, so people can get to the kind of character they actually want.',
       },
       {
         question: 'Which collection should I start with?',
         answer:
-          'Choose memory if continuity matters, anime for story-world energy, comfort for low-pressure return visits, free chat for sampling, and creator templates when you want a private character.',
+          'Choose memory if you want the story to continue, anime for a stronger scene, comfort for a softer tone, free chat if you want to try first, and creator templates if you want your own character.',
       },
       {
         question: 'Are these collection pages only for SEO?',
         answer:
-          'No. They are also a practical navigation layer: users can move from a search intent to real character cards, then into chat or Quick Create without hunting through the whole gallery.',
+          'No. They are also a practical way to move from a search intent to real character cards, then into chat or Quick Create without hunting through everything.',
       },
     ],
   },
@@ -281,30 +281,30 @@ const PAGE_COPY: Record<
     eyebrow: 'AI 角色集合',
     title: '按你想继续的故事类型浏览 AI 角色。',
     description:
-      '这是 Keepsay 的清晰集合层：带记忆聊天、动漫角色扮演、治愈陪伴、免费聊天、私有创建和竞品比较都会连到真实角色卡。',
+      '当你不想在整张图库里乱找时，可以先看这里。它把主要故事路径分出来，让你更快找到合适的角色。',
     primaryCta: '从角色开始',
     secondaryCta: '创建私有角色',
     mapTitle: '集合地图',
     mapHeading: '选择最合适的开始路径。',
     mapDescription:
-      '每个集合都会把一个搜索意图连接到具体角色、最适合的指南页和下一步动作。比单一图库更容易被用户和搜索引擎理解。',
+      '每个集合都对应一种常见需求：想把故事继续下去、想先免费试聊、想做私有角色，或者想找更柔和的陪伴。',
     characterLabel: '精选角色',
     faqTitle: '如何使用集合地图',
     faqs: [
       {
         question: '它和首页有什么区别？',
         answer:
-          '首页是浏览优先的角色选择器。这个页面是可索引的分类地图，会解释每组角色存在的原因，并连接到最相关的 SEO 指南页。',
+          '首页更像总入口。这个页面把选择拆成几条清楚的路径，让人更快找到自己要的角色。',
       },
       {
         question: '应该先看哪个集合？',
         answer:
-          '如果重视连续性，先看记忆集合；想要故事世界感，看动漫集合；想低压力回访，看治愈集合；想先试用，看免费聊天；想创建自己的角色，看私有模板。',
+          '如果重视连续性，先看记忆集合；想要更强场景感，看动漫集合；想要更轻松的语气，看治愈集合；想先试用，看免费聊天；想创建自己的角色，看私有模板。',
       },
       {
         question: '这些集合只是为了 SEO 吗？',
         answer:
-          '不是。它也是实用导航层：用户可以从搜索意图进入真实角色卡，再进入聊天或快速创建，不必在整个图库里找。',
+          '不是。它也是实用导航层：用户可以先找到意图，再进入真实角色卡，然后去聊天或快速创建。',
       },
     ],
   },

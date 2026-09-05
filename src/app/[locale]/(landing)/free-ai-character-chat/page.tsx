@@ -7,18 +7,18 @@ import {
 import { getMetadata } from '@/shared/lib/seo';
 
 export const generateMetadata = getMetadata({
-  title: 'AI Character Chat Free Without Login | Keepsay RolePlay',
+  title: 'AI Character Chat Free No Sign Up | Keepsay RolePlay',
   description:
-    'Start AI character chat free without login for your first replies. Try anime, crush, and comfort companions, then create a private character with memory.',
+    'If you want to try AI character chat free without login, start with guest replies. Pick a scene fast, then save it or build your own from a template.',
   keywords:
-    'AI character chat free, AI character chat without login, free AI character chat, free AI roleplay, chat with AI characters free',
+    'AI character chat free, AI character chat without login, free AI character chat no sign up, free AI character chat no login, free AI character chat, ai roleplay chat, original characters',
   localized: {
     zh: {
-      title: '免费 AI 角色聊天 | Keepsay RolePlay',
+      title: 'AI 角色聊天免费，无需登录 | Keepsay RolePlay',
       description:
-        '免费开始 AI 角色聊天，体验动漫角色、心动聊天和治愈陪伴，再创建带记忆的私有 AI 角色。',
+        '先免费免登录开始 AI 角色聊天，体验原创角色、角色扮演场景和快速创建，再在需要时加入记忆。',
       keywords:
-        '免费 AI 角色聊天, AI 角色聊天免费, 免费 AI 角色扮演, 免费和 AI 角色聊天',
+        '免费 AI 角色聊天, 免费免登录 AI 角色聊天, AI 角色聊天免费, AI 角色扮演聊天, 原创角色',
     },
   },
   canonicalUrl: '/free-ai-character-chat',
@@ -49,51 +49,56 @@ const configs: Record<'en' | 'zh', SeoLandingPageConfig> = {
   en: {
     ...sharedConfig,
     locale: 'en',
-    eyebrow: 'AI Character Chat Free Without Login',
-    title: 'Start AI character chat free without login, then keep the story.',
+    eyebrow: 'Free AI Character Chat No Sign Up',
+    title: 'AI character chat free no sign up, with memory when you want it.',
     description:
-      'Try public AI roleplay characters for the first guest replies, then turn the scenes you like into a private companion with memory, voice, and a first moment that already feels personal.',
-    primaryCta: { label: 'Start without login', href: '/' },
-    secondaryCta: { label: 'Create a character', href: '/create/quick' },
+      'Use guest replies to test the character fast. If it fits, save it, add memory, and keep going.',
+    primaryCta: { label: 'Start free now', href: '/' },
+    secondaryCta: { label: 'Quick create character', href: '/create/quick' },
     proofPoints: [
-      'Public characters are ready for a no-login first chat.',
-      'Anime, crush, and comfort scenes give new users fast ways to start.',
-      'Quick Create turns a favorite scene into a private character.',
+      'Try a first chat without signing up.',
+      'Jump into a scene instead of scrolling a feed.',
+      'Save the character when it feels worth keeping.',
+      'Use templates and images when you want to create faster.',
     ],
     sections: [
       {
-        title: 'No-login first chat, private when it matters',
-        body: 'People searching for AI character chat without login want to feel the product before making an account. Keepsay supports that low-friction first step: try a public character, notice which scene feels right, then create a private version when you want memory and continuity.',
+        title: 'Free first chat, no sign up required',
+        body: 'A lot of people just want to know whether the character feels right. Guest replies let them try first and save later.',
       },
       {
-        title: 'Scene-first discovery',
-        body: 'Instead of browsing an endless feed, users can choose a situation: anime roleplay, a crush chat, or a calm companion who remembers the details they return with later.',
+        title: 'Original characters, not an endless feed',
+        body: 'Instead of scrolling forever, users can jump into a roleplay, a crush chat, or a calm companion and start talking immediately.',
       },
       {
-        title: 'Built for conversion',
-        body: 'This page is designed for low-friction search intent. Users looking for AI character chat free or AI character chat without login should land on characters, not a long explanation.',
+        title: 'Memory is the upgrade',
+        body: 'When a character remembers the last chat, the next one feels less like a restart.',
+      },
+      {
+        title: 'Templates and images make creation faster',
+        body: 'If you already know the vibe, templates and images help you get there faster.',
       },
     ],
     faqs: [
       {
-        question: 'Can I start AI character chat without login?',
+        question: 'Can I start free AI character chat without login?',
         answer:
-          'Yes. You can try public characters as a guest for the first replies. Sign in when you want to continue longer, save the story, or create a private character with memory.',
+          'Yes. You can start with guest replies, then save the chat later if you want to keep it.',
       },
       {
         question: 'Can I start AI character chat for free?',
         answer:
-          'Yes. You can start from public characters for free, then create a private character when you want a more personal memory-based experience.',
+          'Yes. Start free, then keep the character if it feels worth saving.',
       },
       {
         question: 'Do I need to create a character first?',
         answer:
-          'No. Start with a public roleplay character first. Quick Create is there when you want your own private companion.',
+          'No. Start with a public character first. Quick Create is there when you want your own.',
       },
       {
         question: 'What should I try first?',
         answer:
-          'Try anime roleplay for fantasy scenes, crush chat for romantic tension, or comfort companions for low-pressure late-night conversation.',
+          'Try the scene that feels easiest to jump into. Roleplay, crush chat, and comfort companions are all good starting points.',
       },
     ],
     related: [
@@ -105,41 +110,46 @@ const configs: Record<'en' | 'zh', SeoLandingPageConfig> = {
   zh: {
     ...sharedConfig,
     locale: 'zh',
-    eyebrow: '免费 AI 角色聊天',
-    title: '先免登录免费和 AI 角色聊天，再把喜欢的场景变成你的私有故事。',
+    eyebrow: '免费 AI 角色聊天，无需登录',
+    title: '先免费免登录和 AI 角色聊天，再把喜欢的场景变成你的私有故事。',
     description:
-      '先用访客身份体验几轮公开 AI 角色聊天，再把喜欢的动漫、心动或治愈场景创建成带记忆的私有角色。',
-    primaryCta: { label: '免登录先试聊', href: '/' },
-    secondaryCta: { label: '创建角色', href: '/create/quick' },
+      '先用访客身份开始聊天。喜欢哪个角色，就把它保存下来，慢慢补上记忆。',
+    primaryCta: { label: '免费先试聊', href: '/' },
+    secondaryCta: { label: '快速创建角色', href: '/create/quick' },
     proofPoints: [
-      '公开角色支持先用访客身份试聊，降低第一次体验门槛。',
-      '动漫、心动、治愈场景让新用户更快找到入口。',
-      '快速创建可以把喜欢的场景转成私有角色。',
+      '先用访客身份开始，不用先注册。',
+      '直接进入你喜欢的角色和场景。',
+      '喜欢的话再保存成私有角色。',
+      '模板和图片能让创建快一点。',
     ],
     sections: [
       {
-        title: '先免登录试聊，重要时再私有化',
-        body: '搜索免登录 AI 角色聊天的人，想先感受产品，而不是先注册。Keepsay 的低门槛路径是：先用公开角色试聊，确认哪类场景有感觉，再在需要记忆和连续性时创建私有版本。',
+        title: '先免费试聊，不用先注册',
+        body: '很多人只是想先试一下。你可以先聊，觉得对味了再保存。',
       },
       {
-        title: '按场景发现角色',
-        body: '不要只给用户一个无尽角色流。搜索免费 AI 角色聊天的人，需要快速选择一个情境：动漫角色扮演、心动聊天，或者记得细节的安静陪伴。',
+        title: '原创角色，不是无尽角色流',
+        body: '你不需要翻很久。挑一个场景，马上开始就行。',
       },
       {
-        title: '为转化设计',
-        body: '这个页面承接低门槛但强意图的搜索。用户找免费 AI character chat 或免登录 AI 角色聊天时，应该先看到能直接聊天的角色，而不是一篇长解释。',
+        title: '记忆是升级项',
+        body: '等你想继续的时候，记忆会把上一次的内容接住。',
+      },
+      {
+        title: '模板和图片让创建更快',
+        body: '模板和图片只是帮你少走几步，不是把流程变复杂。',
       },
     ],
     faqs: [
       {
-        question: '可以免登录开始 AI 角色聊天吗？',
+        question: '可以免登录开始免费 AI 角色聊天吗？',
         answer:
-          '可以先用访客身份体验公开角色的前几轮回复。想继续更长故事、保存记忆或创建私有角色时，再登录会更合适。',
+          '可以。你先聊，喜欢的话再保存。',
       },
       {
         question: '可以免费开始 AI 角色聊天吗？',
         answer:
-          '可以。你可以先从公开角色开始聊天，等想要更个人化、带记忆的体验时，再创建私有角色。',
+          '可以。先开始聊天，再决定要不要把它变成你的私有角色。',
       },
       {
         question: '必须先创建角色吗？',
@@ -149,7 +159,7 @@ const configs: Record<'en' | 'zh', SeoLandingPageConfig> = {
       {
         question: '第一次应该试什么？',
         answer:
-          '想要幻想和剧情可以试动漫角色扮演；想要暧昧张力可以试心动聊天；想要低压力陪伴可以试治愈陪伴。',
+          '先挑一个最顺手的场景就行。想剧情、想聊天、想轻松陪伴都可以。',
       },
     ],
     related: [
