@@ -49,6 +49,7 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { Input } from '@/shared/components/ui/input';
 import { cn } from '@/shared/lib/utils';
+import { withRoleplayCallbackUrl } from '@/shared/lib/roleplay-return';
 
 const HIDE_THRESHOLD = 80;
 
@@ -233,6 +234,9 @@ export function RoleplayTopbar() {
   const displayName = user?.name || user?.email || tNav('account');
   const initial = displayName.slice(0, 1).toUpperCase();
   const showCreateShortcut = !pathname.startsWith('/create');
+  const createShortcutHref = user
+    ? '/create'
+    : withRoleplayCallbackUrl('/sign-up', '/create/quick');
   const isImmersiveChatRoute = pathname.startsWith('/chat/profile');
 
   const handleSignOut = async (next: 'home' | 'signin') => {
@@ -322,7 +326,7 @@ export function RoleplayTopbar() {
           {/* Create CTA — desktop only; on mobile it lives in the drawer */}
           {showCreateShortcut ? (
             <Link
-              href="/create"
+              href={createShortcutHref}
               className="hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-[0_4px_18px_-4px_rgba(217,70,239,0.55)] transition-transform hover:-translate-y-0.5 md:inline-flex"
               style={{ background: 'var(--roleplay-brand-gradient)' }}
             >

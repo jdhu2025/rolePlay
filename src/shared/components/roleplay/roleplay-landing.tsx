@@ -23,7 +23,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { ArrowRight, BadgeDollarSign, MessageCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 
 import { Link } from '@/core/i18n/navigation';
 import { RoleplayCharacterCard } from '@/shared/components/roleplay/roleplay-character-card';
@@ -60,6 +60,7 @@ import { useAppContext } from '@/shared/contexts/app';
 import { canShowPublicGallery } from '@/shared/lib/compliance';
 import { getSupportMailto } from '@/shared/lib/support-email';
 import { TrackedRoleplayLink } from '@/shared/components/roleplay/tracked-roleplay-link';
+import { withRoleplayCallbackUrl } from '@/shared/lib/roleplay-return';
 
 import type { RoleplayHomeInitialData } from '@/shared/lib/server/roleplay-home-data';
 
@@ -111,6 +112,7 @@ export function RoleplayLanding({ initialData }: Props) {
   // sentinel below grows it as the user scrolls.
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const { user, isCheckSign } = useAppContext();
 
   const refreshRecommendationsForExperience = (
     firstImpression: FirstExperienceChoiceId
@@ -249,6 +251,10 @@ export function RoleplayLanding({ initialData }: Props) {
     [characters, visibleCount]
   );
   const hasMore = visibleCount < characters.length;
+  const createQuickHref = useMemo(() => {
+    if (isCheckSign) return '/create/quick';
+    return user ? '/create/quick' : withRoleplayCallbackUrl('/sign-up', '/create/quick');
+  }, [isCheckSign, user]);
 
   // Localised label resolver for chips. Always trusts the API-stored label
   // so the landing chips render with the exact same wording the create form
@@ -696,7 +702,7 @@ function ForYouSection({
                 {t('primary_cta')}
               </TrackedRoleplayLink>
               <TrackedRoleplayLink
-                href="/create/quick"
+                href={createQuickHref}
                 eventType="seo_scene_link_clicked"
                 eventMetadata={{
                   surface: 'home_hero_secondary_cta',
