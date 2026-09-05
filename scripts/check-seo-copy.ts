@@ -5,36 +5,33 @@ import {
   ROLEPLAY_HOME_SEO,
 } from '../src/shared/lib/roleplay-seo-copy';
 
+assert.match(ROLEPLAY_HOME_SEO.title, /Free/i);
+assert.match(ROLEPLAY_HOME_SEO.title, /sign up/i);
 assert.match(ROLEPLAY_HOME_SEO.title, /Keepsay/i);
-assert.match(ROLEPLAY_HOME_SEO.title, /AI Character Chat/i);
-assert.match(ROLEPLAY_HOME_SEO.title, /Memory/i);
-assert.ok(
-  !/without login|AI Character Chat Free/i.test(ROLEPLAY_HOME_SEO.title),
-  'homepage meta title should not compete with /free-ai-character-chat KGR terms'
-);
-assert.match(ROLEPLAY_HOME_SEO.description, /AI character chat/i);
-assert.match(ROLEPLAY_HOME_SEO.description, /memory|memory-led/i);
-assert.match(ROLEPLAY_HOME_SEO.description, /private characters/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /free AI character chat/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /no sign up/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /original characters/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /memory/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /templates/i);
+assert.match(ROLEPLAY_HOME_SEO.description, /image upload/i);
 assert.ok(
   ROLEPLAY_HOME_SEO.description.length <= 155,
   'homepage meta description should fit predictable snippets'
 );
-assert.match(ROLEPLAY_HOME_SEO.subtitle, /Discover AI characters/i);
-assert.match(ROLEPLAY_HOME_SEO.subtitle, /remember/i);
+assert.match(ROLEPLAY_HOME_SEO.subtitle, /original characters/i);
+assert.match(ROLEPLAY_HOME_SEO.subtitle, /memory/i);
+assert.match(ROLEPLAY_HOME_SEO.subtitle, /templates/i);
 assert.ok(
   ROLEPLAY_HOME_SEO.keywords.join(', ').length <= 260,
   'homepage meta keywords should stay shorter than the old AITDK-flagged list'
 );
 const homepageKeywords = [...ROLEPLAY_HOME_SEO.keywords] as string[];
 
-assert.ok(!homepageKeywords.includes('AI character chat free'));
-assert.ok(
-  !homepageKeywords.includes('AI character chat without login')
-);
-assert.ok(homepageKeywords.includes('AI character chat with memory'));
-assert.ok(
-  homepageKeywords.includes('Talkie AI alternative with memory')
-);
+assert.ok(homepageKeywords.includes('free AI character chat'));
+assert.ok(homepageKeywords.includes('AI character chat no sign up'));
+assert.ok(homepageKeywords.includes('AI character chat no login'));
+assert.ok(homepageKeywords.includes('original characters'));
+assert.ok(homepageKeywords.includes('quick AI character creator'));
 
 const characterSeo = buildCharacterSeoCopy({
   name: 'Elira Frost',

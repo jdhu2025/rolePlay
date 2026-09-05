@@ -35,11 +35,11 @@
     "hero_subtitle": "Build original characters with memory, voice previews, and safe visual moments.",
     "hero_note": "Start a story scene in Keepsay.",
     "seo_intro_title": "Start from a scene, not a blank prompt",
-    "seo_intro_body": "Keepsay is for people who want a character that feels familiar on the second chat, not one that resets every time. Pick a scene, try it once, then save it or turn it into your own private character when it fits.",
+    "seo_intro_body": "If you want to test a character fast, start with a scene instead of building from zero. Try it once, see whether the tone fits, then save it, keep the last scene in memory, or turn it into your own private character with templates or image upload.",
     "seo_intro_points": [
       "Try a scene first, then decide if it deserves a place in your story",
-      "Characters can remember a nickname, a drink, or the last thing you talked about",
-      "Create a private character when the fit feels right"
+      "Characters can remember a nickname, a drink, or the last scene you shared",
+      "Create a private character with templates or image upload when the fit feels right"
     ],
     "seo_faq_label": "FAQ",
     "seo_faq_title": "Questions people usually ask before trying Keepsay",
@@ -73,16 +73,16 @@
     "claw_channels": "Discord · Telegram · Character agents",
     "view_all": "View all",
     "for_you": "For You",
-    "seo_title": "Start from a scene, not a blank prompt.",
-    "seo_subtitle": "Try a character first, save it if it fits, and build your own private version with memory, templates, and images.",
+    "seo_title": "Free AI character chat, no sign up.",
+    "seo_subtitle": "Try original characters first, keep memory when the story matters, and build your own with templates or image upload.",
     "primary_cta": "Try free chat",
     "secondary_cta": "Create with templates",
     "pricing_cta": "View pricing",
     "pricing_note": "Plans, credits, renewal terms, and cancellation options are easy to review before purchase or checkout.",
     "proof_points": [
-      "Try a scene without signing up",
+      "Try free without signing up",
       "Come back to a character that remembers the last chat",
-      "Build your own from a template or image"
+      "Build your own from a template or image upload"
     ],
     "seo_links_label": "Guides",
     "seo_links": [

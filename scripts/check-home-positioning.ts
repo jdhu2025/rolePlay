@@ -40,52 +40,37 @@ const landingSource = readFileSync(
 assert.ok(en, 'English roleplay.home messages are required');
 assert.ok(zh, 'Chinese roleplay.home messages are required');
 
-assert.match(en.seo_title || '', /Keepsay/i);
-assert.match(en.seo_title || '', /AI character chat/i);
-assert.match(en.seo_title || '', /memory/i);
-assert.match(en.seo_subtitle || '', /Discover AI friends/i);
-assert.match(en.seo_intro_title || '', /Keepsay character chat/i);
-assert.ok(
-  !/without login|AI character chat free/i.test(
-    `${en.seo_title || ''} ${en.seo_subtitle || ''} ${en.seo_intro_title || ''}`
-  ),
-  'English homepage should not own the exact free/no-login KGR phrases'
-);
-assert.ok(
-  en.seo_faqs?.some((faq) => /free character chat guide/i.test(faq.answer)),
-  'English homepage FAQ should point free/no-login users to the dedicated guide'
-);
-assert.match(en.seo_subtitle || '', /anime/i);
-assert.match(en.seo_subtitle || '', /roommate|classmate|comfort|fantasy/i);
+assert.match(en.seo_title || '', /Free AI character chat/i);
+assert.match(en.seo_title || '', /sign up/i);
+assert.match(en.seo_subtitle || '', /original characters/i);
+assert.match(en.seo_subtitle || '', /memory/i);
+assert.match(en.seo_subtitle || '', /templates|image upload/i);
+assert.match(en.seo_intro_title || '', /scene|prompt/i);
 assert.match(en.seo_intro_body || '', /favorite drink|nickname|last scene/i);
-assert.match(en.primary_cta || '', /Browse AI characters/i);
+assert.match(en.seo_intro_body || '', /templates|image upload/i);
+assert.match(en.primary_cta || '', /Try free chat/i);
 assert.match(en.secondary_cta || '', /create/i);
 assert.match(en.pricing_cta || '', /pricing|plans/i);
 assert.match(en.pricing_note || '', /before.*(purchase|checkout)/i);
 assert.ok(
-  en.proof_points?.some((point) => /memory|remember/i.test(point)),
-  'English proof points should include memory/remembering'
+  en.proof_points?.some((point) => /signing up|free/i.test(point)),
+  'English proof points should include the free entry path'
 );
 
-assert.match(zh.seo_title || '', /Keepsay/);
-assert.match(zh.seo_title || '', /AI 角色聊天/);
-assert.match(zh.seo_title || '', /记忆/);
-assert.ok(
-  !/免登录|访客身份|前几轮/.test(
-    `${zh.seo_title || ''} ${zh.seo_subtitle || ''} ${zh.seo_intro_title || ''}`
-  ),
-  'Chinese homepage should not own the exact free/no-login KGR phrases'
-);
-assert.match(zh.seo_subtitle || '', /动漫/);
-assert.match(zh.seo_subtitle || '', /室友|同学|治愈|幻想/);
+assert.match(zh.seo_title || '', /免费/);
+assert.match(zh.seo_title || '', /无需注册/);
+assert.match(zh.seo_subtitle || '', /原创角色/);
+assert.match(zh.seo_subtitle || '', /记忆/);
+assert.match(zh.seo_subtitle || '', /模板|上传图片/);
 assert.match(zh.seo_intro_body || '', /饮料|昵称|上次场景/);
-assert.match(zh.primary_cta || '', /浏览 AI 角色/);
+assert.match(zh.seo_intro_body || '', /模板|上传图片/);
+assert.match(zh.primary_cta || '', /先免费试聊/);
 assert.match(zh.secondary_cta || '', /创建/);
 assert.match(zh.pricing_cta || '', /价格|套餐/);
 assert.match(zh.pricing_note || '', /购买前|付款前|下单前/);
 assert.ok(
-  zh.proof_points?.some((point) => /记忆|记住/.test(point)),
-  'Chinese proof points should include memory/remembering'
+  zh.proof_points?.some((point) => /免费|注册/.test(point)),
+  'Chinese proof points should include the free entry path'
 );
 
 [
